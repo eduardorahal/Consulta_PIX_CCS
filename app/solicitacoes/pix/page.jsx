@@ -48,7 +48,7 @@ const ConsultaPix = () => {
     // variável de controle de abertura de popup para Exportação de Dados
     const [exportDialog, setExportDialog] = React.useState([false, null]);
 
-    const [errorDialog, setErrorDialog] = React.useState([false, '']);
+    const [errorDialog, setErrorDialog] = React.useState(false);
 
     const handleClose = () => {
         setErrorDialog(false);
