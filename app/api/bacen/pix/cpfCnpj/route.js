@@ -17,10 +17,14 @@ export async function GET(request) {
     };
 
     const vinculos = await axios.request(config)
-        .then(res1 => res1.data.vinculosPix)
+        .then((res1) => {
+            if (res1.data.vinculosPix[0]) {
+                return res1.data.vinculosPix;
+            }
+        })
         .then(async (chaves) => {
             for await (let chave of chaves) {
-                    await axios.get('https://www3.bcb.gov.br/informes/rest/pessoasJuridicas?cnpj=' + chave.participante)
+                await axios.get('https://www3.bcb.gov.br/informes/rest/pessoasJuridicas?cnpj=' + chave.participante)
                     .then(response => response.data)
                     .then((participante) => {
                         chave.numerobanco = (participante.codigoCompensacao ? participante.codigoCompensacao.toLocaleString('en-US', { minimumIntegerDigits: 3, useGrouping: false }) : '000');
@@ -29,27 +33,28 @@ export async function GET(request) {
                     .catch((err) => {
                         chave.numerobanco = "000";
                         chave.nomebanco = "BANCO NÃO INFORMADO"
-                    })       
-                for await(let evento of chave.eventosVinculo) {
-                    await axios.get('https://www3.bcb.gov.br/informes/rest/pessoasJuridicas?cnpj=' + evento.participante)
-                    .then(response => response.data)
-                    .then((participante) => {
-                        evento.numerobanco = (participante.codigoCompensacao ? participante.codigoCompensacao.toLocaleString('en-US', { minimumIntegerDigits: 3, useGrouping: false }) : '000');
-                        evento.nomebanco = participante.nome
                     })
-                    .catch((err) => {
-                        evento.numerobanco = "000";
-                        evento.nomebanco = "BANCO NÃO INFORMADO"
-                    }) 
+                for await (let evento of chave.eventosVinculo) {
+                    await axios.get('https://www3.bcb.gov.br/informes/rest/pessoasJuridicas?cnpj=' + evento.participante)
+                        .then(response => response.data)
+                        .then((participante) => {
+                            evento.numerobanco = (participante.codigoCompensacao ? participante.codigoCompensacao.toLocaleString('en-US', { minimumIntegerDigits: 3, useGrouping: false }) : '000');
+                            evento.nomebanco = participante.nome
+                        })
+                        .catch((err) => {
+                            evento.numerobanco = "000";
+                            evento.nomebanco = "BANCO NÃO INFORMADO"
+                        })
                 }
-                if(chave.status == null){
+                if (chave.status == null) {
                     chave.status = 'INATIVO'
                 }
             }
             lista.push(chaves)
         })
         .catch((error) => {
-            console.log(error);
+            console.log(error.response.data.message)
+            lista.push(error.response.data.message)
         })
 
     return NextResponse.json(lista)

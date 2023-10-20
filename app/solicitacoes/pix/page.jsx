@@ -25,8 +25,11 @@ import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
-import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 // Serviços de Geração de Relatórios em PDF, usando pdfmake
 import RelatorioResumidoPIX from '../../relatorios/pix/resumido';
@@ -44,6 +47,12 @@ const ConsultaPix = () => {
 
     // variável de controle de abertura de popup para Exportação de Dados
     const [exportDialog, setExportDialog] = React.useState([false, null]);
+
+    const [errorDialog, setErrorDialog] = React.useState([false, '']);
+
+    const handleClose = () => {
+        setErrorDialog(false);
+    };
 
     // variável para armazenar a lista de Chaves PIX exibidas no FrontEnd
     const [lista, setLista] = React.useState([]);
@@ -76,17 +85,17 @@ const ConsultaPix = () => {
 
     // Chamada da API para Buscar Chaves PIX no Banco Central
     const buscaPIX = async () => {
+
         if (value === 'cpfCnpj' && cpfCnpj != '' && motivo != '') {
             await axios.get('/api/bacen/pix/cpfCnpj?cpfCnpj=' + cpfCnpj + '&motivo=' + motivo)
                 .then(response => response.data[0])
-                .then((vinculo) => {
-                    vinculo.map((vinculo) => {
-                        setLista((lista) => [...lista, vinculo])
-                    })
-                    if(vinculo.length == 0) {
-                        return (
-                            
-                        )
+                .then((vinculos) => {
+                    if (vinculos.length == 0 || vinculos == '0002 - ERRO_CPF_CNPJ_INVALIDO') {
+                        setErrorDialog(true)
+                    } else {
+                        vinculos.map((vinculo) => {
+                            setLista((lista) => [...lista, vinculo])
+                        })
                     }
                 })
                 .catch(err => console.error(err))
@@ -95,15 +104,20 @@ const ConsultaPix = () => {
         } else {
             if (value === 'chave' && chave != '' && motivo != '') {
                 await axios.get('/api/bacen/pix/chave?chave=' + chave + '&motivo=' + motivo)
-                    .then(response => response.data)
+                    .then((response) => {
+                        return response.data
+                    })
                     .then((vinculo) => {
                         vinculo.map((vinculo) => {
                             setLista((lista) => [...lista, vinculo])
                         })
+                        if (vinculo.length == 0) {
+                            setErrorDialog(true)
+                        }
                     })
                     .catch(err => console.error(err))
-            setChave('')
-            setMotivo('')
+                setChave('')
+                setMotivo('')
             } else {
                 alert('Necessário preencher todos os campos!')
             }
@@ -193,30 +207,49 @@ const ConsultaPix = () => {
 
     // Função para Exportar Dados em diversos formatos
     function exporta(tipo) {
-       // if (lista.length != 0) {
-            switch (tipo) {
-                case 'pdf_resumido': RelatorioResumidoPIX(lista)
-                    break;
-                case 'pdf_detalhado': RelatorioDetalhadoPIX(lista)
-                    break;
-                case 'csv_completo': alert('Exportação ainda não disponível.')
-                    break;
-                case 'json_completo':
-                    var file = window.document.createElement('a');
-                    file.href = window.URL.createObjectURL(new Blob([JSON.stringify({vinculosPix: lista})]), { type: "application/json" });
-                    file.download = 'vinculosPix.json';
-                    document.body.appendChild(file);
-                    file.click();
-                    document.body.removeChild(file);
-                    break;
-        //     }
-        // } else {
-        //     alert('Pesquisa vazia')
-         }
+        // if (lista.length != 0) {
+        switch (tipo) {
+            case 'pdf_resumido': RelatorioResumidoPIX(lista)
+                break;
+            case 'pdf_detalhado': RelatorioDetalhadoPIX(lista)
+                break;
+            case 'csv_completo': alert('Exportação ainda não disponível.')
+                break;
+            case 'json_completo':
+                var file = window.document.createElement('a');
+                file.href = window.URL.createObjectURL(new Blob([JSON.stringify({ vinculosPix: lista })]), { type: "application/json" });
+                file.download = 'vinculosPix.json';
+                document.body.appendChild(file);
+                file.click();
+                document.body.removeChild(file);
+                break;
+            //     }
+            // } else {
+            //     alert('Pesquisa vazia')
+        }
         setExportDialog(null)
     }
 
-    // Componente DIALOG (popup) para
+    // Componente DIALOG (popup) para Mensagem de Erro
+    function ErrorDialog() {
+        return (
+            <>
+                <Dialog onClose={handleClose} open={errorDialog}>
+                    <DialogTitle>{value == 'chave' ? 'CHAVE PIX NÃO ENCONTRADA' : 'CPF / CNPJ NÃO ENCONTRADO'}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-slide-description">
+                            Não foi possível localizar {value == 'chave' ? 'a CHAVE PIX' : 'o CPF / CNPJ'} na base de Vínculos PIX do Banco Central. Verifique os dados informados.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose}>OK</Button>
+                    </DialogActions>
+                </Dialog>
+            </>
+        )
+    }
+
+    // Componente DIALOG (popup) para Exportação de Arquivos
     function ExportDialog() {
         return (
             <>
@@ -310,6 +343,7 @@ const ConsultaPix = () => {
                     </TableContainer>
                 </Grid>
             </Grid>
+            {errorDialog && <ErrorDialog />}
         </Box>
     )
 }
