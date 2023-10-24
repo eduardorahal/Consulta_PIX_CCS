@@ -48,7 +48,7 @@ export default async function RelatorioResumidoPix(vinculosPix) {
                 body: [
                     [
                         {
-                            text: vinculos[0].nomeProprietarioBusca + ' - CPF: ' + formatCnpjCpf(vinculos[0].cpfCnpjBusca),
+                            text: (vinculos[0].cpfCnpjBusca) ? (vinculos[0].nomeProprietarioBusca + ' - CPF: ' + formatCnpjCpf(vinculos[0].cpfCnpjBusca)) : '',
                             alignment: 'left',
                             colSpan: 6,
                             fontSize: 10,

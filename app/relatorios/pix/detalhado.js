@@ -47,7 +47,7 @@ export default async function RelatorioDetalhadoPix(vinculosPix) {
                                 bold: true,
                                 fontSize: 12,
                                 margin: [5, 2, 2, 2],
-                                text: (nomeProprietario + ' - CPF: ' + ( cpf ? (formatCnpjCpf(cpf)) : '')),
+                                text: ((nomeProprietario ? (nomeProprietario + ' - ') : '') + ( cpf ? ('CPF: ' + formatCnpjCpf(cpf)) : '')),
                                 fillColor: '#CCCCCC'
                             }
                         ]
