@@ -37,6 +37,19 @@ import RelatorioDetalhadoPIX from '../../relatorios/pix/detalhado';
 
 const ConsultaPix = () => {
 
+    // let credentials = new Object();
+    // window.parent.postMessage("ask for credentials", "*");
+    // window.addEventListener("message", async function (event) {
+    //     //Faz um pedido para o integra dos dados do usuário através de uma mensagem de iframe pai-filho
+    //     if (event.data?.userData) {
+    //         //esse If verifica se retornou algum dado
+    //         credentials = JSON.parse(event.data.userData);
+    //         console.log(credentials.nome)
+    //     }
+    // });
+
+
+
     // variável para armazenar se a consulta será feita por CPF ou Chave PIX
     const [value, setValue] = React.useState('cpfCnpj');
 

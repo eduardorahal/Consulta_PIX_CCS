@@ -11,7 +11,7 @@ export default async function RelatorioResumidoPix(vinculosPix) {
 
     let cpfs = [...new Set(
         vinculosPix.map((item) => {
-            return item.cpfCnpj
+            return item.cpfCnpjBusca
         })
     )];
 
@@ -28,14 +28,14 @@ export default async function RelatorioResumidoPix(vinculosPix) {
     const tables = [];
 
     for await (let cpf of cpfs) {
-        let vinculos = await vinculosPix.filter((vinculos) => vinculos.cpfCnpj == cpf)
+        let vinculos = await vinculosPix.filter((vinculos) => vinculos.cpfCnpjBusca == cpf)
         let rows = vinculos.map((vinculo) => {
             return [
                 { text: vinculo.chave, fontSize: 9, margin: [0, 2, 0, 2] },
                 { text: vinculo.tipoChave, fontSize: 9, margin: [0, 2, 0, 2] },
                 { text: vinculo.cpfCnpj ? formatCnpjCpf(vinculo.cpfCnpj) : null, fontSize: 9, margin: [0, 2, 0, 2] },
                 { text: vinculo.nomeProprietario ? vinculo.nomeProprietario.toUpperCase() : null, fontSize: 9, margin: [0, 2, 0, 2] },
-                { text: vinculo.participante + '\nAgência: ' + vinculo.agencia + '\nConta: ' + parseInt(vinculo.numeroConta, 10) + '\nTipo: ' + vinculo.tipoConta, fontSize: 9, margin: [0, 2, 0, 2] },
+                { text: vinculo.numerobanco + ' ' + vinculo.nomebanco + '\nAgência: ' + vinculo.agencia + '\nConta: ' + parseInt(vinculo.numeroConta, 10) + '\nTipo: ' + vinculo.tipoConta, fontSize: 9, margin: [0, 2, 0, 2] },
                 { text: vinculo.status, fontSize: 9, margin: [0, 2, 0, 2] }
             ]
         })
@@ -48,7 +48,7 @@ export default async function RelatorioResumidoPix(vinculosPix) {
                 body: [
                     [
                         {
-                            text: (vinculos[0].cpfCnpj) ? (vinculos[0].nomeProprietario + ' - CPF: ' + formatCnpjCpf(vinculos[0].cpfCnpj)) : vinculos[0].nomeProprietario,
+                            text: vinculos[0].nomeProprietarioBusca + ' - CPF: ' + formatCnpjCpf(vinculos[0].cpfCnpjBusca),
                             alignment: 'left',
                             colSpan: 6,
                             fontSize: 10,

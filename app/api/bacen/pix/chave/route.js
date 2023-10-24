@@ -20,6 +20,9 @@ export async function GET(request) {
         .then(res1 => res1.data)
         .then(async (chave) => {
             if (chave.chave != null) {
+
+                
+
                 await axios.get('https://www3.bcb.gov.br/informes/rest/pessoasJuridicas?cnpj=' + chave.participante)
                     .then(response => response.data)
                     .then((participante) => {
@@ -44,6 +47,10 @@ export async function GET(request) {
                 }
                 if (chave.status == null) {
                     chave.status = 'INATIVO'
+                }
+                if (chave.cpfCnpj == null) {
+                    chave.nomeProprietario = chave.eventosVinculo.nomeProprietario;
+                    chave.cpfCnpj = chave.eventosVinculo.cpfCnpj;
                 }
                 lista.push(chave)
             }

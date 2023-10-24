@@ -20,16 +20,30 @@ export async function GET(request) {
         .then(res1 => res1.data.vinculosPix)
         .then(async (chaves) => {
             if (chaves.length > 0) {
+
+                // Ordena as chaves PIX recebidas para que as primeiras contenham CPF e Nome, preferencialmente
+
+                await chaves.sort((a, b) => a.cpfCnpj && a.nomeProprietario ? -1 : (a.cpfCnpj ? -1 : 1))
+
+                // Replica as informações de CPF e Nome para as demais chaves que não tenham tais informações
+
+                let nomeProprietarioBusca = chaves[0].nomeProprietario;
+                let cpfCnpjBusca = cpfCnpj;
+
                 for await (let chave of chaves) {
                     await axios.get('https://www3.bcb.gov.br/informes/rest/pessoasJuridicas?cnpj=' + chave.participante)
                         .then(response => response.data)
                         .then((participante) => {
                             chave.numerobanco = (participante.codigoCompensacao ? participante.codigoCompensacao.toLocaleString('en-US', { minimumIntegerDigits: 3, useGrouping: false }) : '000');
-                            chave.nomebanco = participante.nome
+                            chave.nomebanco = participante.nome;
+                            chave.cpfCnpjBusca = cpfCnpjBusca;
+                            chave.nomeProprietarioBusca = nomeProprietarioBusca;
                         })
                         .catch((err) => {
                             chave.numerobanco = "000";
-                            chave.nomebanco = "BANCO NÃO INFORMADO"
+                            chave.nomebanco = "BANCO NÃO INFORMADO";
+                            chave.cpfCnpjBusca = cpfCnpjBusca;
+                            chave.nomeProprietarioBusca = nomeProprietarioBusca;
                         })
                     for await (let evento of chave.eventosVinculo) {
                         await axios.get('https://www3.bcb.gov.br/informes/rest/pessoasJuridicas?cnpj=' + evento.participante)
@@ -53,7 +67,6 @@ export async function GET(request) {
             }
         })
         .catch((error) => {
-            console.log(error)
             lista.push(error.response.data.message)
         })
 

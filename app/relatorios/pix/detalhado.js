@@ -11,7 +11,7 @@ export default async function RelatorioDetalhadoPix(vinculosPix) {
 
     let cpfs = [...new Set(
         vinculosPix.map((item) => {
-            return item.cpfCnpj
+            return item.cpfCnpjBusca
         })
     )];
 
@@ -33,8 +33,8 @@ export default async function RelatorioDetalhadoPix(vinculosPix) {
     const tables = [];
 
     for await (let cpf of cpfs) {
-        let vinculos = await vinculosPix.filter((vinculos) => vinculos.cpfCnpj == cpf)
-        let nomeProprietario = (vinculos[0].nomeProprietario).toUpperCase()
+        let vinculos = await vinculosPix.filter((vinculos) => vinculos.cpfCnpjBusca == cpf)
+        let nomeProprietario = ((vinculos[0].nomeProprietarioBusca) ? ((vinculos[0].nomeProprietarioBusca).toUpperCase()) : '')
         tables.push(
             {
                 table:
@@ -47,7 +47,7 @@ export default async function RelatorioDetalhadoPix(vinculosPix) {
                                 bold: true,
                                 fontSize: 12,
                                 margin: [5, 2, 2, 2],
-                                text: nomeProprietario + ' - CPF: ' + formatCnpjCpf(cpf),
+                                text: (nomeProprietario + ' - CPF: ' + ( cpf ? (formatCnpjCpf(cpf)) : '')),
                                 fillColor: '#CCCCCC'
                             }
                         ]
@@ -64,7 +64,7 @@ export default async function RelatorioDetalhadoPix(vinculosPix) {
                     { text: evento.motivoEvento, fontSize: 9, margin: [0, 2, 0, 2] },
                     { text: evento.cpfCnpj ? formatCnpjCpf(evento.cpfCnpj) : null, fontSize: 9, margin: [0, 2, 0, 2] },
                     { text: evento.nomeProprietario ? evento.nomeProprietario.toUpperCase() : null, fontSize: 9, margin: [0, 2, 0, 2] },
-                    { text: evento.participante + '\nAgência: ' + evento.agencia + '\nConta: ' + parseInt(evento.numeroConta, 10) + '\nTipo: ' + evento.tipoConta, fontSize: 9, margin: [0, 2, 0, 2] },
+                    { text: evento.numerobanco + ' ' + evento.nomebanco + '\nAgência: ' + evento.agencia + '\nConta: ' + parseInt(evento.numeroConta, 10) + '\nTipo: ' + evento.tipoConta, fontSize: 9, margin: [0, 2, 0, 2] },
                     { text: formatarData(evento.dataAberturaConta), alignment: 'right', fontSize: 9, margin: [0, 2, 0, 2] }
                 ]
             })
