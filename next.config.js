@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    fastRefresh: true,
+    reactStrictMode: false,
     concurrentFeatures: true,
     swcMinify: true
 }

@@ -15,7 +15,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 
 export const mainListItems = (
   <div>
-    <ListItem button component="a" href="/">
+    <ListItem button component="a" href="/dashboard">
       <ListItemIcon>
         <DashboardIcon />
       </ListItemIcon>

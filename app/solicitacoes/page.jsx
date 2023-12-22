@@ -5,9 +5,10 @@ import Link from '@mui/material';
 const Solicitacoes = () => {
     return (
         <Box style={{display: 'flex'}}>
+            
             <Box width='300px' padding='20px'>
                 <Card sx={{ minWidth: 275 }}>
-                    <CardActionArea component={Link} to="/solicitacoes/formLab">
+                    <CardActionArea component={Link} href="/solicitacoes/formLab">
                         <CardMedia style={{ padding: 20 }} component='img' image='/Logo_Lab.jpg' />
                         <CardContent>
                             <Typography variant="h4" component="div" align='center' padding='10px'>

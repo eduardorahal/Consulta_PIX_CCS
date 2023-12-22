@@ -34,21 +34,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 // Serviços de Geração de Relatórios em PDF, usando pdfmake
 import RelatorioResumidoPIX from '../../relatorios/pix/resumido';
 import RelatorioDetalhadoPIX from '../../relatorios/pix/detalhado';
+import LoadingPage from '@/app/loading';
 
 const ConsultaPix = () => {
-
-    // let credentials = new Object();
-    // window.parent.postMessage("ask for credentials", "*");
-    // window.addEventListener("message", async function (event) {
-    //     //Faz um pedido para o integra dos dados do usuário através de uma mensagem de iframe pai-filho
-    //     if (event.data?.userData) {
-    //         //esse If verifica se retornou algum dado
-    //         credentials = JSON.parse(event.data.userData);
-    //         console.log(credentials.nome)
-    //     }
-    // });
-
-
 
     // variável para armazenar se a consulta será feita por CPF ou Chave PIX
     const [value, setValue] = React.useState('cpfCnpj');
@@ -143,6 +131,7 @@ const ConsultaPix = () => {
         const [open, setOpen] = React.useState(false);
         return (
             <React.Fragment>
+                <React.Suspense fallback={<TableRow>Loading...</TableRow>}>
                 <TableRow
                     key={item.chave}
                     sx={{ '& > *': { borderBottom: 'unset' } }}
@@ -214,6 +203,7 @@ const ConsultaPix = () => {
                         ) : <></>}
                     </TableCell>
                 </TableRow>
+                </React.Suspense>
             </React.Fragment>
         )
     }
@@ -348,9 +338,9 @@ const ConsultaPix = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {lista.map((item) => (
-                                    <Row key={item.chave} item={item} />
-                                ))}
+                                    {lista.map((item) => (
+                                        <Row key={item.chave} item={item} />
+                                    ))}
                             </TableBody>
                         </Table>
                     </TableContainer>

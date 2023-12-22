@@ -14,6 +14,7 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { Context } from '../context';
 
 const drawerWidth = 240;
 
@@ -83,15 +84,17 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 export default function MiniDrawer() {
+  const {state, dispatch} = React.useContext(Context)
+  let open = state.menu
+
   const theme = useTheme();
-  const [open, setOpen] = React.useState(true);
 
   const handleDrawerOpen = () => {
-    setOpen(true);
+    dispatch({type: 'setMenu', payload: true})
   };
 
   const handleDrawerClose = () => {
-    setOpen(false);
+    dispatch({type: 'setMenu', payload: false})
   };
 
   return (
