@@ -7,11 +7,10 @@ const Solicitacoes = () => {
         <Box style={{display: 'flex'}}>
             
             <Box width='300px' padding='20px'>
-                <Card sx={{ minWidth: 275 }}>
+                <Card sx={{ minWidth: 275, minHeight: 200 }}>
                     <CardActionArea component={Link} href="/solicitacoes/formLab">
-                        <CardMedia style={{ padding: 20 }} component='img' image='/Logo_Lab.jpg' />
                         <CardContent>
-                            <Typography variant="h4" component="div" align='center' padding='10px'>
+                            <Typography variant="h5" component="div" align='center' padding='10px'>
                                 LAB-LD
                             </Typography>
                             <Typography sx={{ mb: 1.5 }} color="text.secondary" align='justify'>
@@ -22,15 +21,28 @@ const Solicitacoes = () => {
                 </Card>
             </Box>
             <Box width='300px' padding='20px'>
-                <Card sx={{ minWidth: 275 }}>
+                <Card sx={{ minWidth: 275, minHeight: 200 }}>
                     <CardActionArea  component="a" href="/solicitacoes/pix">
-                        <CardMedia style={{ padding: 20 }} component='img' image='/logo_pix.png' />
                         <CardContent>
-                            <Typography variant="h4" component="div" align='center' padding='10px'>
+                            <Typography variant="h5" component="div" align='center' padding='10px'>
                                 Consulta PIX
                             </Typography>
                             <Typography sx={{ mb: 1.5 }} color="text.secondary" align='justify'>
                                 Consulta ao BACEN pelo CPF ou CNPJ do investigado, bem como pela chave PIX (Telefone, E-mail ou Chave Aleatória)
+                            </Typography>
+                        </CardContent>
+                    </CardActionArea>
+                </Card>
+            </Box>
+            <Box width='300px' padding='20px'>
+                <Card sx={{ minWidth: 275, minHeight: 200 }}>
+                    <CardActionArea  component="a" href="/solicitacoes/ccs">
+                        <CardContent>
+                            <Typography variant="h5" component="div" align='center' padding='10px'>
+                                Consulta CCS
+                            </Typography>
+                            <Typography sx={{ mb: 1.5 }} color="text.secondary" align='justify'>
+                                Consulta ao BACEN pelo CPF ou Ag/Conta do investigado
                             </Typography>
                         </CardContent>
                     </CardActionArea>
