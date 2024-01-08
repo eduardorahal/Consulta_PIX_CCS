@@ -19,11 +19,8 @@ export async function GET(request) {
     };
 
     const vinculos = await axios.request(config)
-        .then(response => {
-            console.log(JSON.stringify(response.data))
-        })
-        .catch((error) => {
-            console.log(error)
-        })
+        .then(response => response.text())
+        .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+        .then(data => console.log(data));
     return NextResponse.json(lista)
 }
