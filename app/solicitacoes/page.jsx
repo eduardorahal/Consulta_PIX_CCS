@@ -9,7 +9,7 @@ const Solicitacoes = () => {
             <Box width='300px' padding='20px'>
                 <Card sx={{ minWidth: 275, minHeight: 200 }}>
                     <CardActionArea component={Link} href="/solicitacoes/formLab">
-                        <CardContent>
+                        <CardContent sx={{ minWidth: 275, minHeight: 200 }}>
                             <Typography variant="h5" component="div" align='center' padding='10px'>
                                 LAB-LD
                             </Typography>
@@ -23,7 +23,7 @@ const Solicitacoes = () => {
             <Box width='300px' padding='20px'>
                 <Card sx={{ minWidth: 275, minHeight: 200 }}>
                     <CardActionArea  component="a" href="/solicitacoes/pix">
-                        <CardContent>
+                        <CardContent sx={{ minWidth: 275, minHeight: 200 }}>
                             <Typography variant="h5" component="div" align='center' padding='10px'>
                                 Consulta PIX
                             </Typography>
@@ -37,7 +37,7 @@ const Solicitacoes = () => {
             <Box width='300px' padding='20px'>
                 <Card sx={{ minWidth: 275, minHeight: 200 }}>
                     <CardActionArea  component="a" href="/solicitacoes/ccs">
-                        <CardContent>
+                        <CardContent sx={{ minWidth: 275, minHeight: 200 }}>
                             <Typography variant="h5" component="div" align='center' padding='10px'>
                                 Consulta CCS
                             </Typography>

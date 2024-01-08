@@ -34,16 +34,14 @@ import DialogTitle from '@mui/material/DialogTitle';
 // Serviços de Geração de Relatórios em PDF, usando pdfmake
 import RelatorioResumidoPIX from '../../relatorios/pix/resumido';
 import RelatorioDetalhadoPIX from '../../relatorios/pix/detalhado';
-import LoadingPage from '@/app/loading';
 
-const ConsultaPix = () => {
-
-    // variável para armazenar se a consulta será feita por CPF ou Chave PIX
-    const [value, setValue] = React.useState('cpfCnpj');
+const ConsultaCCS = () => {
 
     // variáveis para armazenar CPF, CNPJ, Chave PIX e Motivo da consulta
     const [cpfCnpj, setCpfCnpj] = React.useState('');
-    const [chave, setChave] = React.useState('');
+    const [dataInicio, setDataInicio] = React.useState('');
+    const [dataFim, setDataFim] = React.useState('');
+    const [numProcesso, setNumProcesso] = React.useState('');
     const [motivo, setMotivo] = React.useState('');
 
     // variável de controle de abertura de popup para Exportação de Dados
@@ -85,43 +83,26 @@ const ConsultaPix = () => {
     }
 
     // Chamada da API para Buscar Chaves PIX no Banco Central
-    const buscaPIX = async () => {
+    const buscaCCS = async () => {
 
-        if (value === 'cpfCnpj' && cpfCnpj != '' && motivo != '') {
-            await axios.get('/api/bacen/pix/cpfCnpj?cpfCnpj=' + cpfCnpj + '&motivo=' + motivo)
+        if (cpfCnpj != '' && dataInicio != '' && dataFim != '' && numProcesso != '' && motivo != '') {
+            await axios.get('/api/bacen/ccs?cpfCnpj=' + cpfCnpj + '&dataInicio=' + dataInicio + '&dataFim=' + dataFim + '&numProcesso=' + numProcesso + '&motivo=' + motivo)
                 .then(response => response.data[0])
                 .then((vinculos) => {
                     if (vinculos.length == 0 || vinculos == '0002 - ERRO_CPF_CNPJ_INVALIDO') {
                         setErrorDialog(true)
                     } else {
-                        vinculos.map((vinculo) => {
-                            setLista((lista) => [...lista, vinculo])
-                        })
+                        console.log(vinculos)
+                        // vinculos.map((vinculo) => {
+                        //     setLista((lista) => [...lista, vinculo])
+                        // })
                     }
                 })
                 .catch(err => console.error(err))
             setCpfCnpj('')
             setMotivo('')
         } else {
-            if (value === 'chave' && chave != '' && motivo != '') {
-                await axios.get('/api/bacen/pix/chave?chave=' + chave + '&motivo=' + motivo)
-                    .then((response) => {
-                        return response.data
-                    })
-                    .then((vinculo) => {
-                        vinculo.map((vinculo) => {
-                            setLista((lista) => [...lista, vinculo])
-                        })
-                        if (vinculo.length == 0) {
-                            setErrorDialog(true)
-                        }
-                    })
-                    .catch(err => console.error(err))
-                setChave('')
-                setMotivo('')
-            } else {
-                alert('Necessário preencher todos os campos!')
-            }
+            alert('Necessário preencher todos os campos!')
         }
     }
 
@@ -131,7 +112,6 @@ const ConsultaPix = () => {
         const [open, setOpen] = React.useState(false);
         return (
             <React.Fragment>
-                <React.Suspense fallback={<TableRow>Loading...</TableRow>}>
                 <TableRow
                     key={item.chave}
                     sx={{ '& > *': { borderBottom: 'unset' } }}
@@ -203,7 +183,6 @@ const ConsultaPix = () => {
                         ) : <></>}
                     </TableCell>
                 </TableRow>
-                </React.Suspense>
             </React.Fragment>
         )
     }
@@ -281,33 +260,26 @@ const ConsultaPix = () => {
     return (
         <Box style={{ margin: 10 }}>
             <Grid container spacing={2}>
-                <Grid item xs={2} md={2}>
-                    <FormControl style={{ verticalAlign: 'middle', marginInline: 20 }}>
-                        <FormLabel id="demo-controlled-radio-buttons-group" style={{ fontSize: 16 }}>Consulta PIX BACEN</FormLabel>
-                        <RadioGroup
-                            aria-labelledby="demo-controlled-radio-buttons-group"
-                            name="controlled-radio-buttons-group"
-                            value={value}
-                            onChange={handleChange}
-                        >
-                            <FormControlLabel id="cpf_cnpj" value="cpfCnpj" control={<Radio size='small' style={{ margin: 0, alignItems: 'center', padding: 5 }} />} label={<Typography style={{ fontSize: 14 }}>Por CPF/CNPJ</Typography>} />
-                            <FormControlLabel value="chave" control={<Radio size='small' style={{ margin: 0, alignItems: 'center', padding: 5 }} />} label={<Typography style={{ fontSize: 14 }}>Por Chave PIX</Typography>} />
-                        </RadioGroup>
-                    </FormControl>
-                </Grid>
-                <Grid item xs={5} md={5} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} >
-                    {value === 'cpfCnpj' ?
-                        <TextField style={{ marginInlineEnd: 20 }} value={cpfCnpj} onChange={(e) => formatarCampo(e)} size="small" id="standard-basic" label="CPF/CNPJ" variant="standard" placeholder='CPF/CNPJ' />
-                        : null
-                    }
-                    {value === 'chave' ?
-                        <TextField fullWidth style={{ marginInlineEnd: 20 }} value={chave} onChange={(e) => setChave(e.target.value)} size="small" id="standard-basic" label="Chave PIX" variant="standard" placeholder='Chave PIX' />
-                        : null
-                    }
-                    <TextField fullWidth size="small" id="standard-basic" label="Motivo" variant="standard" placeholder='Motivo' value={motivo} onChange={(e) => setMotivo(e.target.value)} />
-                </Grid>
-                <Grid item xs={5} md={5} style={{ display: 'flex', alignItems: 'center', justifyContent: 'right' }} >
-                    <Button style={{ marginInlineEnd: 20 }} variant="contained" size="small" onClick={buscaPIX} >
+                    <FormLabel style={{ fontSize: 16 }}>Consulta CCS BACEN</FormLabel>
+                    <Grid container spacing={2}>
+                        <Grid item xs={2} md={2} xl={2} >
+                            <TextField fullWidth style={{}} value={cpfCnpj} onChange={(e) => formatarCampo(e)} size="small" id="standard-basic" label="CPF/CNPJ" variant="standard" placeholder='CPF/CNPJ' />
+                        </Grid>
+                        <Grid item xs={2} md={2} xl={2} >
+                            <TextField fullWidth style={{}} size="small" id="standard-basic" label="Data Início" variant="standard" placeholder='Data Início' value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} />
+                        </Grid>
+                        <Grid item xs={2} md={2} xl={2} >
+                            <TextField fullWidth style={{}} size="small" id="standard-basic" label="Data Fim" variant="standard" placeholder='Data Fim' value={dataFim} onChange={(e) => setDataFim(e.target.value)} />
+                        </Grid>
+                        <Grid item xs={3} md={3} xl={3} >
+                            <TextField fullWidth style={{}} size="small" id="standard-basic" label="Número do Processo" variant="standard" placeholder='Número do Processo' value={numProcesso} onChange={(e) => setNumProcesso(e.target.value)} />
+                        </Grid>
+                        <Grid item xs={3} md={3} xl={3} >
+                            <TextField fullWidth style={{}} size="small" id="standard-basic" label="Motivo" variant="standard" placeholder='Motivo' value={motivo} onChange={(e) => setMotivo(e.target.value)} />
+                        </Grid>
+                    </Grid>
+                <Grid item xs={12} md={12} style={{ display: 'flex', alignItems: 'right', justifyContent: 'right' }} >
+                    <Button style={{ marginInlineEnd: 20 }} variant="contained" size="small" onClick={buscaCCS} >
                         Pesquisar
                     </Button>
                     <Button style={{ marginInlineEnd: 20 }} variant="outlined" size="small" onClick={() => setLista([])} >
@@ -338,9 +310,9 @@ const ConsultaPix = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                    {lista.map((item) => (
-                                        <Row key={item.chave} item={item} />
-                                    ))}
+                                {lista.map((item) => (
+                                    <Row key={item.chave} item={item} />
+                                ))}
                             </TableBody>
                         </Table>
                     </TableContainer>
@@ -351,4 +323,4 @@ const ConsultaPix = () => {
     )
 }
 
-export default ConsultaPix
+export default ConsultaCCS
