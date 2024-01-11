@@ -14,7 +14,7 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { Context } from '../context';
+import { MenuContext, MenuProvider } from './menuContext';
 
 const drawerWidth = 240;
 
@@ -84,51 +84,53 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 export default function MiniDrawer() {
-  const {state, dispatch} = React.useContext(Context)
-  let open = state.menu
+  const { state, dispatch } = React.useContext(MenuContext)
+  const [open, setOpen] = React.useState(state.open)
 
   const theme = useTheme();
 
   const handleDrawerOpen = () => {
-    dispatch({type: 'setMenu', payload: true})
+    dispatch({ type: 'setMenu', payload: true })
+    setOpen(true)
   };
 
   const handleDrawerClose = () => {
-    dispatch({type: 'setMenu', payload: false})
+    dispatch({ type: 'setMenu', payload: false })
+    setOpen(false)
   };
 
   return (
     <>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{
-              marginRight: 5,
-              ...(open && { display: 'none' }),
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Laboratório de Tecnologia contra Lavagem de Dinheiro
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>{mainListItems}</List>
-        <List style={{ marginTop: 'auto' }}>{secondaryListItems}</List>
-      </Drawer>
+        <CssBaseline />
+        <AppBar position="fixed" open={open}>
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={() => handleDrawerOpen()}
+              edge="start"
+              sx={{
+                marginRight: 5,
+                ...(open && { display: 'none' }),
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" noWrap component="div">
+              Laboratório de Tecnologia contra Lavagem de Dinheiro
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        <Drawer variant="permanent" open={open}>
+          <DrawerHeader>
+            <IconButton onClick={() => handleDrawerClose()}>
+              {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+            </IconButton>
+          </DrawerHeader>
+          <Divider />
+          <List>{mainListItems}</List>
+          <List style={{ marginTop: 'auto' }}>{secondaryListItems}</List>
+        </Drawer>
     </>
   );
 }

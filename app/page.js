@@ -1,11 +1,12 @@
 'use client'
 
+import { Context, Provider } from './context';
 import Dashboard from './dashboard/page';
-import React, {useEffect, useState} from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 
-const Home = ({children}) => {
+const Home = ({ children }) => {
 
-  const [loginInfo, setLoginInfo] = useState(null);
+  const { state, dispatch } = useContext(Context);
 
   useEffect(() => {
     window.parent.postMessage("ask for credentials", "*");
@@ -14,7 +15,8 @@ const Home = ({children}) => {
       if (event.source === window.parent) {
         // Handle the received data
         if (event.data?.userData) {
-            setLoginInfo(await JSON.parse(event.data.userData))
+          const authInfo = await JSON.parse(event.data.userData)
+          dispatch({type: 'setCredentials', payload: authInfo})
         }
       }
     };
@@ -22,8 +24,14 @@ const Home = ({children}) => {
   }, []);
 
   return (
-    <Dashboard loginInfo={loginInfo} />
+    <Dashboard />
   )
 
 }
-export default Home
+
+
+export default () => (
+  <Provider>
+    <Home />
+  </Provider>
+)

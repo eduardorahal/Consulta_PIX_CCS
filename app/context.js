@@ -1,24 +1,30 @@
 'use client'
 
-import React, { useReducer, useEffect } from "react";
+import React, { useReducer } from "react";
 
 let initialState = {
     nome: '',
-    cargo: '',
     cpf: '',
+    cargo: '',
     email: '',
     lotacao: '',
     matricula: '',
-    token: '',
-    menu: true
+    token: ''
 }
 
 const reducer = (state, action) => {
     switch(action.type){
         case 'setCredentials':
-            return { ...state, nome: action.payload.nome }
-        case 'setMenu':
-            return { ...state, menu: action.payload }
+            return { 
+                ...state, 
+                nome: action.payload.nome, 
+                cpf: action.payload.cpf, 
+                cargo: action.payload.cargo, 
+                email: action.payload.email,
+                matricula: action.payload.matricula,
+                lotacao: action.payload.lotacao_nome,
+                token: action.payload.token,
+            }
         default:
             return state
     }

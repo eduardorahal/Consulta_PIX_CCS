@@ -1,10 +1,7 @@
-'use client'
-
 import './globals.css'
 import { Inter } from 'next/font/google'
-import Menu from './components/Menu'
+import MenuLayout from './components/Menu/MenuLayout'
 import React from 'react'
-import { Provider } from './context';
 import { Box } from '@mui/material'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -19,14 +16,12 @@ const RootLayout = ({ children }) => {
   return (
     <html lang="en">
       <body className={inter.className}>
-      <Provider>
         <Box sx={{ display: 'flex' }}>
-          <Menu />
+          <MenuLayout />
           <Box paddingTop={10} paddingLeft={2} >
             <main>{children}</main>
           </Box>
         </Box>
-        </Provider>
       </body>
     </html>
   )

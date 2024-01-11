@@ -12,16 +12,17 @@ import BuildIcon from '@mui/icons-material/Build';
 import DriveEtaIcon from '@mui/icons-material/DriveEta';
 import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
+import Link from 'next/link';
 
 export const mainListItems = (
   <div>
-    <ListItem button component="a" href="/dashboard">
+    <ListItem button component={Link} href="/">
       <ListItemIcon>
         <DashboardIcon />
       </ListItemIcon>
       <ListItemText primary="Visão Geral" />
     </ListItem>
-    <ListItem button component="a" href="/solicitacoes">
+    <ListItem button component={Link} href="/solicitacoes">
       <ListItemIcon>
         <LayersIcon />
       </ListItemIcon>

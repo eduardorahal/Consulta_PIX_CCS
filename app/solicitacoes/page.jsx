@@ -1,6 +1,6 @@
 import { Card, CardContent, Typography, CardActionArea, Box, CardMedia, Grid } from '@mui/material';
 import React from 'react';
-import Link from '@mui/material';
+import Link from 'next/link';
 
 const Solicitacoes = () => {
     return (
@@ -22,7 +22,7 @@ const Solicitacoes = () => {
             </Box>
             <Box width='300px' padding='20px'>
                 <Card sx={{ minWidth: 275, minHeight: 200 }}>
-                    <CardActionArea  component="a" href="/solicitacoes/pix">
+                    <CardActionArea  component={Link} href="/solicitacoes/pix">
                         <CardContent sx={{ minWidth: 275, minHeight: 200 }}>
                             <Typography variant="h5" component="div" align='center' padding='10px'>
                                 Consulta PIX
@@ -36,7 +36,7 @@ const Solicitacoes = () => {
             </Box>
             <Box width='300px' padding='20px'>
                 <Card sx={{ minWidth: 275, minHeight: 200 }}>
-                    <CardActionArea  component="a" href="/solicitacoes/ccs">
+                    <CardActionArea  component={Link} href="/solicitacoes/ccs">
                         <CardContent sx={{ minWidth: 275, minHeight: 200 }}>
                             <Typography variant="h5" component="div" align='center' padding='10px'>
                                 Consulta CCS
