@@ -2,10 +2,6 @@
 'use client'
 
 import { TextField, Typography } from '@mui/material';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -88,14 +84,12 @@ const ConsultaCCS = () => {
         if (cpfCnpj != '' && dataInicio != '' && dataFim != '' && numProcesso != '' && motivo != '') {
             await axios.get('/api/bacen/ccs?cpfCnpj=' + cpfCnpj + '&dataInicio=' + dataInicio + '&dataFim=' + dataFim + '&numProcesso=' + numProcesso + '&motivo=' + motivo)
                 .then(response => response.data[0])
-                .then((vinculos) => {
-                    if (vinculos.length == 0 || vinculos == '0002 - ERRO_CPF_CNPJ_INVALIDO') {
+                .then(json => JSON.parse(json))
+                .then((relacionamentos) => {
+                    if (relacionamentos.length == 0 || relacionamentos == '0002 - ERRO_CPF_CNPJ_INVALIDO') {
                         setErrorDialog(true)
                     } else {
-                        console.log(vinculos)
-                        // vinculos.map((vinculo) => {
-                        //     setLista((lista) => [...lista, vinculo])
-                        // })
+                        setLista(lista => [...lista, relacionamentos.requisicaoRelacionamento.clientes])
                     }
                 })
                 .catch(err => console.error(err))
@@ -117,27 +111,20 @@ const ConsultaCCS = () => {
                     sx={{ '& > *': { borderBottom: 'unset' } }}
                 >
                     <TableCell>
-                        <IconButton
-                            aria-label="expand row"
-                            size="small"
-                            onClick={() => setOpen(!open)}
-                        >
-                            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                        </IconButton>
+                        {/* Aqui vai o checkbox para seleção de Detalhamento */}
                     </TableCell>
                     <TableCell component="th" scope="item">
-                        {item.chave}
+                        {item.id ? formatCnpjCpf(item.id) : null}
                     </TableCell>
-                    <TableCell>{item.tipoChave}</TableCell>
-                    <TableCell>{item.cpfCnpj ? formatCnpjCpf(item.cpfCnpj) : null}</TableCell>
-                    <TableCell>{item.nomeProprietario ? item.nomeProprietario.toUpperCase() : null}</TableCell>
+                    <TableCell>{item.nome}</TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
                     <TableCell>
-                        {item.numerobanco + ' ' + item.nomebanco}
-                        <br />Agência: {item.agencia}
-                        <br />Conta: {parseInt(item.numeroConta, 10)}
-                        <br />Tipo: {item.tipoConta}
+
                     </TableCell>
-                    <TableCell align="right">{item.status}</TableCell>
+                    <TableCell align="right">
+
+                    </TableCell>
                 </TableRow>
                 <TableRow>
                     <TableCell style={{ padding: 0 }} colSpan={7}>
@@ -260,24 +247,24 @@ const ConsultaCCS = () => {
     return (
         <Box style={{ margin: 10 }}>
             <Grid container spacing={2}>
-                    <FormLabel style={{ fontSize: 16 }}>Consulta CCS BACEN</FormLabel>
-                    <Grid container spacing={2}>
-                        <Grid item xs={2} md={2} xl={2} >
-                            <TextField fullWidth style={{}} value={cpfCnpj} onChange={(e) => formatarCampo(e)} size="small" id="standard-basic" label="CPF/CNPJ" variant="standard" placeholder='CPF/CNPJ' />
-                        </Grid>
-                        <Grid item xs={2} md={2} xl={2} >
-                            <TextField fullWidth style={{}} size="small" id="standard-basic" label="Data Início" variant="standard" placeholder='Data Início' value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} />
-                        </Grid>
-                        <Grid item xs={2} md={2} xl={2} >
-                            <TextField fullWidth style={{}} size="small" id="standard-basic" label="Data Fim" variant="standard" placeholder='Data Fim' value={dataFim} onChange={(e) => setDataFim(e.target.value)} />
-                        </Grid>
-                        <Grid item xs={3} md={3} xl={3} >
-                            <TextField fullWidth style={{}} size="small" id="standard-basic" label="Número do Processo" variant="standard" placeholder='Número do Processo' value={numProcesso} onChange={(e) => setNumProcesso(e.target.value)} />
-                        </Grid>
-                        <Grid item xs={3} md={3} xl={3} >
-                            <TextField fullWidth style={{}} size="small" id="standard-basic" label="Motivo" variant="standard" placeholder='Motivo' value={motivo} onChange={(e) => setMotivo(e.target.value)} />
-                        </Grid>
+                <FormLabel style={{ fontSize: 16 }}>Consulta CCS BACEN</FormLabel>
+                <Grid container spacing={2}>
+                    <Grid item xs={2} md={2} xl={2} >
+                        <TextField fullWidth style={{}} value={cpfCnpj} onChange={(e) => formatarCampo(e)} size="small" id="standard-basic" label="CPF/CNPJ" variant="standard" placeholder='CPF/CNPJ' />
                     </Grid>
+                    <Grid item xs={2} md={2} xl={2} >
+                        <TextField fullWidth style={{}} size="small" id="standard-basic" label="Data Início" variant="standard" placeholder='Data Início' value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} />
+                    </Grid>
+                    <Grid item xs={2} md={2} xl={2} >
+                        <TextField fullWidth style={{}} size="small" id="standard-basic" label="Data Fim" variant="standard" placeholder='Data Fim' value={dataFim} onChange={(e) => setDataFim(e.target.value)} />
+                    </Grid>
+                    <Grid item xs={3} md={3} xl={3} >
+                        <TextField fullWidth style={{}} size="small" id="standard-basic" label="Número do Processo" variant="standard" placeholder='Número do Processo' value={numProcesso} onChange={(e) => setNumProcesso(e.target.value)} />
+                    </Grid>
+                    <Grid item xs={3} md={3} xl={3} >
+                        <TextField fullWidth style={{}} size="small" id="standard-basic" label="Motivo" variant="standard" placeholder='Motivo' value={motivo} onChange={(e) => setMotivo(e.target.value)} />
+                    </Grid>
+                </Grid>
                 <Grid item xs={12} md={12} style={{ display: 'flex', alignItems: 'right', justifyContent: 'right' }} >
                     <Button style={{ marginInlineEnd: 20 }} variant="contained" size="small" onClick={buscaCCS} >
                         Pesquisar
@@ -301,18 +288,18 @@ const ConsultaCCS = () => {
                             <TableHead>
                                 <TableRow>
                                     <TableCell />
-                                    <TableCell>Chave</TableCell>
+                                    <TableCell>CPF/CNPJ</TableCell>
                                     <TableCell>Tipo</TableCell>
-                                    <TableCell >CPF/CNPJ</TableCell>
-                                    <TableCell >Nome</TableCell>
-                                    <TableCell >Banco</TableCell>
-                                    <TableCell align="right">Status</TableCell>
+                                    <TableCell>Nome</TableCell>
+                                    <TableCell>Banco</TableCell>
+                                    <TableCell align="right">Data Início</TableCell>
+                                    <TableCell align="right">Data Fim</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {lista.map((item) => (
-                                    <Row key={item.chave} item={item} />
-                                ))}
+                                {/* {lista.map((item) => (
+                                    <Row key={item.id} item={item} />
+                                ))} */}
                             </TableBody>
                         </Table>
                     </TableContainer>
