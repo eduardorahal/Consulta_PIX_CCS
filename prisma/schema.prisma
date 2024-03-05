@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model RequisicaoPix {
+  id  Int @id @default(autoincrement())
+  data  DateTime
+  cpfResponsavel String
+  caso String?
+  tipoBusca String
+  chaveBusca  String
+  motivoBusca String
+  resultado String
+  vinculos  Json?
+  autorizado Boolean
+  cpfAutorizacao String?
+  nomeAutorizacao String?
+  dataHoraAutorizacao String?
+  tokenAutorizacao String?
+}
+
+model RelacionamentoCCS {
+  id  Int @id @default(autoincrement())
+  cnpj String
+  numeroBanco String
+  nomeBanco String
+  cnpjParticipante String
+  numeroParticipante String
+  nomeParticipante String
+  dataInicioRelacionamento String
+  dataFimRelacionamento String?
+  numeroRequisicao RequisicaoRelacionamentoCCS?@relation(fields: [idRequisicao], references: [id])
+  idRequisicao  Int
+}
+
+model RequisicaoRelacionamentoCCS {
+  id  Int @id @default(autoincrement())
+  dataRequisicao  String
+  dataInicioConsulta String
+  dataFimConsulta String
+  cpfCnpjConsulta String
+  numeroProcesso String
+  motivoBusca String
+  cpfResponsavel String
+  caso String?
+  numeroRequisicao String
+  cpfCnpj String
+	tipoPessoa String
+	nome String
+	dataInicioSolicitacao String
+	dataFimSolicitacao String
+  relacionamentosCCS RelacionamentoCCS[]
+  autorizado Boolean
+  cpfAutorizacao String?
+  nomeAutorizacao String?
+  dataHoraAutorizacao String?
+  tokenAutorizacao String?
+}
+
+model RequisicaoDetalhamentoCCS {
+  id  Int @id @default(autoincrement())
+  dataRequisicao String
+  caso String?
+  cpfResponsavel String
+  numeroRequisicao String
+  idPessoa String
+  tipoPessoa String
+  cnpjResponsavel String
+  cnpjParticipante String
+  dataInicio String
+  resposta RespostaDetalhamentoCCS[]
+  autorizado Boolean
+  cpfAutorizacao String?
+  nomeAutorizacao String?
+  dataHoraAutorizacao String?
+  tokenAutorizacao String?
+}
+
+model RespostaDetalhamentoCCS {
+  id  Int @id @default(autoincrement())
+  codigo String
+	codigoIf String
+	dataMovimento String
+	nuop String
+	unidadeAtualizacao String
+	operadorAtualizacao String
+  numeroRequisicao RequisicaoDetalhamentoCCS?@relation(fields: [idRequisicao], references: [id])
+  idRequisicao  Int
+  bemDireitoValorCCS BemDireitoValorCCS[]
+}
+
+model BemDireitoValorCCS {
+  id  Int @id @default(autoincrement())
+  cnpjParticipante String
+  tipo String
+  agencia String
+  conta String
+  vinculo String
+  nomePessoa String
+  dataInicio String
+  dataFim String
+  respostaDetalhamento RespostaDetalhamentoCCS?@relation(fields: [idRequisicao], references: [id])
+  idRequisicao  Int
+  vinculados VinculadosBDVCCS[]
+}
+
+model VinculadosBDVCCS {
+  id  Int @id @default(autoincrement())
+  bemDireitoValor BemDireitoValorCCS?@relation(fields: [idBDV], references: [id])
+  idBDV  Int
+  dataInicio String
+  dataFim String
+  cpfCnpj String
+  nomePessoa String
+  nomePessoaReceita String
+  tipo String
+}

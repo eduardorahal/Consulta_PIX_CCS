@@ -1,18 +1,22 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request) {
     const { searchParams } = new URL(request.url);
     let lista = [];
-    let chave = searchParams.get('chave');
+    let cpfResponsavel = process.env.CPF_RESPONSAVEL
+    let chaveBusca = searchParams.get('chave');
     let motivo = searchParams.get('motivo');
+    let data = new Date();
+    let caso = searchParams.get('caso');
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'https://www3.bcb.gov.br/bc_ccs/rest/consultar-vinculo-pix?chave=' + chave + '&motivo=' + motivo,
+        url: 'https://www3.bcb.gov.br/bc_ccs/rest/consultar-vinculo-pix?chave=' + chaveBusca + '&motivo=' + motivo,
         headers: {
             'Accept': 'application/json',
-            'Authorization': 'Basic ZWp1ZnMucy1hcGljY3M6Ym9rYTIxMjM=',
+            'Authorization': 'Basic ZWp1ZnMucy1hcGljY3M6Ym9rYTIxMjQ=',
         }
     };
 
@@ -20,9 +24,6 @@ export async function GET(request) {
         .then(res1 => res1.data)
         .then(async (chave) => {
             if (chave.chave != null) {
-
-                
-
                 await axios.get('https://www3.bcb.gov.br/informes/rest/pessoasJuridicas?cnpj=' + chave.participante)
                     .then(response => response.data)
                     .then((participante) => {
@@ -52,10 +53,49 @@ export async function GET(request) {
                     chave.nomeProprietario = chave.eventosVinculo.nomeProprietario;
                     chave.cpfCnpj = chave.eventosVinculo.cpfCnpj;
                 }
-                lista.push(chave)
+
+                // armazena as informações da requisição contendo os dados do solicitante e a resposta obtida
+
+                let requisicao = {
+                    data: data,
+                    cpfResponsavel: cpfResponsavel,
+                    caso: caso,
+                    tipoBusca: 'chave',
+                    chaveBusca: chaveBusca,
+                    motivoBusca: motivo,
+                    resultado: 'Sucesso',
+                    vinculos: chave,
+                    autorizado: true
+                }
+                try {
+                    await prisma.requisicaoPix.create({
+                        data: requisicao
+                    }).then(
+                        lista.push(chave)
+                    )
+                } catch (e) {
+                    throw e
+                }
+            } else {
+                let requisicao = {
+                    data: data,
+                    cpfResponsavel: cpfResponsavel,
+                    caso: caso,
+                    tipoBusca: 'chave',
+                    chaveBusca: chaveBusca,
+                    motivoBusca: motivo,
+                    resultado: 'Chave não encontrada',
+                    autorizado: true
+                }
+                try {
+                    await prisma.requisicaoPix.create({
+                        data: requisicao
+                    })
+                } catch (e) {
+                    throw e
+                }
             }
-        }
-        )
+        })
         .catch((error) => {
             console.log(error);
         })

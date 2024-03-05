@@ -34,7 +34,6 @@ import DialogTitle from '@mui/material/DialogTitle';
 // Serviços de Geração de Relatórios em PDF, usando pdfmake
 import RelatorioResumidoPIX from '../../relatorios/pix/resumido';
 import RelatorioDetalhadoPIX from '../../relatorios/pix/detalhado';
-import LoadingPage from '@/app/loading';
 
 const ConsultaPix = () => {
 
@@ -45,6 +44,9 @@ const ConsultaPix = () => {
     const [cpfCnpj, setCpfCnpj] = React.useState('');
     const [chave, setChave] = React.useState('');
     const [motivo, setMotivo] = React.useState('');
+
+    //variável para controle de carregamento de página
+    const [loading, setLoading] = React.useState(false)
 
     // variável de controle de abertura de popup para Exportação de Dados
     const [exportDialog, setExportDialog] = React.useState([false, null]);
@@ -80,22 +82,24 @@ const ConsultaPix = () => {
 
     // Formatar Datas para apresentação no FrontEnd
     const formatarData = (data) => {
-        let novadata = new Date(data)
-        return novadata.getDate().toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false }) + '/' + (novadata.getMonth() + 1).toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false }) + '/' + novadata.getFullYear()
+        return data.match(/\d{2}[-\w\_\.\/]\d{2}[-\w\_\.\/]\d{4}/gi)
     }
 
     // Chamada da API para Buscar Chaves PIX no Banco Central
     const buscaPIX = async () => {
 
         if (value === 'cpfCnpj' && cpfCnpj != '' && motivo != '') {
+            setLoading(true)
             await axios.get('/api/bacen/pix/cpfCnpj?cpfCnpj=' + cpfCnpj + '&motivo=' + motivo)
                 .then(response => response.data[0])
                 .then((vinculos) => {
                     if (vinculos.length == 0 || vinculos == '0002 - ERRO_CPF_CNPJ_INVALIDO') {
                         setErrorDialog(true)
+                        setLoading(false)
                     } else {
                         vinculos.map((vinculo) => {
                             setLista((lista) => [...lista, vinculo])
+                            setLoading(false)
                         })
                     }
                 })
@@ -104,6 +108,7 @@ const ConsultaPix = () => {
             setMotivo('')
         } else {
             if (value === 'chave' && chave != '' && motivo != '') {
+                setLoading(true)
                 await axios.get('/api/bacen/pix/chave?chave=' + chave + '&motivo=' + motivo)
                     .then((response) => {
                         return response.data
@@ -111,9 +116,11 @@ const ConsultaPix = () => {
                     .then((vinculo) => {
                         vinculo.map((vinculo) => {
                             setLista((lista) => [...lista, vinculo])
+                            setLoading(false)
                         })
                         if (vinculo.length == 0) {
                             setErrorDialog(true)
+                            setLoading(false)
                         }
                     })
                     .catch(err => console.error(err))
@@ -131,79 +138,77 @@ const ConsultaPix = () => {
         const [open, setOpen] = React.useState(false);
         return (
             <React.Fragment>
-                <React.Suspense fallback={<TableRow>Loading...</TableRow>}>
-                <TableRow
-                    key={item.chave}
-                    sx={{ '& > *': { borderBottom: 'unset' } }}
-                >
-                    <TableCell>
-                        <IconButton
-                            aria-label="expand row"
-                            size="small"
-                            onClick={() => setOpen(!open)}
-                        >
-                            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                        </IconButton>
-                    </TableCell>
-                    <TableCell component="th" scope="item">
-                        {item.chave}
-                    </TableCell>
-                    <TableCell>{item.tipoChave}</TableCell>
-                    <TableCell>{item.cpfCnpj ? formatCnpjCpf(item.cpfCnpj) : null}</TableCell>
-                    <TableCell>{item.nomeProprietario ? item.nomeProprietario.toUpperCase() : null}</TableCell>
-                    <TableCell>
-                        {item.numerobanco + ' ' + item.nomebanco}
-                        <br />Agência: {item.agencia}
-                        <br />Conta: {parseInt(item.numeroConta, 10)}
-                        <br />Tipo: {item.tipoConta}
-                    </TableCell>
-                    <TableCell align="right">{item.status}</TableCell>
-                </TableRow>
-                <TableRow>
-                    <TableCell style={{ padding: 0 }} colSpan={7}>
-                        {open ? (
-                            <>
-                                <Box sx={{ margin: 1 }}>
-                                    <Typography variant="h6" gutterBottom component="div">
-                                        Histórico da Chave
-                                    </Typography>
-                                    <Table size="small" aria-label="purchases">
-                                        <TableHead>
-                                            <TableRow >
-                                                <TableCell>Data</TableCell>
-                                                <TableCell>Evento</TableCell>
-                                                <TableCell>Motivo</TableCell>
-                                                <TableCell>CPF/CNPJ</TableCell>
-                                                <TableCell>Nome</TableCell>
-                                                <TableCell>Banco</TableCell>
-                                                <TableCell>Abertura Conta</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {item.eventosVinculo.map((evento) => (
-                                                <TableRow key={item.eventosVinculo.indexOf(evento)}>
-                                                    <TableCell component="th" scope="evento">{formatarData(evento.dataEvento)}</TableCell>
-                                                    <TableCell>{evento.tipoEvento}</TableCell>
-                                                    <TableCell>{evento.motivoEvento}</TableCell>
-                                                    <TableCell>{evento.cpfCnpj ? formatCnpjCpf(evento.cpfCnpj) : null}</TableCell>
-                                                    <TableCell>{evento.nomeProprietario ? evento.nomeProprietario.toUpperCase() : null}</TableCell>
-                                                    <TableCell>
-                                                        {evento.numerobanco + ' ' + evento.nomebanco}
-                                                        <br />Agência: {evento.agencia}
-                                                        <br />Conta: {parseInt(evento.numeroConta, 10)}
-                                                        <br />Tipo: {evento.tipoConta}
-                                                    </TableCell>
-                                                    <TableCell>{formatarData(evento.dataAberturaConta)}</TableCell>
+                    <TableRow
+                        key={item.chave}
+                        sx={{ '& > *': { borderBottom: 'unset' } }}
+                    >
+                        <TableCell>
+                            <IconButton
+                                aria-label="expand row"
+                                size="small"
+                                onClick={() => setOpen(!open)}
+                            >
+                                {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                            </IconButton>
+                        </TableCell>
+                        <TableCell component="th" scope="item">
+                            {item.chave}
+                        </TableCell>
+                        <TableCell>{item.tipoChave}</TableCell>
+                        <TableCell>{item.cpfCnpj ? formatCnpjCpf(item.cpfCnpj) : null}</TableCell>
+                        <TableCell>{item.nomeProprietario ? item.nomeProprietario.toUpperCase() : null}</TableCell>
+                        <TableCell>
+                            {item.numerobanco + ' ' + item.nomebanco}
+                            <br />Agência: {item.agencia}
+                            <br />Conta: {parseInt(item.numeroConta, 10)}
+                            <br />Tipo: {item.tipoConta}
+                        </TableCell>
+                        <TableCell align="right">{item.status}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell style={{ padding: 0 }} colSpan={7}>
+                            {open ? (
+                                <>
+                                    <Box sx={{ margin: 1 }}>
+                                        <Typography variant="h6" gutterBottom component="div">
+                                            Histórico da Chave
+                                        </Typography>
+                                        <Table size="small" aria-label="purchases">
+                                            <TableHead>
+                                                <TableRow >
+                                                    <TableCell>Data</TableCell>
+                                                    <TableCell>Evento</TableCell>
+                                                    <TableCell>Motivo</TableCell>
+                                                    <TableCell>CPF/CNPJ</TableCell>
+                                                    <TableCell>Nome</TableCell>
+                                                    <TableCell>Banco</TableCell>
+                                                    <TableCell>Abertura Conta</TableCell>
                                                 </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </Box>
-                            </>
-                        ) : <></>}
-                    </TableCell>
-                </TableRow>
-                </React.Suspense>
+                                            </TableHead>
+                                            <TableBody>
+                                                {item.eventosVinculo.map((evento) => (
+                                                    <TableRow key={item.eventosVinculo.indexOf(evento)}>
+                                                        <TableCell component="th" scope="evento">{formatarData(evento.dataEvento)}</TableCell>
+                                                        <TableCell>{evento.tipoEvento}</TableCell>
+                                                        <TableCell>{evento.motivoEvento}</TableCell>
+                                                        <TableCell>{evento.cpfCnpj ? formatCnpjCpf(evento.cpfCnpj) : null}</TableCell>
+                                                        <TableCell>{evento.nomeProprietario ? evento.nomeProprietario.toUpperCase() : null}</TableCell>
+                                                        <TableCell>
+                                                            {evento.numerobanco + ' ' + evento.nomebanco}
+                                                            <br />Agência: {evento.agencia}
+                                                            <br />Conta: {parseInt(evento.numeroConta, 10)}
+                                                            <br />Tipo: {evento.tipoConta}
+                                                        </TableCell>
+                                                        <TableCell>{formatarData(evento.dataAberturaConta)}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </Box>
+                                </>
+                            ) : <></>}
+                        </TableCell>
+                    </TableRow>
             </React.Fragment>
         )
     }
@@ -251,6 +256,25 @@ const ConsultaPix = () => {
             </>
         )
     }
+
+      // Componente DIALOG (popup) para mostrar que a página está sendo carregada
+
+  function LoadingDialog() {
+    return (
+      <>
+        <Dialog open={loading}>
+          <DialogTitle>
+            Carregando...
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-slide-description">
+              Por favor, aguarde.
+            </DialogContentText>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
 
     // Componente DIALOG (popup) para Exportação de Arquivos
     function ExportDialog() {
@@ -313,12 +337,16 @@ const ConsultaPix = () => {
                     <Button style={{ marginInlineEnd: 20 }} variant="outlined" size="small" onClick={() => setLista([])} >
                         Limpar
                     </Button>
-                    <Button style={{ marginInlineEnd: 20 }} variant="outlined" color='error' size="small" onClick={() => setExportDialog([true, 'pdf'])} >
-                        Exportar PDF
-                    </Button>
-                    <Button style={{ marginInlineEnd: 20 }} variant="outlined" color='success' size="small" onClick={() => setExportDialog([true, 'etc'])} >
-                        Exportar ...
-                    </Button>
+                    {lista.length > 0 ?
+                        <>
+                            <Button style={{ marginInlineEnd: 20 }} variant="outlined" color='error' size="small" onClick={() => setExportDialog([true, 'pdf'])} >
+                                Exportar PDF
+                            </Button>
+                            <Button style={{ marginInlineEnd: 20 }} variant="outlined" color='success' size="small" onClick={() => setExportDialog([true, 'etc'])} >
+                                Exportar ...
+                            </Button>
+                        </> : <></>
+                    }
                     {
                         exportDialog && <ExportDialog />
                     }
@@ -338,9 +366,10 @@ const ConsultaPix = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                    {lista.map((item) => (
-                                        <Row key={item.chave} item={item} />
-                                    ))}
+                                {loading && <LoadingDialog />}
+                                {lista.map((item) => (
+                                    <Row key={item.chave} item={item} />
+                                ))}
                             </TableBody>
                         </Table>
                     </TableContainer>
