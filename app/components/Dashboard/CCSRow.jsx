@@ -22,8 +22,6 @@ import { v4 as uuidv4 } from "uuid";
 
 const CCSRow = ({ requisicoes }) => {
 
-    console.log(requisicoes)
-
     // Variáveis e Funções para apresentação de Tabelas
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(20);
@@ -130,6 +128,7 @@ const CCSRow = ({ requisicoes }) => {
                     <TableCell>Data Início</TableCell>
                     <TableCell>Data Fim</TableCell>
                     <TableCell>Caso</TableCell>
+                    <TableCell>Detalhamento</TableCell>
                 </TableRow>
             </TableHead>
         )
@@ -162,6 +161,7 @@ const CCSRow = ({ requisicoes }) => {
                     <TableCell>{dataInicioConsulta.toLocaleDateString()}</TableCell>
                     <TableCell>{dataFimConsulta.toLocaleDateString()}</TableCell>
                     <TableCell>{requisicao.caso}</TableCell>
+                    <TableCell>Detalhamento</TableCell>
                 </TableRow>
             </React.Fragment>
         );
