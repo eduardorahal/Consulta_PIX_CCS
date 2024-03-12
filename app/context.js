@@ -9,7 +9,7 @@ let initialState = {
     email: '',
     lotacao: '',
     matricula: '',
-    token: ''
+    token: '',
 }
 
 const reducer = (state, action) => {

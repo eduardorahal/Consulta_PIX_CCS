@@ -22,47 +22,23 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Visão Geral" />
     </ListItem>
-    <ListItem button component={Link} href="/solicitacoes">
+    <ListItem button component={Link} href="/pix">
       <ListItemIcon>
         <LayersIcon />
       </ListItemIcon>
-      <ListItemText primary="Solicitações" />
+      <ListItemText primary="PIX" />
     </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <PeopleIcon />
-      </ListItemIcon>
-      <ListItemText primary="Investigados" />
-    </ListItem>
-    <ListItem button>
+    <ListItem button component={Link} href="/ccs">
       <ListItemIcon>
         <BarChartIcon />
       </ListItemIcon>
       <ListItemText primary="CCS" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <DriveEtaIcon />
-      </ListItemIcon>
-      <ListItemText primary="Veículos" />
     </ListItem>
   </div>
 );
 
 export const secondaryListItems = (
   <div>
-    <ListItem button>
-      <ListItemIcon>
-        <BuildIcon />
-      </ListItemIcon>
-      <ListItemText primary="Opções" />
-    </ListItem>
-    <ListItem button>
-      <ListItemIcon>
-        <PersonIcon />
-      </ListItemIcon>
-      <ListItemText primary="Usuários" />
-    </ListItem>
     <ListItem button>
       <ListItemIcon>
         <LogoutIcon />

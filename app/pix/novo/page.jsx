@@ -30,12 +30,39 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import { useSearchParams } from 'next/navigation'
 
 // Serviços de Geração de Relatórios em PDF, usando pdfmake
 import RelatorioResumidoPIX from '../../relatorios/pix/resumido';
 import RelatorioDetalhadoPIX from '../../relatorios/pix/detalhado';
 
 const ConsultaPix = () => {
+
+    //variável para controle de carregamento de página
+    const [loading, setLoading] = React.useState(false)
+
+    // variável para armazenar a lista de Chaves PIX exibidas no FrontEnd
+    const [lista, setLista] = React.useState([]);
+
+    // Caso haja solicitação de detalhamento, as informações ficam nessa variável antes de serem atribuídas para a lista
+
+    const searchParams = useSearchParams()
+    const query = searchParams.get('selected')
+
+    React.useEffect(() => {
+        if (query === 'true') {
+            setLoading(true)
+            const detalhe = JSON.parse(localStorage.getItem("detalhe"))
+            for (let i = 0; i < detalhe.length; i++) {
+                let vinculos = detalhe[i].vinculos;
+                for (let j = 0; j < vinculos.length; j++) {
+                    setLista((lista) => [...lista, vinculos[j]])
+                }
+                setLoading(false)
+            }
+        }
+    }, [])
+
 
     // variável para armazenar se a consulta será feita por CPF ou Chave PIX
     const [value, setValue] = React.useState('cpfCnpj');
@@ -45,9 +72,6 @@ const ConsultaPix = () => {
     const [chave, setChave] = React.useState('');
     const [motivo, setMotivo] = React.useState('');
 
-    //variável para controle de carregamento de página
-    const [loading, setLoading] = React.useState(false)
-
     // variável de controle de abertura de popup para Exportação de Dados
     const [exportDialog, setExportDialog] = React.useState([false, null]);
 
@@ -56,9 +80,6 @@ const ConsultaPix = () => {
     const handleClose = () => {
         setErrorDialog(false);
     };
-
-    // variável para armazenar a lista de Chaves PIX exibidas no FrontEnd
-    const [lista, setLista] = React.useState([]);
 
     // Alterar variável value de acordo com alteração do Radio Button
     const handleChange = (event) => {
@@ -138,77 +159,77 @@ const ConsultaPix = () => {
         const [open, setOpen] = React.useState(false);
         return (
             <React.Fragment>
-                    <TableRow
-                        key={item.chave}
-                        sx={{ '& > *': { borderBottom: 'unset' } }}
-                    >
-                        <TableCell>
-                            <IconButton
-                                aria-label="expand row"
-                                size="small"
-                                onClick={() => setOpen(!open)}
-                            >
-                                {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                            </IconButton>
-                        </TableCell>
-                        <TableCell component="th" scope="item">
-                            {item.chave}
-                        </TableCell>
-                        <TableCell>{item.tipoChave}</TableCell>
-                        <TableCell>{item.cpfCnpj ? formatCnpjCpf(item.cpfCnpj) : null}</TableCell>
-                        <TableCell>{item.nomeProprietario ? item.nomeProprietario.toUpperCase() : null}</TableCell>
-                        <TableCell>
-                            {item.numerobanco + ' ' + item.nomebanco}
-                            <br />Agência: {item.agencia}
-                            <br />Conta: {parseInt(item.numeroConta, 10)}
-                            <br />Tipo: {item.tipoConta}
-                        </TableCell>
-                        <TableCell align="right">{item.status}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell style={{ padding: 0 }} colSpan={7}>
-                            {open ? (
-                                <>
-                                    <Box sx={{ margin: 1 }}>
-                                        <Typography variant="h6" gutterBottom component="div">
-                                            Histórico da Chave
-                                        </Typography>
-                                        <Table size="small" aria-label="purchases">
-                                            <TableHead>
-                                                <TableRow >
-                                                    <TableCell>Data</TableCell>
-                                                    <TableCell>Evento</TableCell>
-                                                    <TableCell>Motivo</TableCell>
-                                                    <TableCell>CPF/CNPJ</TableCell>
-                                                    <TableCell>Nome</TableCell>
-                                                    <TableCell>Banco</TableCell>
-                                                    <TableCell>Abertura Conta</TableCell>
+                <TableRow
+                    key={item.chave}
+                    sx={{ '& > *': { borderBottom: 'unset' } }}
+                >
+                    <TableCell>
+                        <IconButton
+                            aria-label="expand row"
+                            size="small"
+                            onClick={() => setOpen(!open)}
+                        >
+                            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                        </IconButton>
+                    </TableCell>
+                    <TableCell component="th" scope="item">
+                        {item.chave}
+                    </TableCell>
+                    <TableCell>{item.tipoChave}</TableCell>
+                    <TableCell>{item.cpfCnpj ? formatCnpjCpf(item.cpfCnpj) : null}</TableCell>
+                    <TableCell>{item.nomeProprietario ? item.nomeProprietario.toUpperCase() : null}</TableCell>
+                    <TableCell>
+                        {item.numerobanco + ' ' + item.nomebanco}
+                        <br />Agência: {item.agencia}
+                        <br />Conta: {parseInt(item.numeroConta, 10)}
+                        <br />Tipo: {item.tipoConta}
+                    </TableCell>
+                    <TableCell align="right">{item.status}</TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell style={{ padding: 0 }} colSpan={7}>
+                        {open ? (
+                            <>
+                                <Box sx={{ margin: 1 }}>
+                                    <Typography variant="h6" gutterBottom component="div">
+                                        Histórico da Chave
+                                    </Typography>
+                                    <Table size="small" aria-label="purchases">
+                                        <TableHead>
+                                            <TableRow >
+                                                <TableCell>Data</TableCell>
+                                                <TableCell>Evento</TableCell>
+                                                <TableCell>Motivo</TableCell>
+                                                <TableCell>CPF/CNPJ</TableCell>
+                                                <TableCell>Nome</TableCell>
+                                                <TableCell>Banco</TableCell>
+                                                <TableCell>Abertura Conta</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {item.eventosVinculo.map((evento) => (
+                                                <TableRow key={item.eventosVinculo.indexOf(evento)}>
+                                                    <TableCell component="th" scope="evento">{formatarData(evento.dataEvento)}</TableCell>
+                                                    <TableCell>{evento.tipoEvento}</TableCell>
+                                                    <TableCell>{evento.motivoEvento}</TableCell>
+                                                    <TableCell>{evento.cpfCnpj ? formatCnpjCpf(evento.cpfCnpj) : null}</TableCell>
+                                                    <TableCell>{evento.nomeProprietario ? evento.nomeProprietario.toUpperCase() : null}</TableCell>
+                                                    <TableCell>
+                                                        {evento.numerobanco + ' ' + evento.nomebanco}
+                                                        <br />Agência: {evento.agencia}
+                                                        <br />Conta: {parseInt(evento.numeroConta, 10)}
+                                                        <br />Tipo: {evento.tipoConta}
+                                                    </TableCell>
+                                                    <TableCell>{formatarData(evento.dataAberturaConta)}</TableCell>
                                                 </TableRow>
-                                            </TableHead>
-                                            <TableBody>
-                                                {item.eventosVinculo.map((evento) => (
-                                                    <TableRow key={item.eventosVinculo.indexOf(evento)}>
-                                                        <TableCell component="th" scope="evento">{formatarData(evento.dataEvento)}</TableCell>
-                                                        <TableCell>{evento.tipoEvento}</TableCell>
-                                                        <TableCell>{evento.motivoEvento}</TableCell>
-                                                        <TableCell>{evento.cpfCnpj ? formatCnpjCpf(evento.cpfCnpj) : null}</TableCell>
-                                                        <TableCell>{evento.nomeProprietario ? evento.nomeProprietario.toUpperCase() : null}</TableCell>
-                                                        <TableCell>
-                                                            {evento.numerobanco + ' ' + evento.nomebanco}
-                                                            <br />Agência: {evento.agencia}
-                                                            <br />Conta: {parseInt(evento.numeroConta, 10)}
-                                                            <br />Tipo: {evento.tipoConta}
-                                                        </TableCell>
-                                                        <TableCell>{formatarData(evento.dataAberturaConta)}</TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </Box>
-                                </>
-                            ) : <></>}
-                        </TableCell>
-                    </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </Box>
+                            </>
+                        ) : <></>}
+                    </TableCell>
+                </TableRow>
             </React.Fragment>
         )
     }
@@ -257,24 +278,24 @@ const ConsultaPix = () => {
         )
     }
 
-      // Componente DIALOG (popup) para mostrar que a página está sendo carregada
+    // Componente DIALOG (popup) para mostrar que a página está sendo carregada
 
-  function LoadingDialog() {
-    return (
-      <>
-        <Dialog open={loading}>
-          <DialogTitle>
-            Carregando...
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-slide-description">
-              Por favor, aguarde.
-            </DialogContentText>
-          </DialogContent>
-        </Dialog>
-      </>
-    );
-  }
+    function LoadingDialog() {
+        return (
+            <>
+                <Dialog open={loading}>
+                    <DialogTitle>
+                        Carregando...
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-slide-description">
+                            Por favor, aguarde.
+                        </DialogContentText>
+                    </DialogContent>
+                </Dialog>
+            </>
+        );
+    }
 
     // Componente DIALOG (popup) para Exportação de Arquivos
     function ExportDialog() {
