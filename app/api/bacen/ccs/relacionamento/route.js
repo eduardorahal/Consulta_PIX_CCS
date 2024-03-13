@@ -36,16 +36,16 @@ export async function GET(request) {
                         await axios.get('https://www3.bcb.gov.br/informes/rest/pessoasJuridicas?cnpj=' + relacionamento.cnpj)
                             .then(response => response.data)
                             .then((participante) => {
-                                relacionamento.cnpj = relacionamento.cnpj[0];
-                                relacionamento.numeroBanco = (participante.codigoCompensacao ? participante.codigoCompensacao.toLocaleString('en-US', { minimumIntegerDigits: 3, useGrouping: false }) : '000');
-                                relacionamento.nomeBanco = participante.nome;
+                                relacionamento.cnpjResponsavel = relacionamento.cnpj[0];
+                                relacionamento.numeroBancoResponsavel = (participante.codigoCompensacao ? participante.codigoCompensacao.toLocaleString('en-US', { minimumIntegerDigits: 3, useGrouping: false }) : '000');
+                                relacionamento.nomeBancoResponsavel = participante.nome;
                                 relacionamento.dataInicioRelacionamento = relacionamento.periodos[0].periodos[0].dataInicio[0];
                                 relacionamento.dataFimRelacionamento = relacionamento.periodos[0].periodos[0].dataFim ? relacionamento.periodos[0].periodos[0].dataFim[0] : "";
                             })
                             .catch((err) => {
-                                relacionamento.cnpj = relacionamento.cnpj[0];
-                                relacionamento.numeroBanco = "000";
-                                relacionamento.nomeBanco = "BANCO NÃO INFORMADO";
+                                relacionamento.cnpjResponsavel = relacionamento.cnpj[0];
+                                relacionamento.numeroBancoResponsavel = "000";
+                                relacionamento.nomeBancoResponsavel = "BANCO NÃO INFORMADO";
                                 relacionamento.dataInicioRelacionamento = relacionamento.periodos[0].periodos[0].dataInicio[0];
                                 relacionamento.dataFimRelacionamento = relacionamento.periodos[0].periodos[0].dataFim ? relacionamento.periodos[0].periodos[0].dataFim[0] : "";
                             })
@@ -53,16 +53,20 @@ export async function GET(request) {
                             .then(response => response.data)
                             .then((participante) => {
                                 relacionamento.cnpjParticipante = relacionamento.cnpjParticipante[0]
-                                relacionamento.numeroParticipante = (participante.codigoCompensacao ? participante.codigoCompensacao.toLocaleString('en-US', { minimumIntegerDigits: 3, useGrouping: false }) : '000');
-                                relacionamento.nomeParticipante = participante.nome;
+                                relacionamento.numeroBancoParticipante = (participante.codigoCompensacao ? participante.codigoCompensacao.toLocaleString('en-US', { minimumIntegerDigits: 3, useGrouping: false }) : '000');
+                                relacionamento.nomeBancoParticipante = participante.nome;
                             })
                             .catch((err) => {
-                                relacionamento.cnpjParticipante = relacionamento.cnpjParticipante[0]
-                                relacionamento.numeroParticipante = "000";
-                                relacionamento.nomeParticipante = "BANCO NÃO INFORMADO";
+                                relacionamento.cnpjBancoParticipante = relacionamento.cnpjParticipante[0]
+                                relacionamento.numeroBancoParticipante = "000";
+                                relacionamento.nomeBancoParticipante = "BANCO NÃO INFORMADO";
                             })
+                        relacionamento.numeroRequisicao = res.requisicaoRelacionamento.numeroRequisicao[0];
+                        relacionamento.idPessoa = res.requisicaoRelacionamento.clientes[0].clientes[0].id[0];
                         delete relacionamento.responsavelAtivo;
                         delete relacionamento.periodos;
+                        delete relacionamento.cnpj;
+
                     }
 
                     // armazena as informações da requisição contendo os dados da solicitação e a resposta obtida
@@ -80,19 +84,24 @@ export async function GET(request) {
                         cpfCnpj: res.requisicaoRelacionamento.clientes[0].clientes[0].id[0],
                         tipoPessoa: res.requisicaoRelacionamento.clientes[0].clientes[0].tipoPessoa[0],
                         nome: res.requisicaoRelacionamento.clientes[0].clientes[0].nome[0],
-                        dataInicioSolicitacao: res.requisicaoRelacionamento.clientes[0].clientes[0].dataInicioSolicitacao[0],
-                        dataFimSolicitacao: res.requisicaoRelacionamento.clientes[0].clientes[0].dataFimSolicitacao[0],
                         relacionamentosCCS: {
                             create: relacionamentos[0]
                             },
                         autorizado: true
                     }
                     try {
-                        await prisma.requisicaoRelacionamentoCCS.create({
+                        let requisicaoSalva = await prisma.requisicaoRelacionamentoCCS.create({
                             data: requisicao
-                        }).then(
-                            lista.push(requisicao)
-                        )
+                        })
+                        let retornoConsulta = await prisma.requisicaoRelacionamentoCCS.findUnique({
+                            where: {
+                                id: requisicaoSalva.id,
+                            },
+                            include: {
+                                relacionamentosCCS: true,
+                            },
+                        })
+                        lista.push(retornoConsulta)
                     } catch (e) {
                         throw e
                     }

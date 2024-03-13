@@ -6,13 +6,13 @@ import { prisma } from "@/lib/prisma";
 export async function GET(request) {
   let lista = [];
   const { searchParams } = new URL(request.url);
-  let cpfResponsavel = process.env.CPF_RESPONSAVEL;
   let numeroRequisicao = searchParams.get("numeroRequisicao");
   let cpfCnpj = searchParams.get("cpfCnpj");
   let cnpjResponsavel = searchParams.get("cnpjResponsavel");
   let cnpjParticipante = searchParams.get("cnpjParticipante");
   let dataInicioRelacionamento = searchParams.get("dataInicioRelacionamento");
-  let caso = searchParams.get("caso");
+  let idRelacionamento = searchParams.get("idRelacionamento");
+  let nomeBancoResponsavel = searchParams.get("nomeBancoResponsavel");
 
   let config = {
     method: "get",
@@ -42,35 +42,49 @@ export async function GET(request) {
       await parser
         .parseStringPromise(response.data)
         .then(async (res) => {
-          console.log(res)
-          // armazena as informações da requisição contendo os dados da solicitação
 
-          let requisicao = {
-            dataRequisicao: res.requisicaoDetalhamentos.requisicaoDetalhamento[0].dataHoraRequisicao[0],
-            caso: caso,
-            cpfResponsavel: cpfResponsavel,
-            numeroRequisicao: res.requisicaoDetalhamentos.requisicaoDetalhamento[0].numeroRequisicao[0],
-            idPessoa: res.requisicaoDetalhamentos.requisicaoDetalhamento[0].idPessoa[0],
-            tipoPessoa: res.requisicaoDetalhamentos.requisicaoDetalhamento[0].tipoPessoa[0],
-            cnpjResponsavel: res.requisicaoDetalhamentos.requisicaoDetalhamento[0].cnpjResponsavel[0],
-            cnpjParticipante: res.requisicaoDetalhamentos.requisicaoDetalhamento[0].cnpjParticipante[0],
-            dataInicio: res.requisicaoDetalhamentos.requisicaoDetalhamento[0].dataInicio[0],
-            autorizado: true
-          };
+          // armazena as informações da requisição de detalhamento
           try {
-            await prisma.requisicaoDetalhamentoCCS
-              .create({
-                data: requisicao,
-              })
-              .then(lista.push(requisicao));
+            await prisma.relacionamentoCCS.update({
+              where: {
+                id: parseInt(idRelacionamento),
+              },
+              data: {
+                dataRequisicaoDetalhamento: res.requisicaoDetalhamentos.requisicaoDetalhamento[0].dataHoraRequisicao[0],
+                respondeDetalhamento: true,
+                resposta: false
+              },
+            }).then(
+              lista.push({banco: nomeBancoResponsavel, msg: 'Detalhamento Solicitado', status: 'sucesso' })
+            )
           } catch (e) {
             throw e;
           }
         })
         .catch((err) => console.error(err));
     })
-    .catch((error) => {
-      console.log(error.response.status);
+    .catch(async (error) => {
+      console.log(error)
+      if(error.response.status === 500){
+
+        // armazena que a IF não responde a detalhamentos
+        try {
+          await prisma.relacionamentoCCS.update({
+            where: {
+              id: parseInt(idRelacionamento),
+            },
+            data: {
+              dataRequisicaoDetalhamento: (new Date()).toISOString(),
+              respondeDetalhamento: false,
+              resposta: true
+            },
+          }).then(
+            lista.push({banco: nomeBancoResponsavel, msg: 'IF não responde a detalhamentos', status: 'falha' })
+          )
+        } catch (e) {
+          throw e;
+        }
+      };
     });
   return NextResponse.json(lista);
 }

@@ -31,6 +31,7 @@ import { v4 as uuidv4 } from "uuid";
 // Serviços de Geração de Relatórios em PDF, usando pdfmake
 import RelatorioResumidoPIX from "../../relatorios/pix/resumido";
 import RelatorioDetalhadoPIX from "../../relatorios/pix/detalhado";
+import { responsiveProperty } from "@mui/material/styles/cssUtils";
 
 const ConsultaCCS = () => {
   // variáveis para armazenar CPF, CNPJ, Chave PIX e Motivo da consulta
@@ -43,6 +44,11 @@ const ConsultaCCS = () => {
   //variável para controle de carregamento de página
   const [loading, setLoading] = React.useState(false)
 
+  // variável para controle de soliticação de detalhamento
+  const [detalhamento, setDetalhamento] = React.useState(false);
+  const [statusDetalhamento, setStatusDetalhamento] = React.useState(false);
+  const [listaDetalhamentos, setListaDetalhamentos] = React.useState([]);
+
   // variável de controle de abertura de popup para Exportação de Dados
   const [exportDialog, setExportDialog] = React.useState([false, null]);
 
@@ -50,6 +56,7 @@ const ConsultaCCS = () => {
 
   const handleClose = () => {
     setErrorDialog(false);
+    setDetalhamento(false)
   };
 
   // variável para armazenar a lista de Chaves PIX exibidas no FrontEnd
@@ -132,7 +139,7 @@ const ConsultaCCS = () => {
             setLoading(false)
           } else {
             setLista(relacionamentos);
-            setRelacionamentos(relacionamentos.relacionamentosCCS.create);
+            setRelacionamentos(relacionamentos.relacionamentosCCS);
             setLoading(false)
           }
         })
@@ -149,6 +156,7 @@ const ConsultaCCS = () => {
 
   // Chamada da API para Buscar Detalhamentos dos Relacionamentos CCS no Banco Central
   const detalhaCCS = () => {
+    setDetalhamento(true)
     relacionamentos.map(async (relacionamento) => {
       await axios
         .get(
@@ -157,17 +165,20 @@ const ConsultaCCS = () => {
           "&cpfCnpj=" +
           lista.cpfCnpj +
           "&cnpjResponsavel=" +
-          relacionamento.cnpj +
+          relacionamento.cnpjResponsavel +
           "&cnpjParticipante=" +
           relacionamento.cnpjParticipante +
           "&dataInicioRelacionamento=" +
           relacionamento.dataInicioRelacionamento +
           "&caso=" +
-          relacionamento.caso
+          relacionamento.caso +
+          "&idRelacionamento=" +
+          relacionamento.id +
+          "&nomeBancoResponsavel=" +
+          relacionamento.nomeBancoResponsavel
         )
-        .then((response) => response.data[0])
-        .then((res) => {
-          console.log(res)
+        .then((response) => {
+          setListaDetalhamentos((listaDetalhamentos) => [...listaDetalhamentos, response.data[0]])
         })
         .catch((err) => console.error(err));
     });
@@ -191,7 +202,7 @@ const ConsultaCCS = () => {
           </TableCell>
           <TableCell>{lista.nome}</TableCell>
           <TableCell>
-            {relacionamento.numeroBanco + " - " + relacionamento.nomeBanco}
+            {relacionamento.numeroBancoResponsavel + " - " + relacionamento.nomeBancoResponsavel}
           </TableCell>
           <TableCell>{relacionamento.dataInicioRelacionamento}</TableCell>
           <TableCell align="right">
@@ -228,9 +239,6 @@ const ConsultaCCS = () => {
         file.click();
         document.body.removeChild(file);
         break;
-      //     }
-      // } else {
-      //     alert('Pesquisa vazia')
     }
     setExportDialog(null);
   }
@@ -274,6 +282,42 @@ const ConsultaCCS = () => {
               Por favor, aguarde.
             </DialogContentText>
           </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+
+
+  // Componente DIALOG (popup) para mostrar o andamento da solicitação de Detalhamento
+
+  function DetalhamentoDialog() {
+    return (
+      <>
+        <Dialog onClose={handleClose} open={detalhamento}>
+          <DialogTitle>
+            {!statusDetalhamento ? 'Solicitando Detalhamento...' : 'Solicitação Concluída'}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-slide-description">
+              {!statusDetalhamento ? 'Por favor, aguarde...' : 'Solicitação de Detalhamento Concluída. O prazo para respostas leva cerca de 24 horas.'}
+            </DialogContentText>
+            <Table>
+              <TableBody>
+                {listaDetalhamentos && listaDetalhamentos.map((lista) => (
+                  <>
+                    <TableRow key={uuidv4()}>
+                      <TableCell variant="overline">{lista.banco}</TableCell>
+                      <TableCell variant="overline">{lista.msg}</TableCell>
+                    </TableRow>
+                  </>
+                ))}
+              </TableBody>
+            </Table>
+          </DialogContent>
+          {statusDetalhamento &&
+            <DialogActions>
+              <Button onClick={handleClose}>OK</Button>
+            </DialogActions>}
         </Dialog>
       </>
     );
@@ -474,9 +518,10 @@ const ConsultaCCS = () => {
               </TableHead>
               <TableBody>
                 {loading && <LoadingDialog />}
+                {detalhamento && <DetalhamentoDialog />}
                 {relacionamentos.map((relacionamento) => (
-                      <Row key={uuidv4()} relacionamento={relacionamento} />
-                  ))}
+                  <Row key={uuidv4()} relacionamento={relacionamento} />
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
