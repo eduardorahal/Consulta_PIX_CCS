@@ -22,19 +22,13 @@ import axios from 'axios';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import IconButton from '@mui/material/IconButton';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useSearchParams } from 'next/navigation'
-
-// Serviços de Geração de Relatórios em PDF, usando pdfmake
-import RelatorioResumidoPIX from '../../relatorios/pix/resumido';
-import RelatorioDetalhadoPIX from '../../relatorios/pix/detalhado';
+import DialogRelatorioPIX from '@/app/components/PIX/Relatorios/ExportaRelatorioPIX';
 
 const ConsultaPix = () => {
 
@@ -72,9 +66,6 @@ const ConsultaPix = () => {
     const [chave, setChave] = React.useState('');
     const [motivo, setMotivo] = React.useState('');
 
-    // variável de controle de abertura de popup para Exportação de Dados
-    const [exportDialog, setExportDialog] = React.useState([false, null]);
-
     const [errorDialog, setErrorDialog] = React.useState(false);
 
     const handleClose = () => {
@@ -104,6 +95,16 @@ const ConsultaPix = () => {
     // Formatar Datas para apresentação no FrontEnd
     const formatarData = (data) => {
         return data.match(/\d{2}[-\w\_\.\/]\d{2}[-\w\_\.\/]\d{4}/gi)
+    }
+
+    
+    // variáveis e funções de controle de abertura de popup para Exportação de Dados
+    const [openDialogRelatorio, setOpenDialogRelatorio] = React.useState(false);
+    const [tipoRelatorio, setTipoRelatorio] = React.useState();
+
+    const callExportDialog = (tipo) => {
+        setTipoRelatorio(tipo)
+        setOpenDialogRelatorio(true)
     }
 
     // Chamada da API para Buscar Chaves PIX no Banco Central
@@ -234,31 +235,6 @@ const ConsultaPix = () => {
         )
     }
 
-    // Função para Exportar Dados em diversos formatos
-    function exporta(tipo) {
-        // if (lista.length != 0) {
-        switch (tipo) {
-            case 'pdf_resumido': RelatorioResumidoPIX(lista)
-                break;
-            case 'pdf_detalhado': RelatorioDetalhadoPIX(lista)
-                break;
-            case 'csv_completo': alert('Exportação ainda não disponível.')
-                break;
-            case 'json_completo':
-                var file = window.document.createElement('a');
-                file.href = window.URL.createObjectURL(new Blob([JSON.stringify({ vinculosPix: lista })]), { type: "application/json" });
-                file.download = 'vinculosPix.json';
-                document.body.appendChild(file);
-                file.click();
-                document.body.removeChild(file);
-                break;
-            //     }
-            // } else {
-            //     alert('Pesquisa vazia')
-        }
-        setExportDialog(null)
-    }
-
     // Componente DIALOG (popup) para Mensagem de Erro
     function ErrorDialog() {
         return (
@@ -295,31 +271,6 @@ const ConsultaPix = () => {
                 </Dialog>
             </>
         );
-    }
-
-    // Componente DIALOG (popup) para Exportação de Arquivos
-    function ExportDialog() {
-        return (
-            <>
-                <Dialog open={exportDialog[0]} onClose={() => setExportDialog(null)} >
-                    <DialogTitle>Selecione o Tipo de Relatório</DialogTitle>
-                    <List sx={{ pt: 0 }}>
-                        {exportDialog[1] == 'pdf' ?
-                            <>
-                                <ListItem><ListItemButton onClick={() => exporta('pdf_resumido')}>Relatório Resumido</ListItemButton></ListItem>
-                                <ListItem><ListItemButton onClick={() => exporta('pdf_detalhado')}>Relatório Detalhado</ListItemButton></ListItem>
-                            </>
-                            :
-                            <>
-                                <ListItem><ListItemButton onClick={() => exporta('csv_completo')}>Arquivo CSV</ListItemButton></ListItem>
-                                <ListItem><ListItemButton onClick={() => exporta('json_completo')}>Arquivo JSON - Esprites</ListItemButton></ListItem>
-                            </>
-                        }
-
-                    </List>
-                </Dialog>
-            </>
-        )
     }
 
     // Retorno do Componente Principal, com o Formulário de Consulta e a chamada da Tabela, já com cabeçalho
@@ -360,16 +311,22 @@ const ConsultaPix = () => {
                     </Button>
                     {lista.length > 0 ?
                         <>
-                            <Button style={{ marginInlineEnd: 20 }} variant="outlined" color='error' size="small" onClick={() => setExportDialog([true, 'pdf'])} >
+                            <Button style={{ marginInlineEnd: 20 }} variant="outlined" color='error' size="small" onClick={() => callExportDialog('pdf')} >
                                 Exportar PDF
                             </Button>
-                            <Button style={{ marginInlineEnd: 20 }} variant="outlined" color='success' size="small" onClick={() => setExportDialog([true, 'etc'])} >
+                            <Button style={{ marginInlineEnd: 20 }} variant="outlined" color='success' size="small" onClick={() => callExportDialog('etc')} >
                                 Exportar ...
                             </Button>
                         </> : <></>
                     }
                     {
-                        exportDialog && <ExportDialog />
+                        openDialogRelatorio && 
+                        <DialogRelatorioPIX 
+                        openDialogRelatorio={openDialogRelatorio}
+                        setOpenDialogRelatorio={setOpenDialogRelatorio}
+                        tipoRelatorio={tipoRelatorio}
+                        lista={lista}
+                    />
                     }
                 </Grid>
                 <Grid item xs={12} md={12}>

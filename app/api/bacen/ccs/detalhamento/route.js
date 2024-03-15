@@ -37,7 +37,6 @@ export async function GET(request) {
   const vinculos = await axios
     .request(config)
     .then(async (response) => {
-      console.log(response.status)
       const parser = xml2js.Parser();
       await parser
         .parseStringPromise(response.data)
@@ -64,7 +63,6 @@ export async function GET(request) {
         .catch((err) => console.error(err));
     })
     .catch(async (error) => {
-      console.log(error)
       if(error.response.status === 500){
 
         // armazena que a IF não responde a detalhamentos

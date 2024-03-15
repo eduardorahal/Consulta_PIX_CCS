@@ -27,11 +27,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { v4 as uuidv4 } from "uuid";
-
-// Serviços de Geração de Relatórios em PDF, usando pdfmake
-import RelatorioResumidoPIX from "../../relatorios/pix/resumido";
-import RelatorioDetalhadoPIX from "../../relatorios/pix/detalhado";
-import { responsiveProperty } from "@mui/material/styles/cssUtils";
+import DialogDetalhamentoCCS from "@/app/components/CCS/DialogDetalhamentoCCS";
 
 const ConsultaCCS = () => {
   // variáveis para armazenar CPF, CNPJ, Chave PIX e Motivo da consulta
@@ -45,18 +41,14 @@ const ConsultaCCS = () => {
   const [loading, setLoading] = React.useState(false)
 
   // variável para controle de soliticação de detalhamento
-  const [detalhamento, setDetalhamento] = React.useState(false);
-  const [statusDetalhamento, setStatusDetalhamento] = React.useState(false);
+  const [openDialogDetalhamentoCCS, setOpenDialogDetalhamentoCCS] = React.useState(false);
   const [listaDetalhamentos, setListaDetalhamentos] = React.useState([]);
-
-  // variável de controle de abertura de popup para Exportação de Dados
-  const [exportDialog, setExportDialog] = React.useState([false, null]);
+  const [statusDetalhamentos, setStatusDetalhamentos] = React.useState(false);
 
   const [errorDialog, setErrorDialog] = React.useState(false);
 
   const handleClose = () => {
     setErrorDialog(false);
-    setDetalhamento(false)
   };
 
   // variável para armazenar a lista de Chaves PIX exibidas no FrontEnd
@@ -155,8 +147,9 @@ const ConsultaCCS = () => {
   };
 
   // Chamada da API para Buscar Detalhamentos dos Relacionamentos CCS no Banco Central
-  const detalhaCCS = () => {
-    setDetalhamento(true)
+  const detalhaCCS = async () => {
+    setListaDetalhamentos([])
+    setOpenDialogDetalhamentoCCS(true)
     relacionamentos.map(async (relacionamento) => {
       await axios
         .get(
@@ -182,7 +175,18 @@ const ConsultaCCS = () => {
         })
         .catch((err) => console.error(err));
     });
+    await axios.get("/api/bacen/ccs/numeroRequisicao?id=" + lista.id)
+    .then((response) => {
+      if (response.data[0].status === 'sucesso'){
+        setStatusDetalhamentos(true)
+      }
+    })
   };
+
+  const limpaTela = () => {
+      setLista([]);
+      setRelacionamentos([]);
+  }
 
   // Função para Montar as LINHAS da Tabela no FrontEnd (sem o cabeçalho, pois o cabeçalho está no return)
   function Row(props) {
@@ -213,34 +217,6 @@ const ConsultaCCS = () => {
         </TableRow>
       </React.Fragment>
     );
-  }
-
-  // Função para Exportar Dados em diversos formatos
-  function exporta(tipo) {
-    // if (lista.length != 0) {
-    switch (tipo) {
-      case "pdf_resumido":
-        RelatorioResumidoPIX(lista);
-        break;
-      case "pdf_detalhado":
-        RelatorioDetalhadoPIX(lista);
-        break;
-      case "csv_completo":
-        alert("Exportação ainda não disponível.");
-        break;
-      case "json_completo":
-        var file = window.document.createElement("a");
-        file.href = window.URL.createObjectURL(
-          new Blob([JSON.stringify({ vinculosPix: lista })]),
-          { type: "application/json" }
-        );
-        file.download = "vinculosPix.json";
-        document.body.appendChild(file);
-        file.click();
-        document.body.removeChild(file);
-        break;
-    }
-    setExportDialog(null);
   }
 
   // Componente DIALOG (popup) para Mensagem de Erro
@@ -282,82 +258,6 @@ const ConsultaCCS = () => {
               Por favor, aguarde.
             </DialogContentText>
           </DialogContent>
-        </Dialog>
-      </>
-    );
-  }
-
-
-  // Componente DIALOG (popup) para mostrar o andamento da solicitação de Detalhamento
-
-  function DetalhamentoDialog() {
-    return (
-      <>
-        <Dialog onClose={handleClose} open={detalhamento}>
-          <DialogTitle>
-            {!statusDetalhamento ? 'Solicitando Detalhamento...' : 'Solicitação Concluída'}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-slide-description">
-              {!statusDetalhamento ? 'Por favor, aguarde...' : 'Solicitação de Detalhamento Concluída. O prazo para respostas leva cerca de 24 horas.'}
-            </DialogContentText>
-            <Table>
-              <TableBody>
-                {listaDetalhamentos && listaDetalhamentos.map((lista) => (
-                  <>
-                    <TableRow key={uuidv4()}>
-                      <TableCell variant="overline">{lista.banco}</TableCell>
-                      <TableCell variant="overline">{lista.msg}</TableCell>
-                    </TableRow>
-                  </>
-                ))}
-              </TableBody>
-            </Table>
-          </DialogContent>
-          {statusDetalhamento &&
-            <DialogActions>
-              <Button onClick={handleClose}>OK</Button>
-            </DialogActions>}
-        </Dialog>
-      </>
-    );
-  }
-
-  // Componente DIALOG (popup) para Exportação de Arquivos
-  function ExportDialog() {
-    return (
-      <>
-        <Dialog open={exportDialog[0]} onClose={() => setExportDialog(null)}>
-          <DialogTitle>Selecione o Tipo de Relatório</DialogTitle>
-          <List sx={{ pt: 0 }}>
-            {exportDialog[1] == "pdf" ? (
-              <>
-                <ListItem>
-                  <ListItemButton onClick={() => exporta("pdf_resumido")}>
-                    Relatório Resumido
-                  </ListItemButton>
-                </ListItem>
-                <ListItem>
-                  <ListItemButton onClick={() => exporta("pdf_detalhado")}>
-                    Relatório Detalhado
-                  </ListItemButton>
-                </ListItem>
-              </>
-            ) : (
-              <>
-                <ListItem>
-                  <ListItemButton onClick={() => exporta("csv_completo")}>
-                    Arquivo CSV
-                  </ListItemButton>
-                </ListItem>
-                <ListItem>
-                  <ListItemButton onClick={() => exporta("json_completo")}>
-                    Arquivo JSON - Esprites
-                  </ListItemButton>
-                </ListItem>
-              </>
-            )}
-          </List>
         </Dialog>
       </>
     );
@@ -457,7 +357,7 @@ const ConsultaCCS = () => {
             style={{ marginInlineEnd: 20 }}
             variant="outlined"
             size="small"
-            onClick={() => setLista([])}
+            onClick={() => limpaTela()}
           >
             Limpar
           </Button>
@@ -468,7 +368,7 @@ const ConsultaCCS = () => {
                 variant="outlined"
                 color="error"
                 size="small"
-                onClick={() => setExportDialog([true, "pdf"])}
+                onClick={() => null}
               >
                 Exportar PDF
               </Button>
@@ -477,7 +377,7 @@ const ConsultaCCS = () => {
                 variant="outlined"
                 color="success"
                 size="small"
-                onClick={() => setExportDialog([true, "etc"])}
+                onClick={() => null}
               >
                 Exportar ...
               </Button>
@@ -485,7 +385,6 @@ const ConsultaCCS = () => {
           ) : (
             <></>
           )}
-          {exportDialog && <ExportDialog />}
         </Grid>
         <Grid>
           {relacionamentos.length > 0 ? (
@@ -518,7 +417,14 @@ const ConsultaCCS = () => {
               </TableHead>
               <TableBody>
                 {loading && <LoadingDialog />}
-                {detalhamento && <DetalhamentoDialog />}
+                {openDialogDetalhamentoCCS && 
+                  <DialogDetalhamentoCCS 
+                    openDialogDetalhamentoCCS={openDialogDetalhamentoCCS}
+                    setOpenDialogDetalhamentoCCS={setOpenDialogDetalhamentoCCS}
+                    listaDetalhamentos={listaDetalhamentos}
+                    statusDetalhamentos={statusDetalhamentos}
+                  />
+                }
                 {relacionamentos.map((relacionamento) => (
                   <Row key={uuidv4()} relacionamento={relacionamento} />
                 ))}
