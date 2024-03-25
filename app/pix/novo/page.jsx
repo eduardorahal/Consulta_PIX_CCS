@@ -28,7 +28,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useSearchParams } from 'next/navigation'
-import DialogRelatorioPIX from '@/app/components/PIX/Relatorios/ExportaRelatorioPIX';
+import DialogRelatorioPIX from '@/app/pix/components/Relatorios/ExportaRelatorioPIX';
 
 const ConsultaPix = () => {
 

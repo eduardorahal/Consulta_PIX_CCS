@@ -12,7 +12,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Button from '@mui/material/Button';
 import Link from 'next/link';
 
-import PIXRow from '../components/Dashboard/PIXRow';
+import PIXRow from './components/PIXRow';
 
 const DashPIX = () => {
 
@@ -33,7 +33,7 @@ const DashPIX = () => {
             setLoading(true)
             await axios
                 .get(
-                    "/api/requisicoespix?cpfCnpj=" + cpfResponsavel
+                    "/api/bacen/pix/requisicoespix?cpfCnpj=" + cpfResponsavel
                 )
                 .then((response) => response.data)
                 .then((res) => {

@@ -82,9 +82,9 @@ model BemDireitoValorCCS {
   vinculo String
   nomePessoa String
   dataInicio String
-  dataFim String
-  respostaDetalhamento RelacionamentoCCS?@relation(fields: [idRequisicao], references: [id])
-  idRequisicao  Int
+  dataFim String?
+  relacionamento RelacionamentoCCS?@relation(fields: [idRelacionamento], references: [id])
+  idRelacionamento  Int
   vinculados VinculadosBDVCCS[]
 }
 
@@ -93,8 +93,8 @@ model VinculadosBDVCCS {
   bemDireitoValor BemDireitoValorCCS?@relation(fields: [idBDV], references: [id])
   idBDV  Int
   dataInicio String
-  dataFim String
-  cpfCnpj String
+  dataFim String?
+  idPessoa String
   nomePessoa String
   nomePessoaReceita String
   tipo String

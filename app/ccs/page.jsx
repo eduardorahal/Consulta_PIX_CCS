@@ -12,7 +12,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Button from '@mui/material/Button';
 import Link from 'next/link';
 
-import CCSRow from '../components/Dashboard/CCSRow';
+import CCSRow from './components/CCSRow';
 
 const DashCCS = () => {
 
@@ -33,7 +33,7 @@ const DashCCS = () => {
             setLoading(true)
             await axios
                 .get(
-                    "/api/requisicoesccs?cpfCnpj=" + cpfResponsavel
+                    "/api/bacen/ccs/requisicoesccs?cpfCnpj=" + cpfResponsavel
                 )
                 .then((response) => response.data)
                 .then((res) => {
@@ -80,7 +80,7 @@ const DashCCS = () => {
                         <LoadingDialog />
                         :
                         <>
-                            <Suspense fallback={<p>CARREGANDO REQUISIÇÕES CCS...</p>}>
+                            <Suspense fallback={<span>Carregando Requisições CCS...</span>}>
                                 <CCSRow requisicoes={requisicoesCCS} />
                             </Suspense>
                         </>

@@ -28,6 +28,13 @@ const CCSRow = ({ requisicoes }) => {
 
     const [selected, setSelected] = React.useState([]);
 
+    // Variável para armazenar quais itens serão detalhados
+    const [detalhe, setDetalhe] = React.useState([]);
+
+    React.useEffect(() => {
+
+    }, [selected, detalhe])
+
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
@@ -39,33 +46,56 @@ const CCSRow = ({ requisicoes }) => {
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
+            const newDetalhe = requisicoes.map((n) => n);
+            setDetalhe(newDetalhe)
+            localStorage.setItem("detalhe", JSON.stringify(requisicoes));
             const newSelected = requisicoes.map((n) => n.id);
             setSelected(newSelected);
             return;
         }
         setSelected([]);
+        setDetalhe([]);
+        localStorage.setItem("detalhe", "");
     };
 
     const handleClick = (event, id) => {
+        const requisicao = requisicoes.find(x => x.id === id);
         const selectedIndex = selected.indexOf(id);
         let newSelected = [];
+        let newDetalhe = [];
 
         if (selectedIndex === -1) {
             newSelected = newSelected.concat(selected, id);
+            newDetalhe = newDetalhe.concat(detalhe, requisicao);
         } else if (selectedIndex === 0) {
             newSelected = newSelected.concat(selected.slice(1));
+            newDetalhe = newDetalhe.concat(detalhe.slice(1));
         } else if (selectedIndex === selected.length - 1) {
             newSelected = newSelected.concat(selected.slice(0, -1));
+            newDetalhe = newDetalhe.concat(detalhe.slice(0, -1));
         } else if (selectedIndex > 0) {
             newSelected = newSelected.concat(
                 selected.slice(0, selectedIndex),
                 selected.slice(selectedIndex + 1),
             );
+            newDetalhe = newDetalhe.concat(
+                detalhe.slice(0, selectedIndex),
+                detalhe.slice(selectedIndex + 1),
+            );
         }
         setSelected(newSelected);
+        setDetalhe(newDetalhe);
+        localStorage.setItem("detalhe", JSON.stringify(newDetalhe));
     };
 
     const isSelected = (id) => selected.indexOf(id) !== -1;
+
+    // Function para Exportar CCS
+
+    const exportarCCS = () => {
+        console.log('Selected: ', selected);
+        console.log('Detalhe: ', detalhe);
+    }
 
     // Toolbar para a Tabela
 
@@ -83,10 +113,22 @@ const CCSRow = ({ requisicoes }) => {
                         >
                             Solicitações Recentes
                         </Typography>
-                        <Tooltip title="Delete">
-                            <IconButton>
-                                <DeleteIcon />
-                            </IconButton>
+                        <Tooltip title="detalhar">
+                            <Link
+                                href={{
+                                    pathname: '/ccs/detalha',
+                                    query: { selected: 'true' },
+                                }}
+                            >
+                                <Button style={{ marginInlineEnd: 20 }} variant="contained" size="small" >
+                                    Detalhar
+                                </Button>
+                            </Link>
+                        </Tooltip>
+                        <Tooltip title="exportar">
+                                <Button onClick={() => exportarCCS()} style={{ marginInlineEnd: 20, float: 'right' }} variant="contained" size="small" >
+                                    Exportar
+                                </Button>
                         </Tooltip>
                     </>
                 ) : (
@@ -140,6 +182,9 @@ const CCSRow = ({ requisicoes }) => {
         const isItemSelected = isSelected(requisicao.id);
         var dataInicioConsulta = new Date(requisicao.dataInicioConsulta);
         var dataFimConsulta = new Date(requisicao.dataFimConsulta);
+
+        const totalResposta = requisicao.relacionamentosCCS.filter(rel => rel.resposta === true).length
+
         return (
             <React.Fragment>
                 <TableRow hover
@@ -161,7 +206,7 @@ const CCSRow = ({ requisicoes }) => {
                     <TableCell>{dataInicioConsulta.toLocaleDateString()}</TableCell>
                     <TableCell>{dataFimConsulta.toLocaleDateString()}</TableCell>
                     <TableCell>{requisicao.caso}</TableCell>
-                    <TableCell>Detalhamento</TableCell>
+                    <TableCell>{totalResposta} / {requisicao.relacionamentosCCS.length}</TableCell>
                 </TableRow>
             </React.Fragment>
         );
