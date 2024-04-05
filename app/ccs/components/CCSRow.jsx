@@ -97,6 +97,16 @@ const CCSRow = ({ requisicoes }) => {
         console.log('Detalhe: ', detalhe);
     }
 
+    // Formatar CPF / CNPJ para apresentação no FrontEnd
+
+    const formatCnpjCpf = (value) => {
+        const cnpjCpf = value.replace(/\D/g, '')
+        if (cnpjCpf.length === 11) {
+            return cnpjCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/g, "\$1.\$2.\$3-\$4");
+        }
+        return cnpjCpf.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/g, "\$1.\$2.\$3/\$4-\$5");
+    }
+
     // Toolbar para a Tabela
 
     function TableToolbar(props) {
@@ -126,9 +136,9 @@ const CCSRow = ({ requisicoes }) => {
                             </Link>
                         </Tooltip>
                         <Tooltip title="exportar">
-                                <Button onClick={() => exportarCCS()} style={{ marginInlineEnd: 20, float: 'right' }} variant="contained" size="small" >
-                                    Exportar
-                                </Button>
+                            <Button onClick={() => exportarCCS()} style={{ marginInlineEnd: 20, float: 'right' }} variant="contained" size="small" >
+                                Exportar
+                            </Button>
                         </Tooltip>
                     </>
                 ) : (
@@ -161,7 +171,7 @@ const CCSRow = ({ requisicoes }) => {
                             checked={rowCount > 0 && numSelected === rowCount}
                             onChange={onSelectAllClick}
                             inputProps={{
-                                'aria-label': 'select all desserts',
+                                'aria-label': 'select all',
                             }}
                         />
                     </TableCell>
@@ -201,7 +211,7 @@ const CCSRow = ({ requisicoes }) => {
                             checked={isItemSelected}
                         />
                     </TableCell>
-                    <TableCell>{requisicao.cpfCnpjConsulta}</TableCell>
+                    <TableCell>{formatCnpjCpf(requisicao.cpfCnpjConsulta)}</TableCell>
                     <TableCell>{requisicao.nome}</TableCell>
                     <TableCell>{dataInicioConsulta.toLocaleDateString()}</TableCell>
                     <TableCell>{dataFimConsulta.toLocaleDateString()}</TableCell>

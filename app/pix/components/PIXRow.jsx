@@ -34,8 +34,8 @@ const PIXRow = (props) => {
     const [detalhe, setDetalhe] = React.useState([]);
 
     React.useEffect(() => {
-        
-    }, [selected, detalhe]) 
+
+    }, [selected, detalhe])
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -91,6 +91,17 @@ const PIXRow = (props) => {
     };
 
     const isSelected = (id) => selected.indexOf(id) !== -1;
+
+    // Formatar CPF / CNPJ para apresentação no FrontEnd
+
+    const formatCnpjCpf = (value) => {
+        const cnpjCpf = value.replace(/\D/g, '')
+        if (cnpjCpf.length === 11) {
+            return cnpjCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/g, "\$1.\$2.\$3-\$4");
+        }
+        return cnpjCpf.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/g, "\$1.\$2.\$3/\$4-\$5");
+    }
+
 
     // Toolbar para a Tabela
 
@@ -156,7 +167,7 @@ const PIXRow = (props) => {
                             }}
                         />
                     </TableCell>
-                    <TableCell>CPF/CNPJ</TableCell>
+                    <TableCell>Chave de Busca</TableCell>
                     <TableCell>Nome</TableCell>
                     <TableCell>Tipo</TableCell>
                     <TableCell>Data</TableCell>
@@ -187,7 +198,7 @@ const PIXRow = (props) => {
                             checked={isItemSelected}
                         />
                     </TableCell>
-                    <TableCell>{requisicao.chaveBusca}</TableCell>
+                    <TableCell>{requisicao.tipoBusca == 'cpf/cnpj' ? formatCnpjCpf(requisicao.chaveBusca) : requisicao.chaveBusca}</TableCell>
                     <TableCell>{(requisicao.vinculos[0].nomeProprietario).toUpperCase()}</TableCell>
                     <TableCell>{(requisicao.tipoBusca).toUpperCase()}</TableCell>
                     <TableCell>{dataRequisicao.toLocaleDateString()}</TableCell>

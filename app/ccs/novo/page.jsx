@@ -78,26 +78,20 @@ const ConsultaCCS = () => {
     );
   };
 
-  // Formatar Datas para apresentação no FrontEnd
-  const formatarData = (data) => {
-    let novadata = new Date(data);
-    return (
-      novadata
-        .getDate()
-        .toLocaleString("en-US", {
-          minimumIntegerDigits: 2,
-          useGrouping: false,
-        }) +
+// Formatar Datas para apresentação no FrontEnd
+const formatarData = (data) => {
+  let novadata = new Date(data);
+  return (
+      ((novadata.getDate() + 1)).toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false }) +
       "/" +
       (novadata.getMonth() + 1).toLocaleString("en-US", {
-        minimumIntegerDigits: 2,
-        useGrouping: false,
+          minimumIntegerDigits: 2,
+          useGrouping: false,
       }) +
       "/" +
       novadata.getFullYear()
-    );
-  };
-
+  );
+};
   // Chamada da API para Buscar Vínculos CCS no Banco Central
   const buscaCCS = async () => {
     if (

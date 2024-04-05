@@ -19,8 +19,14 @@ export async function GET(request) {
           bemDireitoValorCCS: {
             include: {
               vinculados: true,
+            },
+            orderBy: {
+              dataInicio: 'desc'
             }
           }
+        },
+        orderBy: {
+          numeroBancoResponsavel: 'asc'
         }
       },
     },
@@ -28,6 +34,8 @@ export async function GET(request) {
       id: 'desc',
     }
   })
+
+  // O seguinte foi migrado para a rota de atualização de Detalhamentos, em /utils/atualizaCCS. Por backup, ficou aqui também.
 
   // // De posse das Requisições, busca no BACEN quais requisições já possuem respostas
   // for await (let requisicao of requisicoesCCS){

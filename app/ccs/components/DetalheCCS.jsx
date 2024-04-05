@@ -14,18 +14,22 @@ import Typography from '@mui/material/Typography';
 import Toolbar from '@mui/material/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
 import Button from '@mui/material/Button';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
 import { v4 as uuidv4 } from "uuid";
+import DialogRelatorioCCS from './Relatorios/ExportaRelatorioCCS';
 
 const DetalheCCS = ({ requisicoes }) => {
 
     // Variáveis e Funções para apresentação de Tabelas
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(20);
-
+    const [openAll, setOpenAll] = useState(false)
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
     };
@@ -42,25 +46,72 @@ const DetalheCCS = ({ requisicoes }) => {
         console.log('Detalhe: ', detalhe);
     }
 
+    // Formatar CPF / CNPJ para apresentação no FrontEnd
+
+    const formatCnpjCpf = (value) => {
+        const cnpjCpf = value.replace(/\D/g, '')
+        if (cnpjCpf.length === 11) {
+            return cnpjCpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/g, "\$1.\$2.\$3-\$4");
+        }
+        return cnpjCpf.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/g, "\$1.\$2.\$3/\$4-\$5");
+    }
+
+    // variáveis e funções de controle de abertura de popup para Exportação de Dados
+    const [openDialogRelatorio, setOpenDialogRelatorio] = React.useState(false);
+    const [tipoRelatorio, setTipoRelatorio] = React.useState();
+
+    const callExportDialog = (tipo) => {
+        setTipoRelatorio(tipo)
+        setOpenDialogRelatorio(true)
+    }
+
+    // Formatar Datas para apresentação no FrontEnd
+    const formatarData = (data) => {
+        let novadata = new Date(data);
+        return (
+            ((novadata.getDate() + 1)).toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false }) +
+            "/" +
+            (novadata.getMonth() + 1).toLocaleString("en-US", {
+                minimumIntegerDigits: 2,
+                useGrouping: false,
+            }) +
+            "/" +
+            novadata.getFullYear()
+        );
+    };
+
     // Toolbar para a Tabela
 
     function TableToolbar(props) {
         const { numSelected } = props;
         return (
-            <Toolbar>
-                <Typography
-                    sx={{ flex: '1 1 100%' }}
-                    variant="h6"
-                    id="tableTitle"
-                    component="div"
-                >
-                    Solicitações Recentes
-                </Typography>
-                <Tooltip title="exportar">
-                    <Button onClick={() => exportarCCS()} style={{ marginInlineEnd: 20, float: 'right' }} variant="contained" size="small" >
-                        Exportar
-                    </Button>
-                </Tooltip>
+            <Toolbar sx={{ width: '100%' }}>
+                <Grid item container xs={6}>
+                    <Typography
+                        variant="h6"
+                        id="tableTitle"
+                        component="div"
+                    >
+                        Solicitações Recentes
+                    </Typography>
+                </Grid>
+                <Grid item container justifyContent='flex-end' xs={6}>
+
+                    <Tooltip title="exportar">
+                        <Button onClick={() => callExportDialog('pdf')} style={{ marginInlineEnd: 20, float: 'right' }} variant="contained" size="small" >
+                            Exportar
+                        </Button>
+                    </Tooltip>
+                </Grid>
+                {
+                    openDialogRelatorio &&
+                    <DialogRelatorioCCS
+                        openDialogRelatorio={openDialogRelatorio}
+                        setOpenDialogRelatorio={setOpenDialogRelatorio}
+                        tipoRelatorio={tipoRelatorio}
+                        requisicoes={requisicoes}
+                    />
+                }
             </Toolbar>
         );
     }
@@ -69,17 +120,179 @@ const DetalheCCS = ({ requisicoes }) => {
 
     function Head() {
         return (
-            <TableHead>
+            <TableHead sx={{ backgroundColor: 'lightblue', border: 'none' }}>
                 <TableRow>
-                    <TableCell />
-                    <TableCell>CPF/CNPJ</TableCell>
-                    <TableCell>Nome</TableCell>
-                    <TableCell>Data Início</TableCell>
-                    <TableCell>Data Fim</TableCell>
-                    <TableCell>Caso</TableCell>
-                    <TableCell>Detalhamento</TableCell>
+                    <TableCell style={{ width: '5%', border: 'none', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                        <IconButton
+                            aria-label="expand row"
+                            size="small"
+                            onClick={() => setOpenAll(!openAll)}
+                        >
+                            {openAll ? <KeyboardArrowDownIcon color='primary' /> : <KeyboardArrowRightIcon color='primary' />}
+                        </IconButton>
+                    </TableCell>
+                    <TableCell style={{ width: '10%', border: 'none', fontWeight: 'bold', textTransform: 'uppercase' }}>CPF/CNPJ</TableCell>
+                    <TableCell style={{ width: '30%', border: 'none', fontWeight: 'bold', textTransform: 'uppercase' }}>Nome</TableCell>
+                    <TableCell style={{ width: '10%', border: 'none', fontWeight: 'bold', textTransform: 'uppercase' }}>Data Início</TableCell>
+                    <TableCell style={{ width: '10%', border: 'none', fontWeight: 'bold', textTransform: 'uppercase' }}>Data Fim</TableCell>
+                    <TableCell style={{ width: '15%', border: 'none', fontWeight: 'bold', textTransform: 'uppercase' }}>Caso</TableCell>
+                    <TableCell style={{ width: '10%', border: 'none', fontWeight: 'bold', textTransform: 'uppercase' }}>Detalhamento</TableCell>
                 </TableRow>
             </TableHead>
+        )
+    }
+
+    //Linhas de Vínculos
+
+    function Vinculo(props) {
+        const { vinculo } = props;
+        return (
+            <>
+                <TableRow key={uuidv4()}>
+                    <TableCell style={{ padding: 0, width: '3%', }}></TableCell>
+                    <TableCell style={{ padding: 0, width: '10%' }} component="th" scope="evento">{formatCnpjCpf(vinculo.idPessoa)}</TableCell>
+                    <TableCell style={{ padding: 0, width: '30%' }}>{vinculo.nomePessoa}</TableCell>
+                    <TableCell style={{ padding: 0, width: '10%' }}>{formatarData(vinculo.dataInicio)}</TableCell>
+                    <TableCell style={{ padding: 0, width: '10%' }}>{vinculo.dataFim ? formatarData(vinculo.dataFim) : 'Vigente'}</TableCell>
+                    <TableCell style={{ padding: 0, width: '25%' }}>
+                        {vinculo.tipo == '1' ? 'TITULAR' : (vinculo.tipo == '2' ? 'CO-TITULAR' : (vinculo.tipo == '3' ? 'PROCURADOR, RESPONSÁVEL OU REPRESENTANTE' : null))}
+                    </TableCell>
+                </TableRow>
+            </>
+        )
+    }
+
+    //Linhas de Bem, Direito e Valor
+
+    function BDV(props) {
+        const { bdv } = props;
+        const [openDetail, setOpenDetail] = React.useState(false);
+        return (
+            <>
+                <TableRow key={uuidv4()} onClick={() => setOpenDetail(!openDetail)}>
+                    <TableCell style={{ width: '5%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>
+                        <IconButton
+                            aria-label="expand row"
+                            size="small"
+                            onClick={() => setOpenDetail(!openDetail)}
+                        >
+                            {
+                                (bdv.vinculados.length > 0) ?
+                                    <>
+                                        {(openDetail || openAll) ? <KeyboardArrowDownIcon color='primary' /> : <KeyboardArrowRightIcon color='primary' />}
+                                    </>
+                                    :
+                                    <>
+                                        <KeyboardArrowRightIcon color='disabled' />
+                                    </>
+                            }
+                        </IconButton>
+                    </TableCell>
+                    <TableCell style={{ width: '10%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }} component="th" scope="evento">Ag.: {bdv.agencia}</TableCell>
+                    <TableCell style={{ width: '10%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>Ct.: {bdv.conta}</TableCell>
+                    <TableCell style={{ width: '20%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>
+                        {bdv.tipo == '1' ? 'CONTA CORRENTE' : (bdv.tipo == '2' ? 'CONTA DE POUPANÇA' : (bdv.tipo == '3' ? 'CONTA DE INVESTIMENTO' : (bdv.tipo == '4' ? 'OUTRAS APLICAÇÕES FINANCEIRAS' : (bdv.tipo == '5' ? 'CONTA DE NÃO RESIDENTE' : (bdv.tipo == '6' ? 'CONTA DE PAGAMENTO' : null)))))}
+                    </TableCell>
+                    <TableCell style={{ width: '10%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>{formatarData(bdv.dataInicio)}</TableCell>
+                    <TableCell style={{ width: '10%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>{bdv.dataFim ? formatarData(bdv.dataFim) : 'Vigente'}</TableCell>
+                    <TableCell style={{ width: '25%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>
+                        {bdv.vinculo == '1' ? 'TITULAR' : (bdv.vinculo == '2' ? 'CO-TITULAR' : (bdv.vinculo == '3' ? 'PROCURADOR, RESPONSÁVEL OU REPRESENTANTE' : null))}
+                    </TableCell>
+                </TableRow >
+                <TableRow key={uuidv4()}>
+                    <TableCell style={{ padding: 0 }} colSpan={7}>
+                        {(openDetail || openAll) ? (
+                            <>
+                                <Box>
+                                    <Table style={{ marginLeft: '2%', maxWidth: '98%', overflow: 'auto' }} size="small" aria-label="a dense table">
+                                        {bdv.vinculados.length > 0 &&
+                                            <>
+                                                <TableHead sx={{ textTransform: 'uppercase', border: 'none' }}>
+                                                    <TableRow>
+                                                        <TableCell style={{ padding: '0', width: '3%', border: 'none', fontWeight: 'bold' }}></TableCell>
+                                                        <TableCell style={{ padding: '0', width: '10%', border: 'none', fontWeight: 'bold' }}>CPF</TableCell>
+                                                        <TableCell style={{ padding: '0', width: '30%', border: 'none', fontWeight: 'bold' }}>Nome</TableCell>
+                                                        <TableCell style={{ padding: '0', width: '10%', border: 'none', fontWeight: 'bold' }}>Data Início</TableCell>
+                                                        <TableCell style={{ padding: '0', width: '10%', border: 'none', fontWeight: 'bold' }}>Data Fim</TableCell>
+                                                        <TableCell style={{ padding: '0', width: '25%', border: 'none', fontWeight: 'bold' }}>Titularidade</TableCell>
+                                                    </TableRow>
+                                                </TableHead>
+                                            </>
+                                        }
+                                        <TableBody>
+                                            {bdv.vinculados.map((vinculo) => (
+                                                <Vinculo key={uuidv4()} vinculo={vinculo} />
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </Box>
+                            </>
+                        ) : <></>}
+                    </TableCell>
+                </TableRow>
+            </>
+        )
+    }
+
+    // Linhas de Detalhamento
+    function Detalhamento(props) {
+        const { relacionamento } = props;
+        const [openDetail, setOpenDetail] = React.useState(false);
+        return (
+            <>
+                <TableRow
+                    key={uuidv4()}
+                    onClick={() => setOpenDetail(!openDetail)}
+
+                >
+                    <TableCell style={{ width: '5%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>
+                        <IconButton
+                            aria-label="expand row"
+                            size="small"
+                            onClick={() => setOpenDetail(!openDetail)}
+                        >
+                            {(openDetail || openAll) ? <KeyboardArrowDownIcon color='primary' /> : <KeyboardArrowRightIcon color='primary' />}
+                        </IconButton>
+                    </TableCell>
+                    <TableCell style={{ width: '10%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>{relacionamento.numeroBancoResponsavel}</TableCell>
+                    <TableCell style={{ width: '30%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>{relacionamento.nomeBancoResponsavel}</TableCell>
+                    <TableCell style={{ width: '10%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>{formatarData(relacionamento.dataInicioRelacionamento)}</TableCell>
+                    <TableCell style={{ width: '10%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>{relacionamento.dataFimRelacionamento ? formatarData(relacionamento.dataFimRelacionamento) : 'Vigente'}</TableCell>
+                    <TableCell style={{ width: '25%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>{relacionamento.respondeDetalhamento ? (relacionamento.resposta ? 'Detalhamento Concluído' : 'Detalhamento NÃO Recebido') : 'IF NÃO Responde Detalhamento'}</TableCell>
+                </TableRow>
+                <TableRow key={uuidv4()}>
+                    <TableCell style={{ padding: 0, border: 'none' }} colSpan={7}>
+                        {(openDetail || openAll) ? (
+                            <>
+                                <Box>
+                                    <Table style={{ marginLeft: '2%', maxWidth: '98%', overflow: 'auto' }} size="small" aria-label="a dense table">
+                                        {relacionamento.bemDireitoValorCCS.length > 0 &&
+                                            <>
+                                                <TableHead sx={{ textTransform: 'uppercase', border: 'none' }}>
+                                                    <TableRow>
+                                                        <TableCell style={{ padding: '0', width: '5%', border: 'none', fontWeight: 'bold' }}></TableCell>
+                                                        <TableCell style={{ padding: '0', width: '10%', border: 'none', fontWeight: 'bold' }}>Agência</TableCell>
+                                                        <TableCell style={{ padding: '0', width: '10%', border: 'none', fontWeight: 'bold' }}>Conta</TableCell>
+                                                        <TableCell style={{ padding: '0', width: '20%', border: 'none', fontWeight: 'bold' }}>Tipo</TableCell>
+                                                        <TableCell style={{ padding: '0', width: '10%', border: 'none', fontWeight: 'bold' }}>Data Início</TableCell>
+                                                        <TableCell style={{ padding: '0', width: '10%', border: 'none', fontWeight: 'bold' }}>Data Fim</TableCell>
+                                                        <TableCell style={{ padding: '0', width: '25%', border: 'none', fontWeight: 'bold' }}>Titularidade</TableCell>
+                                                    </TableRow>
+                                                </TableHead>
+                                            </>
+                                        }
+                                        <TableBody>
+                                            {relacionamento.bemDireitoValorCCS.map((bdv) => (
+                                                <BDV key={uuidv4()} bdv={bdv} />
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </Box>
+                            </>
+                        ) : <></>}
+                    </TableCell>
+                </TableRow>
+            </>
         )
     }
 
@@ -99,52 +312,47 @@ const DetalheCCS = ({ requisicoes }) => {
                 <TableRow hover
                     tabIndex={-1}
                     key={requisicao.id}
-                    sx={{ cursor: 'pointer', "& > *": { borderBottom: "unset" } }}>
-                    <TableCell>
+                    onClick={() => setOpen(!open)}
+                >
+                    <TableCell sx={{ backgroundColor: (open ? 'lightblue' : ''), border: 'none' }}>
                         <IconButton
                             aria-label="expand row"
                             size="small"
                             onClick={() => setOpen(!open)}
                         >
-                            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                            {(open || openAll) ? <KeyboardArrowDownIcon color='primary' /> : <KeyboardArrowRightIcon color='primary' />}
                         </IconButton>
                     </TableCell>
-                    <TableCell>{requisicao.cpfCnpjConsulta}</TableCell>
-                    <TableCell>{requisicao.nome}</TableCell>
-                    <TableCell>{dataInicioConsulta.toLocaleDateString()}</TableCell>
-                    <TableCell>{dataFimConsulta.toLocaleDateString()}</TableCell>
-                    <TableCell>{requisicao.caso}</TableCell>
-                    <TableCell>{totalResposta} / {requisicao.relacionamentosCCS.length}</TableCell>
+                    <TableCell sx={{ backgroundColor: (open ? 'lightblue' : ''), border: 'none' }}>{formatCnpjCpf(requisicao.cpfCnpjConsulta)}</TableCell>
+                    <TableCell sx={{ backgroundColor: (open ? 'lightblue' : ''), border: 'none' }}>{requisicao.nome}</TableCell>
+                    <TableCell sx={{ backgroundColor: (open ? 'lightblue' : ''), border: 'none' }}>{dataInicioConsulta.toLocaleDateString()}</TableCell>
+                    <TableCell sx={{ backgroundColor: (open ? 'lightblue' : ''), border: 'none' }}>{dataFimConsulta.toLocaleDateString()}</TableCell>
+                    <TableCell sx={{ backgroundColor: (open ? 'lightblue' : ''), border: 'none' }}>{requisicao.caso}</TableCell>
+                    <TableCell sx={{ backgroundColor: (open ? 'lightblue' : ''), border: 'none' }}>{totalResposta} / {requisicao.relacionamentosCCS.length}</TableCell>
                 </TableRow>
-                <TableRow>
-                    <TableCell style={{ padding: 0 }} colSpan={7}>
-                        {open ? (
+                <TableRow >
+                    <TableCell style={{ padding: 0, border: 'none' }} colSpan={7}>
+                        {(open || openAll) ? (
                             <>
-                                <Box sx={{ margin: 1 }}>
-                                    <Typography variant="h6" gutterBottom component="div">
-                                        Relacionamentos
-                                    </Typography>
-                                    <Table size="small" aria-label="purchases">
-                                        <TableHead>
-                                            <TableRow >
-                                                <TableCell>Número Banco</TableCell>
-                                                <TableCell>Nome Banco</TableCell>
-                                                <TableCell>Data Início</TableCell>
-                                                <TableCell>Data Fim</TableCell>
-                                                <TableCell>Responde Detalhamento</TableCell>
-                                                <TableCell>Resposta</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
+                                <Box>
+                                    <Table style={{ marginLeft: '2%', maxWidth: '98%', overflow: 'auto' }} padding='none' size="small" aria-label="a dense table">
+                                        {requisicao.relacionamentosCCS.length > 0 &&
+                                            <>
+                                                <TableHead sx={{ textTransform: 'uppercase', border: 'none' }}>
+                                                    <TableRow>
+                                                        <TableCell style={{ width: '5%', border: 'none', fontWeight: 'bold' }} />
+                                                        <TableCell style={{ width: '10%', border: 'none', fontWeight: 'bold' }}>Banco</TableCell>
+                                                        <TableCell style={{ width: '30%', border: 'none', fontWeight: 'bold' }}>Nome Banco</TableCell>
+                                                        <TableCell style={{ width: '10%', border: 'none', fontWeight: 'bold' }}>Data Início</TableCell>
+                                                        <TableCell style={{ width: '10%', border: 'none', fontWeight: 'bold' }}>Data Fim</TableCell>
+                                                        <TableCell style={{ width: '25%', border: 'none', fontWeight: 'bold' }}>Status</TableCell>
+                                                    </TableRow>
+                                                </TableHead>
+                                            </>
+                                        }
+                                        <TableBody sx={{ textTransform: 'uppercase', border: 'none' }}>
                                             {requisicao.relacionamentosCCS.map((relacionamento) => (
-                                                <TableRow key={requisicao.relacionamentosCCS.indexOf(relacionamento)}>
-                                                    <TableCell component="th" scope="evento">{relacionamento.numeroBancoResponsavel}</TableCell>
-                                                    <TableCell>{relacionamento.nomeBancoResponsavel}</TableCell>
-                                                    <TableCell>{relacionamento.dataInicioRelacionamento}</TableCell>
-                                                    <TableCell>{relacionamento.dataFimRelacionamento ? relacionamento.dataFimRelacionamento : null}</TableCell>
-                                                    <TableCell>{relacionamento.respondeDetalhamento ? 'Sim' : 'Não'}</TableCell>
-                                                    <TableCell>{relacionamento.respondeDetalhamento && (relacionamento.resposta ? 'Sim' : 'Não')}</TableCell>
-                                                </TableRow>
+                                                <Detalhamento key={uuidv4()} relacionamento={relacionamento} />
                                             ))}
                                         </TableBody>
                                     </Table>
@@ -160,12 +368,12 @@ const DetalheCCS = ({ requisicoes }) => {
     return (
 
         <React.Fragment>
-            <Grid item xs={12} md={12}>
+            <Grid container justifyContent='flex-end' style={{ width: '100%', border: 'none' }}>
                 <TableToolbar />
-                <TableContainer component={Paper} id="table">
-                    <Table sx={{ minWidth: 1200 }} size="small" aria-label="a dense table">
+                <TableContainer sx={{ width: '100%', border: 'none' }} component={Paper} id="table">
+                    <Table padding='none' sx={{ minWidth: '100%', overflow: 'auto', border: 'none' }} size="small" aria-label="collapsible table">
                         <Head />
-                        <TableBody>
+                        <TableBody style={{ border: 'none' }} >
                             {requisicoes
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((requisicao) => (
