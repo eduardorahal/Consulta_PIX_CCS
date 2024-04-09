@@ -1,10 +1,66 @@
 'use client'
 
-export default async function ExportaTXT(requisicoes) {
+export default async function ExportaTXT(requisicoes, numeroSimba) {
 
+    function calculaDigitoCNPJ(raiz_cnpj) {
 
-    var dados = [];
+        raiz_cnpj = raiz_cnpj + "0001";
 
+        let dig1 =  ((raiz_cnpj.substring(0,1))*6) +
+                ((raiz_cnpj.substring(1,2))*7) +
+                ((raiz_cnpj.substring(2,3))*8) +
+                ((raiz_cnpj.substring(3,4))*9) +
+                ((raiz_cnpj.substring(4,5))*2) +
+                ((raiz_cnpj.substring(5,6))*3) +
+                ((raiz_cnpj.substring(6,7))*4) +
+                ((raiz_cnpj.substring(7,8))*5) +
+                ((raiz_cnpj.substring(8,9))*6) +
+                ((raiz_cnpj.substring(9,10))*7) +
+                ((raiz_cnpj.substring(10,11))*8) +
+                ((raiz_cnpj.substring(11,12))*9);
+
+        dig1 =  dig1 % 11;
+
+        if (dig1 > 9) {
+            dig1 = 0;
+        }       
+
+        let dig2 =  ((raiz_cnpj.substring(0,1))*5) +
+                ((raiz_cnpj.substring(1,2))*6) +
+                ((raiz_cnpj.substring(2,3))*7) +
+                ((raiz_cnpj.substring(3,4))*8) +
+                ((raiz_cnpj.substring(4,5))*9) +
+                ((raiz_cnpj.substring(5,6))*2) +
+                ((raiz_cnpj.substring(6,7))*3) +
+                ((raiz_cnpj.substring(7,8))*4) +
+                ((raiz_cnpj.substring(8,9))*5) +
+                ((raiz_cnpj.substring(9,10))*6) +
+                ((raiz_cnpj.substring(10,11))*7) +
+                ((raiz_cnpj.substring(11,12))*8) +
+                (dig1 * 9);
+
+        dig2 =  dig2 % 11;
+
+        if (dig2 > 9) {
+            dig2 = 0;
+        }
+
+        let digito = dig1 + "" + dig2;
+        let cnpj = raiz_cnpj + "" + digito;
+
+        return cnpj;
+    }
+
+    const formatarData = (data) => {
+        let novadata = new Date(data)
+        return (
+            (novadata.getDate() + 1)).toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false }) + 
+            (novadata.getMonth() + 1).toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false }) + 
+            novadata.getFullYear()
+    }
+
+    var dados = '';
+    
     for await (let requisicao of requisicoes) {
         let relacionamentos = requisicao.relacionamentosCCS;
         for await (let relacionamento of relacionamentos) {
@@ -12,22 +68,78 @@ export default async function ExportaTXT(requisicoes) {
             for await (let bdv of bdvs) {
                 let vinculos = bdv.vinculados;
                 if(vinculos.length > 0) {
-                    console.log(vinculos)
+                    for await (let vinculo of vinculos) {
+                        dados = 
+                            dados + 
+                            numeroSimba + 
+                            '\t' + relacionamento.numeroRequisicao + 
+                            '\t' + formatarData(relacionamento.dataRequisicaoDetalhamento) + 
+                            '\t' + relacionamento.idPessoa + 
+                            '\t' + bdv.nomePessoa + 
+                            '\t' + relacionamento.nomeBancoResponsavel + 
+                            '\t' + formatarData(relacionamento.dataInicioRelacionamento) + 
+                            '\t' + (relacionamento.dataFimRelacionamento && formatarData(relacionamento.dataFimRelacionamento)) +
+                            '\t' + relacionamento.nomeBancoParticipante + 
+                            '\t' + relacionamento.numeroBancoParticipante + 
+                            '\t' + bdv.tipo + 
+                            '\t' + bdv.agencia + 
+                            '\t' + bdv.conta + 
+                            '\t' + bdv.nomePessoa + 
+                            '\t' + bdv.vinculo + 
+                            '\t' + formatarData(bdv.dataInicio) + 
+                            '\t' + (bdv.dataFim && formatarData(bdv.dataFim)) +
+                            '\t' + vinculo.idPessoa + 
+                            '\t' + vinculo.nomePessoa + 
+                            '\t' + vinculo.tipo + 
+                            '\t' + formatarData(vinculo.dataInicio) + 
+                            '\t' + (vinculo.dataFim && formatarData(vinculo.dataFim)) +
+                            '\t' +  '00' + 
+                            '\t' + calculaDigitoCNPJ(relacionamento.cnpjResponsavel) + '\n'
+                            
+                    }
+                } else {
+                    dados = 
+                        dados + 
+                        numeroSimba + 
+                        '\t' + relacionamento.numeroRequisicao + 
+                        '\t' + formatarData(relacionamento.dataRequisicaoDetalhamento) + 
+                        '\t' + relacionamento.idPessoa + 
+                        '\t' + bdv.nomePessoa + 
+                        '\t' + relacionamento.nomeBancoResponsavel + 
+                        '\t' + formatarData(relacionamento.dataInicioRelacionamento) + 
+                        '\t' + (relacionamento.dataFimRelacionamento && formatarData(relacionamento.dataFimRelacionamento)) +
+                        '\t' + relacionamento.nomeBancoParticipante + 
+                        '\t' + relacionamento.numeroBancoParticipante + 
+                        '\t' + bdv.tipo + 
+                        '\t' + bdv.agencia + 
+                        '\t' + bdv.conta + 
+                        '\t' + bdv.nomePessoa + 
+                        '\t' + bdv.vinculo + 
+                        '\t' + formatarData(bdv.dataInicio) + 
+                        '\t' + (bdv.dataFim && formatarData(bdv.dataFim)) +
+                        '\t' + 
+                        '\t' + 
+                        '\t' + 
+                        '\t' + 
+                        '\t' + 
+                        '\t' + '00' + 
+                        '\t' + calculaDigitoCNPJ(relacionamento.cnpjResponsavel) + '\n'
+                        
                 }
             }
         }
     }
 
+    var file = window.document.createElement("a");
+    file.href = window.URL.createObjectURL(
+        new Blob([dados]),
+        { type: "text/plain;charset=utf-8" }
+    );
 
-    // var file = window.document.createElement("a");
-    // file.href = window.URL.createObjectURL(
-    //     new Blob([JSON.stringify(requisicoes)]),
-    //     { type: "text/plain;charset=utf-8" }
-    // );
-    // file.download = "requisicoesCCS.txt";
-    // document.body.appendChild(file);
-    // file.click();
-    // document.body.removeChild(file);
+    file.download = "requisicoesCCS.txt";
+    document.body.appendChild(file);
+    file.click();
+    document.body.removeChild(file);
 
 }
 // 1 CASO TEXTO 30 Número do Caso, no formato NNN-SIGLA-NNNNNN-DV, onde NNN-SIGLA é a identificação do órgão solicitante, NNNNNN (6 números) é o número do caso e DV (2 números) é o dígito verificador do número do caso.

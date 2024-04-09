@@ -3,6 +3,7 @@
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
+import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 
@@ -17,14 +18,16 @@ import ExportaTXT from './exportaTXT';
 export default function DialogRelatorioCCS(props) {
 
   const [tipoRelatorio, setTipoRelatorio] = React.useState(props.tipoRelatorio);
+  const [mostraTexto, setMostraTexto] = React.useState(false)
+  const [numeroSimba, setNumeroSimba] = React.useState('024-PCSC-0000000-00')
 
   let requisicoes = props.requisicoes
 
   // Função para Exportar Dados em diversos formatos
   function exportaRelatorio(tipo, requisicoes) {
     switch (tipo) {
-      case "pdf_resumido":
-        ExportaTXT(requisicoes)
+      case "txt_simba":
+        ExportaTXT(requisicoes, numeroSimba)
         break;
       case "pdf_detalhado":
         RelatorioDetalhadoCCS(requisicoes);
@@ -38,18 +41,21 @@ export default function DialogRelatorioCCS(props) {
       <Dialog open={props.openDialogRelatorio} onClose={() => props.setOpenDialogRelatorio(false)} >
         <DialogTitle>Selecione o Tipo de Relatório</DialogTitle>
         <List sx={{ pt: 0 }}>
-          {tipoRelatorio == 'pdf' ?
-            <>
-              <ListItem><ListItemButton onClick={() => exportaRelatorio('pdf_resumido', requisicoes)}>Relatório Resumido</ListItemButton></ListItem>
-              <ListItem><ListItemButton onClick={() => exportaRelatorio('pdf_detalhado', requisicoes)}>Relatório Detalhado</ListItemButton></ListItem>
-            </>
-            :
-            <>
-              <ListItem><ListItemButton onClick={() => exportaRelatorio('csv_completo', requisicoes)}>Arquivo CSV</ListItemButton></ListItem>
-              <ListItem><ListItemButton onClick={() => exportaRelatorio('json_completo', requisicoes)}>Arquivo JSON - Esprites</ListItemButton></ListItem>
-            </>
-          }
-
+              <ListItem><ListItemButton onClick={() => setMostraTexto(!mostraTexto)} >Arquivo TXT - Simba/Esprits</ListItemButton></ListItem>
+              {mostraTexto && (
+                <>
+                  <ListItem>
+                    <TextField autoFocus fullWidth variant='standard' onChange={(e) => setNumeroSimba(e.target.value)} placeholder='024-PCSC-000000-00' label='Preencha caso tenha o número SIMBA:'></TextField>
+                    <ListItemButton onClick={() => exportaRelatorio('txt_simba', requisicoes)} >OK</ListItemButton>  
+                  </ListItem>
+                </>
+              )
+              }
+              {!mostraTexto && (
+                <>
+                  <ListItem><ListItemButton onClick={() => exportaRelatorio('pdf_detalhado', requisicoes)}>Relatório Detalhado PDF</ListItemButton></ListItem>
+                </>
+              )}
         </List>
       </Dialog>
     </>
