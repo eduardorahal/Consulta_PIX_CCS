@@ -176,12 +176,8 @@ const formatarData = (data) => {
         })
         .catch((err) => console.error(err));
     });
-    await axios.get("/api/bacen/ccs/numeroRequisicao?id=" + lista.id)
-    .then((response) => {
-      if (response.data[0].status === 'sucesso'){
-        setStatusDetalhamentos(true)
-      }
-    })
+    setStatusDetalhamentos(true)
+
   };
 
   const limpaTela = () => {
