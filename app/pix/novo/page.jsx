@@ -29,6 +29,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useSearchParams } from 'next/navigation'
 import DialogRelatorioPIX from '@/app/pix/components/Relatorios/ExportaRelatorioPIX';
+import { Context } from '@/app/context';
 
 const ConsultaPix = () => {
 
@@ -37,6 +38,11 @@ const ConsultaPix = () => {
 
     // variável para armazenar a lista de Chaves PIX exibidas no FrontEnd
     const [lista, setLista] = React.useState([]);
+
+    // variável para recuperar o CPF do usuário do Context
+    const { state, dispatch } = React.useContext(Context)
+    const cpfResponsavel = state.cpf
+
 
     // Caso haja solicitação de detalhamento, as informações ficam nessa variável antes de serem atribuídas para a lista
 
@@ -112,7 +118,7 @@ const ConsultaPix = () => {
 
         if (value === 'cpfCnpj' && cpfCnpj != '' && motivo != '') {
             setLoading(true)
-            await axios.get('/api/bacen/pix/cpfCnpj?cpfCnpj=' + cpfCnpj + '&motivo=' + motivo)
+            await axios.get('/api/bacen/pix/cpfCnpj?cpfCnpj=' + cpfCnpj + '&motivo=' + motivo + '&cpfResponsavel=' + cpfResponsavel)
                 .then(response => response.data[0])
                 .then((vinculos) => {
                     if (vinculos.length == 0 || vinculos == '0002 - ERRO_CPF_CNPJ_INVALIDO') {
@@ -131,7 +137,7 @@ const ConsultaPix = () => {
         } else {
             if (value === 'chave' && chave != '' && motivo != '') {
                 setLoading(true)
-                await axios.get('/api/bacen/pix/chave?chave=' + chave + '&motivo=' + motivo)
+                await axios.get('/api/bacen/pix/chave?chave=' + chave + '&motivo=' + motivo + '&cpfResponsavel=' + cpfResponsavel)
                     .then((response) => {
                         return response.data
                     })

@@ -6,7 +6,6 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     let lista = [];
     let cpfResponsavel = searchParams.get('cpfResponsavel');
-    console.log(searchParams.get('cpfResponsavel'))
     let cpfCnpj = searchParams.get('cpfCnpj');
     let motivo = searchParams.get('motivo');
     let data = new Date();
