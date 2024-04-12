@@ -7,7 +7,7 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     let lista = [];
     let relacionamentos = [];
-    let cpfResponsavel = process.env.CPF_RESPONSAVEL
+    let cpfResponsavel = searchParams.get('cpfResponsavel');
     let cpfCnpj = searchParams.get('cpfCnpj');
     let dataInicio = searchParams.get('dataInicio');
     let dataFim = searchParams.get('dataFim');

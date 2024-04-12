@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET(request) {
     const { searchParams } = new URL(request.url);
     let lista = [];
-    let cpfResponsavel = process.env.CPF_RESPONSAVEL
+    let cpfResponsavel = searchParams.get('cpfResponsavel');
     let chaveBusca = searchParams.get('chave');
     let motivo = searchParams.get('motivo');
     let data = new Date();

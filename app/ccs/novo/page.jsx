@@ -28,6 +28,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import { v4 as uuidv4 } from "uuid";
 import DialogDetalhamentoCCS from "@/app/ccs/components/DialogDetalhamentoCCS";
+import { Context } from "@/app/context";
 
 const ConsultaCCS = () => {
   // variáveis para armazenar CPF, CNPJ, Chave PIX e Motivo da consulta
@@ -36,6 +37,10 @@ const ConsultaCCS = () => {
   const [dataFim, setDataFim] = React.useState("");
   const [numProcesso, setNumProcesso] = React.useState("");
   const [motivo, setMotivo] = React.useState("");
+
+  // variável para recuperar o CPF do usuário do Context
+  const { state, dispatch } = React.useContext(Context)
+  const cpfResponsavel = state.cpf
 
   //variável para controle de carregamento de página
   const [loading, setLoading] = React.useState(false)
@@ -113,7 +118,9 @@ const formatarData = (data) => {
           "&numProcesso=" +
           numProcesso +
           "&motivo=" +
-          motivo
+          motivo + 
+          "&cpfResponsavel=" + 
+          cpfResponsavel
         )
         .then((response) => response.data[0])
         .then((relacionamentos) => {

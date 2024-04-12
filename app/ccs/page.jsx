@@ -24,7 +24,8 @@ const DashCCS = () => {
     // variável para armazenar a lista de Requisições exibidas no FrontEnd
     const [requisicoesCCS, setRequisicoesCCS] = useState([]);
 
-    const cpfResponsavel = "32547375800";
+    // variável para recuperar o CPF do usuário do Context
+    const cpfResponsavel = state.cpf
 
     // Chamada da API para Buscar Requisições armazenadas no Banco de Dados
 
@@ -33,7 +34,7 @@ const DashCCS = () => {
             setLoading(true)
             await axios
                 .get(
-                    "/api/bacen/ccs/requisicoesccs?cpfCnpj=" + cpfResponsavel
+                    "/api/bacen/ccs/requisicoesccs?cpfResponsavel=" + cpfResponsavel
                 )
                 .then((response) => response.data)
                 .then((res) => {

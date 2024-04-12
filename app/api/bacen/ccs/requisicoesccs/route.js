@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
-  let cpfResponsavel = searchParams.get("cpfCnpj");
+  let cpfResponsavel = searchParams.get("cpfResponsavel");
 
   // Busca as Requisições do Usuário cadastradas no Banco de Dados
   const requisicoesCCS = await prisma.requisicaoRelacionamentoCCS.findMany({
