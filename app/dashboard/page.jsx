@@ -1,11 +1,12 @@
 import { Card, CardContent, Typography, CardActionArea, Box, CardMedia, Grid } from '@mui/material';
 import React from 'react';
 import Link from 'next/link';
+import { Context, Provider } from '../context';
 
 const Dashboard = () => {
+    const { state, dispatch } = React.useContext(Context);
     return (
         <Box style={{display: 'flex'}}>
-            
             <Box width='300px' padding='20px'>
                 <Card sx={{ minWidth: 275, minHeight: 200 }}>
                     <CardActionArea component={Link} href="/solicitacoes/formLab">

@@ -29,9 +29,4 @@ const Home = ({ children }) => {
 
 }
 
-
-export default () => (
-  <Provider>
-    <Home />
-  </Provider>
-)
+export default Home

@@ -286,7 +286,7 @@ const ConsultaPix = () => {
                             value={value}
                             onChange={handleChange}
                         >
-                            <FormControlLabel id="cpf_cnpj" value="cpfCnpj" control={<Radio size='small' style={{ margin: 0, alignItems: 'center', padding: 5 }} />} label={<Typography style={{ fontSize: 14 }}>Por CPF/CNPJ</Typography>} />
+                            <FormControlLabel id="cpf_cnpj" value="cpfCnpj"  control={<Radio size='small' style={{ margin: 0, alignItems: 'center', padding: 5 }} />} label={<Typography style={{ fontSize: 14 }}>Por CPF/CNPJ</Typography>} />
                             <FormControlLabel value="chave" control={<Radio size='small' style={{ margin: 0, alignItems: 'center', padding: 5 }} />} label={<Typography style={{ fontSize: 14 }}>Por Chave PIX</Typography>} />
                         </RadioGroup>
                     </FormControl>

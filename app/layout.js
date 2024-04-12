@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import MenuLayout from './components/Menu/MenuLayout'
 import React from 'react'
 import { Box } from '@mui/material'
+import { Provider, Context } from './context'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -27,10 +28,11 @@ const RootLayout = ({ children }) => {
   )
 }
 
-export default ({children}) => (
-  
+export default ({ children }) => (
+  <Provider>
     <RootLayout>
       {children}
     </RootLayout>
-  
+  </Provider>
+
 )

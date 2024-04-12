@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useContext, useEffect, useState } from 'react';
-import { Context } from '../context';
+import { Context, Provider } from '../context';
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import axios from "axios";
@@ -14,7 +14,7 @@ import Link from 'next/link';
 
 import PIXRow from './components/PIXRow';
 
-const DashPIX = () => {
+const DashPIX = ({ initialState }) => {
 
     const { state, dispatch } = useContext(Context);
 
@@ -24,7 +24,7 @@ const DashPIX = () => {
     // variável para armazenar a lista de Requisições exibidas no FrontEnd
     const [requisicoesPIX, setRequisicoesPIX] = useState([]);
 
-    const cpfResponsavel = "32547375800";
+    const cpfResponsavel = state.cpf;
 
     // Chamada da API para Buscar Requisições armazenadas no Banco de Dados
 
@@ -43,7 +43,7 @@ const DashPIX = () => {
                 .catch((err) => console.error(err));
         };
         buscaRequisicoes();
-    }, [])
+    }, [initialState])
 
 
     // Componente DIALOG (popup) para mostrar que a página está sendo carregada
@@ -92,6 +92,4 @@ const DashPIX = () => {
     )
 }
 
-export default () => (
-    <DashPIX />
-)
+export default DashPIX
