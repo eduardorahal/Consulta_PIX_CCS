@@ -55,8 +55,10 @@ const ConsultaPix = () => {
             const detalhe = JSON.parse(localStorage.getItem("detalhe"))
             for (let i = 0; i < detalhe.length; i++) {
                 let vinculos = detalhe[i].vinculos;
-                for (let j = 0; j < vinculos.length; j++) {
-                    setLista((lista) => [...lista, vinculos[j]])
+                if(detalhe[i].vinculos){
+                    for (let j = 0; j < vinculos.length; j++) {
+                        setLista((lista) => [...lista, vinculos[j]])
+                    }
                 }
                 setLoading(false)
             }
