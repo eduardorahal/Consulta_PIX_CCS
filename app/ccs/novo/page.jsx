@@ -1,7 +1,7 @@
 // CPF Denis 05485620914
 "use client";
 
-import { Checkbox, TextField, Typography } from "@mui/material";
+import { TextField, Typography } from "@mui/material";
 import FormLabel from "@mui/material/FormLabel";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -13,28 +13,24 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import { Dialog, DialogTitle,DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import * as React from "react";
 import axios from "axios";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import IconButton from "@mui/material/IconButton";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import { v4 as uuidv4 } from "uuid";
 import DialogDetalhamentoCCS from "@/app/ccs/components/DialogDetalhamentoCCS";
 import { Context } from "@/app/context";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from "dayjs";
+import 'dayjs/locale/en-gb';
+import { v4 as uuidv4 } from "uuid";
 
 const ConsultaCCS = () => {
+
   // variáveis para armazenar CPF, CNPJ, Chave PIX e Motivo da consulta
   const [cpfCnpj, setCpfCnpj] = React.useState("");
-  const [dataInicio, setDataInicio] = React.useState("");
-  const [dataFim, setDataFim] = React.useState("");
+  const [dataInicio, setDataInicio] = React.useState(dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 5))));
+  const [dataFim, setDataFim] = React.useState(dayjs(new Date()));
   const [numProcesso, setNumProcesso] = React.useState("");
   const [motivo, setMotivo] = React.useState("");
 
@@ -83,20 +79,30 @@ const ConsultaCCS = () => {
     );
   };
 
-// Formatar Datas para apresentação no FrontEnd
-const formatarData = (data) => {
-  let novadata = new Date(data);
-  return (
+  // Formatar Datas para apresentação no FrontEnd
+  const formatarData = (data) => {
+    let novadata = new Date(data);
+    return (
       ((novadata.getDate() + 1)).toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false }) +
       "/" +
       (novadata.getMonth() + 1).toLocaleString("en-US", {
-          minimumIntegerDigits: 2,
-          useGrouping: false,
+        minimumIntegerDigits: 2,
+        useGrouping: false,
       }) +
       "/" +
       novadata.getFullYear()
-  );
-};
+    );
+  };
+
+  // Formatar Datas para Solicitação CCS
+  const formatarDataCCS = (data) => {
+    return (
+      data.$y + "-" + 
+      ((data.$M + 1).toLocaleString('en-US', { minimumIntegerDigits: 2})) + "-" + 
+      ((data.$D).toLocaleString('en-US', { minimumIntegerDigits: 2}))
+    );
+  };
+
   // Chamada da API para Buscar Vínculos CCS no Banco Central
   const buscaCCS = async () => {
     if (
@@ -112,14 +118,14 @@ const formatarData = (data) => {
           "/api/bacen/ccs/relacionamento?cpfCnpj=" +
           cpfCnpj +
           "&dataInicio=" +
-          dataInicio +
+          formatarDataCCS(dataInicio) +
           "&dataFim=" +
-          dataFim +
+          formatarDataCCS(dataFim) +
           "&numProcesso=" +
           numProcesso +
           "&motivo=" +
-          motivo + 
-          "&cpfResponsavel=" + 
+          motivo +
+          "&cpfResponsavel=" +
           cpfResponsavel
         )
         .then((response) => response.data[0])
@@ -139,8 +145,8 @@ const formatarData = (data) => {
         .catch((err) => console.error(err));
       setCpfCnpj("");
       setMotivo("");
-      setDataInicio("");
-      setDataFim("");
+      setDataInicio(dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 5))));
+      setDataFim(dayjs(new Date()));
       setNumProcesso("");
     } else {
       alert("Necessário preencher todos os campos!");
@@ -181,8 +187,8 @@ const formatarData = (data) => {
   };
 
   const limpaTela = () => {
-      setLista([]);
-      setRelacionamentos([]);
+    setLista([]);
+    setRelacionamentos([]);
   }
 
   // Função para Montar as LINHAS da Tabela no FrontEnd (sem o cabeçalho, pois o cabeçalho está no return)
@@ -279,32 +285,6 @@ const formatarData = (data) => {
               placeholder="CPF/CNPJ"
             />
           </Grid>
-          <Grid item xs={2} md={2} xl={2}>
-            <TextField
-              fullWidth
-              style={{}}
-              size="small"
-              id="standard-basic"
-              label="Data Início"
-              variant="standard"
-              placeholder="Data Início"
-              value={dataInicio}
-              onChange={(e) => setDataInicio(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={2} md={2} xl={2}>
-            <TextField
-              fullWidth
-              style={{}}
-              size="small"
-              id="standard-basic"
-              label="Data Fim"
-              variant="standard"
-              placeholder="Data Fim"
-              value={dataFim}
-              onChange={(e) => setDataFim(e.target.value)}
-            />
-          </Grid>
           <Grid item xs={3} md={3} xl={3}>
             <TextField
               fullWidth
@@ -330,6 +310,24 @@ const formatarData = (data) => {
               value={motivo}
               onChange={(e) => setMotivo(e.target.value)}
             />
+          </Grid>
+          <Grid item xs={2} md={2} xl={2}>
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+              <DatePicker
+                label="Data Inínio"
+                value={dataInicio}
+                onChange={setDataInicio}
+              />
+            </LocalizationProvider>
+          </Grid>
+          <Grid item xs={2} md={2} xl={2}>
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+              <DatePicker
+                label="Data Fim"
+                value={dataFim}
+                onChange={setDataFim}
+              />
+            </LocalizationProvider>
           </Grid>
         </Grid>
         <Grid
@@ -414,8 +412,8 @@ const formatarData = (data) => {
               </TableHead>
               <TableBody>
                 {loading && <LoadingDialog />}
-                {openDialogDetalhamentoCCS && 
-                  <DialogDetalhamentoCCS 
+                {openDialogDetalhamentoCCS &&
+                  <DialogDetalhamentoCCS
                     openDialogDetalhamentoCCS={openDialogDetalhamentoCCS}
                     setOpenDialogDetalhamentoCCS={setOpenDialogDetalhamentoCCS}
                     listaDetalhamentos={listaDetalhamentos}
