@@ -73,6 +73,7 @@ const ConsultaPix = () => {
     const [motivo, setMotivo] = React.useState('');
 
     const [errorDialog, setErrorDialog] = React.useState(false);
+    const [error, setError] = React.useState('');
 
     const handleClose = () => {
         setErrorDialog(false);
@@ -121,7 +122,8 @@ const ConsultaPix = () => {
             await axios.get('/api/bacen/pix/cpfCnpj?cpfCnpj=' + cpfCnpj + '&motivo=' + motivo + '&cpfResponsavel=' + cpfResponsavel)
                 .then(response => response.data[0])
                 .then((vinculos) => {
-                    if (vinculos.length == 0 || vinculos == '0002 - ERRO_CPF_CNPJ_INVALIDO') {
+                    if (vinculos.length == 0 || vinculos == '0002 - ERRO_CPF_CNPJ_INVALIDO' || vinculos == "Nenhuma Chave PIX encontrada") {
+                        setError(vinculos)
                         setErrorDialog(true)
                         setLoading(false)
                     } else {
@@ -246,10 +248,10 @@ const ConsultaPix = () => {
         return (
             <>
                 <Dialog onClose={handleClose} open={errorDialog}>
-                    <DialogTitle>{value == 'chave' ? 'CHAVE PIX NÃO ENCONTRADA' : 'CPF / CNPJ NÃO ENCONTRADO'}</DialogTitle>
+                    <DialogTitle>{value == 'chave' ? 'CHAVE PIX NÃO ENCONTRADA' : (error == "Nenhuma Chave PIX encontrada" ? 'NENHUMA CHAVE PIX ENCONTRADA' : 'CPF / CNPJ NÃO ENCONTRADO')}</DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-slide-description">
-                            Não foi possível localizar {value == 'chave' ? 'a CHAVE PIX' : 'o CPF / CNPJ'} na base de Vínculos PIX do Banco Central. Verifique os dados informados.
+                            Não foi possível localizar {value == 'chave' ? 'a CHAVE PIX' : (error == "Nenhuma Chave PIX encontrada" ? 'NENHUMA CHAVE PIX PARA O CPF/CNPJ INFORMADO' : 'o CPF / CNPJ')} na base de Vínculos PIX do Banco Central. Verifique os dados informados.
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>

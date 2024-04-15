@@ -20,98 +20,124 @@ export async function GET(request) {
         }
     };
 
-    const vinculos = await axios.request(config)
-        .then(res1 => res1.data.vinculosPix)
-        .then(async (chaves) => {
 
-            // Ordena as chaves PIX recebidas para que as primeiras contenham CPF e Nome, preferencialmente
+        const vinculos = await axios.request(config)
+            .then(res1 => res1.data.vinculosPix)
+            .then(async (chaves) => {
 
-            await chaves.sort((a, b) => a.cpfCnpj && a.nomeProprietario ? -1 : (a.cpfCnpj ? -1 : 1))
+                if (chaves.length > 0) {
+                    // Ordena as chaves PIX recebidas para que as primeiras contenham CPF e Nome, preferencialmente
 
-            // Replica as informações de CPF e Nome para as demais chaves que não tenham tais informações
+                    await chaves.sort((a, b) => a.cpfCnpj && a.nomeProprietario ? -1 : (a.cpfCnpj ? -1 : 1))
 
-            let nomeProprietarioBusca = chaves[0].nomeProprietario;
-            let cpfCnpjBusca = cpfCnpj;
+                    // Replica as informações de CPF e Nome para as demais chaves que não tenham tais informações
 
-            for await (let chave of chaves) {
-                await axios.get('https://www3.bcb.gov.br/informes/rest/pessoasJuridicas?cnpj=' + chave.participante)
-                    .then(response => response.data)
-                    .then((participante) => {
-                        chave.numerobanco = (participante.codigoCompensacao ? participante.codigoCompensacao.toLocaleString('en-US', { minimumIntegerDigits: 3, useGrouping: false }) : '000');
-                        chave.nomebanco = participante.nome;
-                        chave.cpfCnpjBusca = cpfCnpjBusca;
-                        chave.nomeProprietarioBusca = nomeProprietarioBusca;
-                    })
-                    .catch((err) => {
-                        chave.numerobanco = "000";
-                        chave.nomebanco = "BANCO NÃO INFORMADO";
-                        chave.cpfCnpjBusca = cpfCnpjBusca;
-                        chave.nomeProprietarioBusca = nomeProprietarioBusca;
-                    })
-                for await (let evento of chave.eventosVinculo) {
-                    await axios.get('https://www3.bcb.gov.br/informes/rest/pessoasJuridicas?cnpj=' + evento.participante)
-                        .then(response => response.data)
-                        .then((participante) => {
-                            evento.numerobanco = (participante.codigoCompensacao ? participante.codigoCompensacao.toLocaleString('en-US', { minimumIntegerDigits: 3, useGrouping: false }) : '000');
-                            evento.nomebanco = participante.nome
-                        })
-                        .catch((err) => {
-                            evento.numerobanco = "000";
-                            evento.nomebanco = "BANCO NÃO INFORMADO"
-                        })
+                    let nomeProprietarioBusca = chaves[0].nomeProprietario ? chaves[0].nomeProprietario : 'NOME NÃO INFORMADO';
+                    let cpfCnpjBusca = cpfCnpj;
+
+                    for await (let chave of chaves) {
+                        await axios.get('https://www3.bcb.gov.br/informes/rest/pessoasJuridicas?cnpj=' + chave.participante)
+                            .then(response => response.data)
+                            .then((participante) => {
+                                chave.numerobanco = (participante.codigoCompensacao ? participante.codigoCompensacao.toLocaleString('en-US', { minimumIntegerDigits: 3, useGrouping: false }) : '000');
+                                chave.nomebanco = participante.nome;
+                                chave.cpfCnpjBusca = cpfCnpjBusca;
+                                chave.nomeProprietarioBusca = nomeProprietarioBusca;
+                            })
+                            .catch((err) => {
+                                chave.numerobanco = "000";
+                                chave.nomebanco = "BANCO NÃO INFORMADO";
+                                chave.cpfCnpjBusca = cpfCnpjBusca;
+                                chave.nomeProprietarioBusca = nomeProprietarioBusca;
+                            })
+                        for await (let evento of chave.eventosVinculo) {
+                            await axios.get('https://www3.bcb.gov.br/informes/rest/pessoasJuridicas?cnpj=' + evento.participante)
+                                .then(response => response.data)
+                                .then((participante) => {
+                                    evento.numerobanco = (participante.codigoCompensacao ? participante.codigoCompensacao.toLocaleString('en-US', { minimumIntegerDigits: 3, useGrouping: false }) : '000');
+                                    evento.nomebanco = participante.nome
+                                })
+                                .catch((err) => {
+                                    evento.numerobanco = "000";
+                                    evento.nomebanco = "BANCO NÃO INFORMADO"
+                                })
+                        }
+                        if (chave.status == null) {
+                            chave.status = 'INATIVO'
+                        }
+                    }
+
+                    // armazena as informações da requisição contendo os dados do solicitante e a resposta obtida
+
+                    let requisicao = {
+                        data: data,
+                        cpfResponsavel: cpfResponsavel,
+                        caso: caso,
+                        tipoBusca: 'cpf/cnpj',
+                        chaveBusca: cpfCnpj,
+                        motivoBusca: motivo,
+                        resultado: 'Sucesso',
+                        vinculos: chaves,
+                        autorizado: true
+                    }
+                    try {
+                        await prisma.requisicaoPix.create({
+                            data: requisicao
+                        }).then(
+                            lista.push(chaves)
+                        )
+                    } catch (e) {
+                        throw e
+                    }
+                } else {
+                    // armazena as informações da requisição, mesmo que haja algum erro na consulta, por exemplo CPF/CNPJ incorreto.
+                    let requisicao = {
+                        data: data,
+                        cpfResponsavel: cpfResponsavel,
+                        caso: caso,
+                        tipoBusca: 'cpf/cnpj',
+                        chaveBusca: cpfCnpj,
+                        motivoBusca: motivo,
+                        autorizado: true,
+                        resultado: "Nenhuma Chave PIX encontrada",
+                    }
+                    try {
+                        await prisma.requisicaoPix.create({
+                            data: requisicao
+                        }).then(
+                            lista.push("Nenhuma Chave PIX encontrada")
+                        )
+                    } catch (e) {
+                        throw e
+                    }
+                    
                 }
-                if (chave.status == null) {
-                    chave.status = 'INATIVO'
+
+            })
+            .catch(async (error) => {
+
+                // armazena as informações da requisição, mesmo que haja algum erro na consulta, por exemplo CPF/CNPJ incorreto.
+                let requisicao = {
+                    data: data,
+                    cpfResponsavel: cpfResponsavel,
+                    caso: caso,
+                    tipoBusca: 'cpf/cnpj',
+                    chaveBusca: cpfCnpj,
+                    motivoBusca: motivo,
+                    autorizado: true,
+                    resultado: (error.response.data.message == '0002 - ERRO_CPF_CNPJ_INVALIDO' ) ? 'CPF/CNPJ não encontrado' : "Erro no processamento da Solicitação",
                 }
-            }
+                try {
+                    await prisma.requisicaoPix.create({
+                        data: requisicao
+                    }).then(
+                        lista.push((error.response.data.message) ? (error.response.data.message) : "Erro no processamento da Solicitação")
+                    )
+                } catch (e) {
+                    throw e
+                }
+            })
 
-            // armazena as informações da requisição contendo os dados do solicitante e a resposta obtida
-
-            let requisicao = {
-                data: data,
-                cpfResponsavel: cpfResponsavel,
-                caso: caso,
-                tipoBusca: 'cpf/cnpj',
-                chaveBusca: cpfCnpj,
-                motivoBusca: motivo,
-                resultado: 'Sucesso',
-                vinculos: chaves,
-                autorizado: true
-            }
-            try {
-                await prisma.requisicaoPix.create({
-                    data: requisicao
-                }).then(
-                    lista.push(chaves)
-                )
-            } catch (e) {
-                throw e
-            }
-        })
-        .catch(async (error) => {
-
-            // armazena as informações da requisição, mesmo que haja algum erro na consulta, por exemplo CPF/CNPJ incorreto.
-            
-            let requisicao = {
-                data: data,
-                cpfResponsavel: cpfResponsavel,
-                caso: caso,
-                tipoBusca: 'cpf/cnpj',
-                chaveBusca: cpfCnpj,
-                motivoBusca: motivo,
-                autorizado: true,
-                resultado: error.response.data.message ? error.response.data.message : "Erro no processamento da Solicitação",
-            }
-            try {
-                await prisma.requisicaoPix.create({
-                    data: requisicao
-                }).then(
-                    lista.push(error.response.data.message)
-                )
-            } catch (e) {
-                throw e
-            }
-        })
 
     return NextResponse.json(lista)
 }
