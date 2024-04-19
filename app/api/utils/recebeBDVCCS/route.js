@@ -7,10 +7,21 @@ const prisma = new PrismaClient();
 
 export async function GET(request) {
 
-  // Busca as Requisições do Usuário cadastradas no Banco de Dados
+  // Busca as Requisições do Usuário cadastradas no Banco de Dados aguardando resposta dos Bancos
   const requisicoesCCS = await prisma.requisicaoRelacionamentoCCS.findMany({
-     include: {
-      relacionamentosCCS: true
+    where: {
+      relacionamentosCCS: {
+        some: {
+          statusDetalhamento: 'Solicitado. Aguardando...',
+        }       
+      }
+    },
+    include: {
+      relacionamentosCCS: {
+        where: {
+          statusDetalhamento: 'Solicitado. Aguardando...',
+        }
+      }
     },
     orderBy: {
       id: 'desc',
@@ -23,7 +34,6 @@ export async function GET(request) {
     let cpfCnpj = requisicao.cpfCnpj;
     requisicao.relacionamentosCCS.map(async(relacionamento) => {
       
-    if(relacionamento.resposta == false && relacionamento.respondeDetalhamento == true){
       let config = {
         method: "get",
         maxBodyLength: Infinity,
@@ -54,12 +64,14 @@ export async function GET(request) {
           let codigoResposta;
           let codigoIfResposta;
           let nuopResposta;
+          let statusDetalhamento;
 
           // Verifica quais respostas chegaram e armazena as respostas do Detalhamento
           if (res.respostaDetalhamentos.respostaDetalhamento || res.respostaDetalhamento){
 
             resposta = true;
-           
+            statusDetalhamento = "Concluído";
+
             if(res.respostaDetalhamentos.respostaDetalhamento){
               codigoResposta = res.respostaDetalhamentos.respostaDetalhamento[0].codigo[0]
             } else {
@@ -92,7 +104,8 @@ export async function GET(request) {
                   resposta: true,
                   codigoResposta: codigoResposta,
                   codigoIfResposta: codigoIfResposta,
-                  nuopResposta: nuopResposta
+                  nuopResposta: nuopResposta,
+                  statusDetalhamento: statusDetalhamento
                 },
               })
             } catch (e) {
@@ -163,7 +176,6 @@ export async function GET(request) {
           }     
         })
       })
-    }
   })
   }
   return NextResponse.json({message: 'done'})

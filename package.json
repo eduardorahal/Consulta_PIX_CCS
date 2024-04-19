@@ -26,6 +26,7 @@
     "pdfmake": "^0.2.7",
     "react": "^18",
     "react-dom": "^18",
+    "react-hook-form": "^7.51.3",
     "uuid": "^9.0.1",
     "uuidv4": "^6.2.13",
     "xml-js": "^1.6.11",

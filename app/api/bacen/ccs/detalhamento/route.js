@@ -34,7 +34,43 @@ export async function GET(request) {
     },
   };
 
-  const vinculos = await axios
+  const now = new Date();
+  
+  var late = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(), // the next day, ...
+    18, 55, 0 // ...at 00:00:00 hours
+  );
+
+  var early = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(), // the next day, ...
+    10, 0, 0 // ...at 00:00:00 hours
+  );
+
+  if (now > late || now < early){
+    
+    // armazena as informações da requisição de detalhamento
+    try {
+      await prisma.relacionamentoCCS.update({
+        where: {
+          id: parseInt(idRelacionamento),
+        },
+        data: {
+          statusDetalhamento: 'Na fila',
+        },
+      }).then(
+        lista.push({banco: nomeBancoResponsavel, msg: 'Na fila de processamento', status: 'pendente' })
+      )
+    } catch (e) {
+      console.log('Erro ao salvar atualização CCS no Banco de Dados. Tente novamente', e);
+    }
+    
+  } else {
+
+    const vinculos = await axios
     .request(config)
     .then(async (response) => {
       const parser = xml2js.Parser();
@@ -50,6 +86,7 @@ export async function GET(request) {
               },
               data: {
                 dataRequisicaoDetalhamento: res.requisicaoDetalhamentos.requisicaoDetalhamento[0].dataHoraRequisicao[0],
+                statusDetalhamento: 'Solicitado. Aguardando...',
                 respondeDetalhamento: true,
                 resposta: false
               },
@@ -57,10 +94,10 @@ export async function GET(request) {
               lista.push({banco: nomeBancoResponsavel, msg: 'Detalhamento Solicitado', status: 'sucesso' })
             )
           } catch (e) {
-            throw e;
+            console.log('Erro ao salvar atualização CCS no Banco de Dados. Tente novamente', e);
           }
         })
-        .catch((err) => console.error(err));
+        .catch((err) => console.error("Erro ao fazer o parse da resposta BACEN", err));
     })
     .catch(async (error) => {
       if(error.response.status === 500){
@@ -73,16 +110,19 @@ export async function GET(request) {
             },
             data: {
               dataRequisicaoDetalhamento: (new Date()).toISOString(),
+              statusDetalhamento: 'IF não detalha',
               respondeDetalhamento: false,
               resposta: true
             },
           }).then(
-            lista.push({banco: nomeBancoResponsavel, msg: 'IF não responde a detalhamentos', status: 'falha' })
+            lista.push({banco: nomeBancoResponsavel, msg: 'Sem detalhamento', status: 'falha' })
           )
         } catch (e) {
-          throw e;
+          console.log('Erro ao salvar atualização CCS no Banco de Dados. Tente novamente', e);
         }
       };
     });
+  }
+
   return NextResponse.json(lista);
 }

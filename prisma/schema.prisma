@@ -65,6 +65,7 @@ model RelacionamentoCCS {
   requisicaoRelacionamentoCCS RequisicaoRelacionamentoCCS?@relation(fields: [idRequisicao], references: [id])
   idRequisicao  Int
   dataRequisicaoDetalhamento String?
+  statusDetalhamento String @default("Não Solicitado")
   respondeDetalhamento Boolean?
   resposta Boolean @default(false)
   codigoResposta String?

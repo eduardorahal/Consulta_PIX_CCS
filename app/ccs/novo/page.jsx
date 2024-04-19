@@ -1,7 +1,7 @@
 // CPF Denis 05485620914
 "use client";
 
-import { TextField, Typography } from "@mui/material";
+import { IconButton, TextField, Typography } from "@mui/material";
 import FormLabel from "@mui/material/FormLabel";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -13,7 +13,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { Dialog, DialogTitle,DialogContent, DialogContentText, DialogActions } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import * as React from "react";
 import axios from "axios";
 import DialogDetalhamentoCCS from "@/app/ccs/components/DialogDetalhamentoCCS";
@@ -23,16 +23,21 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from "dayjs";
 import 'dayjs/locale/en-gb';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { v4 as uuidv4 } from "uuid";
 
 const ConsultaCCS = () => {
 
   // variáveis para armazenar CPF, CNPJ, Chave PIX e Motivo da consulta
-  const [cpfCnpj, setCpfCnpj] = React.useState("");
-  const [dataInicio, setDataInicio] = React.useState(dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 5))));
-  const [dataFim, setDataFim] = React.useState(dayjs(new Date()));
-  const [numProcesso, setNumProcesso] = React.useState("");
-  const [motivo, setMotivo] = React.useState("");
+  let initialValues = {
+    cpfCnpj: '',
+    motivo: '',
+    numProcesso: '',
+    dataInicio: dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 5))),
+    dataFim: dayjs(new Date())
+  }
+  let [argsBusca, setArgsBusca] = React.useState([initialValues])
 
   // variável para recuperar o CPF do usuário do Context
   const { state, dispatch } = React.useContext(Context)
@@ -52,7 +57,7 @@ const ConsultaCCS = () => {
     setErrorDialog(false);
   };
 
-  // variável para armazenar a lista de Chaves PIX exibidas no FrontEnd
+  // variável para armazenar a lista de Relacionamentos exibidas no FrontEnd
   const [lista, setLista] = React.useState([]);
   const [relacionamentos, setRelacionamentos] = React.useState([]);
 
@@ -61,11 +66,54 @@ const ConsultaCCS = () => {
     setValue(event.target.value);
   };
 
+  // Função para Adicionar mais um item à consulta
+
+  function addConsulta() {
+    let lastIndex = argsBusca.length - 1;
+    let newObject = {
+      cpfCnpj: '',
+      motivo: argsBusca[lastIndex].motivo,
+      numProcesso: argsBusca[lastIndex].numProcesso,
+      dataInicio: argsBusca[lastIndex].dataInicio,
+      dataFim: argsBusca[lastIndex].dataFim
+    };
+    setArgsBusca([
+      ...argsBusca,
+      newObject
+    ])
+  }
+
+  // Função para Remover um item da consulta
+
+  function remConsulta(i) {
+    let newArr = [...argsBusca];
+    newArr.splice(i, 1);
+    setArgsBusca(newArr);
+  }
+
   // Formatar Campo CPF / CNPJ para excluir caracteres não numéricos do campo de Pesquisa
-  const formatarCampo = (event) => {
-    let new_string = event.target.value.replace(/[^0-9]/g, "");
-    setCpfCnpj(new_string);
-  };
+  const setFormValues = (e, i, name = '') => {
+    let newArr = [...argsBusca];
+    if (name == 'dataInicio') {
+      newArr[i].dataInicio = e
+    } else if (name == 'dataFim') {
+      newArr[i].dataFim = e
+    }
+    else {
+      switch (e.target.name) {
+        case 'cpfCnpj':
+          newArr[i].cpfCnpj = e.target.value.replace(/[^0-9]/g, "")
+          break;
+        case 'motivo':
+          newArr[i].motivo = e.target.value
+          break;
+        case 'numProcesso':
+          newArr[i].numProcesso = e.target.value
+          break;
+      }
+    }
+    setArgsBusca(newArr)
+  }
 
   // Formatar CPF / CNPJ para apresentação no FrontEnd
   const formatCnpjCpf = (value) => {
@@ -97,9 +145,9 @@ const ConsultaCCS = () => {
   // Formatar Datas para Solicitação CCS
   const formatarDataCCS = (data) => {
     return (
-      data.$y + "-" + 
-      ((data.$M + 1).toLocaleString('en-US', { minimumIntegerDigits: 2})) + "-" + 
-      ((data.$D).toLocaleString('en-US', { minimumIntegerDigits: 2}))
+      data.$y + "-" +
+      ((data.$M + 1).toLocaleString('en-US', { minimumIntegerDigits: 2 })) + "-" +
+      ((data.$D).toLocaleString('en-US', { minimumIntegerDigits: 2 }))
     );
   };
 
@@ -143,11 +191,7 @@ const ConsultaCCS = () => {
           }
         })
         .catch((err) => console.error(err));
-      setCpfCnpj("");
-      setMotivo("");
-      setDataInicio(dayjs(new Date(new Date().setFullYear(new Date().getFullYear() - 5))));
-      setDataFim(dayjs(new Date()));
-      setNumProcesso("");
+      setArgsBusca([initialValues])
     } else {
       alert("Necessário preencher todos os campos!");
     }
@@ -157,7 +201,7 @@ const ConsultaCCS = () => {
   const detalhaCCS = async () => {
     setListaDetalhamentos([])
     setOpenDialogDetalhamentoCCS(true)
-    relacionamentos.map(async (relacionamento) => {
+    relacionamentos.map(async (relacionamento, i, arr) => {
       await axios
         .get(
           "/api/bacen/ccs/detalhamento?numeroRequisicao=" +
@@ -179,16 +223,19 @@ const ConsultaCCS = () => {
         )
         .then((response) => {
           setListaDetalhamentos((listaDetalhamentos) => [...listaDetalhamentos, response.data[0]])
+          if (arr.length - 1 === i) {
+            setStatusDetalhamentos(true)
+          }
         })
         .catch((err) => console.error(err));
     });
-    setStatusDetalhamentos(true)
 
   };
 
   const limpaTela = () => {
     setLista([]);
     setRelacionamentos([]);
+    setArgsBusca([initialValues])
   }
 
   // Função para Montar as LINHAS da Tabela no FrontEnd (sem o cabeçalho, pois o cabeçalho está no return)
@@ -197,25 +244,25 @@ const ConsultaCCS = () => {
     return (
       <React.Fragment>
         <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
-          <TableCell component="th" scope="item">
+          <TableCell style={{ width: '15%' }} component="th" scope="item">
             {lista.cpfCnpj ? formatCnpjCpf(lista.cpfCnpj) : null}
           </TableCell>
-          <TableCell>
+          <TableCell style={{ width: '5%' }}>
             {lista.tipoPessoa == "F"
               ? "PF"
               : lista.tipoPessoa == "J"
                 ? "PJ"
                 : ""}
           </TableCell>
-          <TableCell>{lista.nome}</TableCell>
-          <TableCell>
+          <TableCell style={{ width: '25%' }}>{lista.nome}</TableCell>
+          <TableCell style={{ width: '35%' }}>
             {relacionamento.numeroBancoResponsavel + " - " + relacionamento.nomeBancoResponsavel}
           </TableCell>
-          <TableCell>{relacionamento.dataInicioRelacionamento}</TableCell>
-          <TableCell align="right">
+          <TableCell style={{ width: '10%' }} align="right">{formatarData(relacionamento.dataInicioRelacionamento)}</TableCell>
+          <TableCell style={{ width: '10%' }} align="right">
             {relacionamento.dataFimRelacionamento
-              ? relacionamento.dataFimRelacionamento
-              : ""}
+              ? formatarData(relacionamento.dataFimRelacionamento)
+              : "VIGENTE"}
           </TableCell>
         </TableRow>
       </React.Fragment>
@@ -271,65 +318,97 @@ const ConsultaCCS = () => {
     <Box style={{ margin: 10 }}>
       <Grid container spacing={2}>
         <FormLabel style={{ fontSize: 16 }}>Consulta CCS BACEN</FormLabel>
-        <Grid container spacing={2}>
-          <Grid item xs={2} md={2} xl={2}>
-            <TextField
-              fullWidth
-              style={{}}
-              value={cpfCnpj}
-              onChange={(e) => formatarCampo(e)}
-              size="small"
-              id="standard-basic"
-              label="CPF/CNPJ"
-              variant="standard"
-              placeholder="CPF/CNPJ"
-            />
-          </Grid>
-          <Grid item xs={3} md={3} xl={3}>
-            <TextField
-              fullWidth
-              style={{}}
-              size="small"
-              id="standard-basic"
-              label="Número do Processo"
-              variant="standard"
-              placeholder="Número do Processo"
-              value={numProcesso}
-              onChange={(e) => setNumProcesso(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={3} md={3} xl={3}>
-            <TextField
-              fullWidth
-              style={{}}
-              size="small"
-              id="standard-basic"
-              label="Motivo"
-              variant="standard"
-              placeholder="Motivo"
-              value={motivo}
-              onChange={(e) => setMotivo(e.target.value)}
-            />
-          </Grid>
-          <Grid item xs={2} md={2} xl={2}>
-            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-              <DatePicker
-                label="Data Inínio"
-                value={dataInicio}
-                onChange={setDataInicio}
+
+        {argsBusca.map((arg, i) => (
+          <Grid key={i} container spacing={2}>
+            <Grid container item direction="row" justifyContent="center" alignItems="flex-end" xs={0.4} md={0.4} xl={0.4}>
+              {
+                ((i) == (argsBusca.length - 1)) ? (
+                  <>
+                    <IconButton onClick={() => addConsulta()}>
+                      <AddCircleOutlineIcon sx={{ fontSize: 25 }} color="primary" />
+                    </IconButton>
+                  </>
+                ) :
+                  (
+                    <>
+                      <IconButton onClick={() => remConsulta(i)}>
+                        <RemoveCircleOutlineIcon sx={{ fontSize: 25 }} color='error' />
+                      </IconButton>
+                    </>
+                  )
+              }
+            </Grid>
+            <Grid item xs={2} md={2} xl={2}>
+              <TextField
+                required
+                fullWidth
+                style={{}}
+                name="cpfCnpj"
+                value={arg.cpfCnpj}
+                size="small"
+                id="standard-basic"
+                label="CPF/CNPJ"
+                variant="standard"
+                placeholder="CPF/CNPJ"
+                onChange={e => setFormValues(e, i)}
               />
-            </LocalizationProvider>
-          </Grid>
-          <Grid item xs={2} md={2} xl={2}>
-            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
-              <DatePicker
-                label="Data Fim"
-                value={dataFim}
-                onChange={setDataFim}
+            </Grid>
+            <Grid item xs={3} md={3} xl={3}>
+              <TextField
+                required
+                fullWidth
+                style={{}}
+                name="numProcesso"
+                size="small"
+                id="standard-basic"
+                label="Número do Processo"
+                variant="standard"
+                placeholder="Número do Processo"
+                value={arg.numProcesso}
+                onChange={e => setFormValues(e, i)}
               />
-            </LocalizationProvider>
+            </Grid>
+            <Grid item xs={3} md={3} xl={3}>
+              <TextField
+                required
+                fullWidth
+                style={{}}
+                name="motivo"
+                size="small"
+                id="standard-basic"
+                label="Motivo"
+                variant="standard"
+                placeholder="Motivo"
+                value={arg.motivo}
+                onChange={e => setFormValues(e, i)}
+              />
+            </Grid>
+            <Grid item xs={1.8} md={1.8} xl={1.8}>
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+                <DatePicker
+                  name="dataInicio"
+                  label="Data Início"
+                  value={arg.dataInicio}
+                  onChange={e => setFormValues(e, i, 'dataInicio')}
+                  slotProps={{ textField: { size: 'small', variant: 'standard' } }}
+                />
+              </LocalizationProvider>
+            </Grid>
+            <Grid item xs={1.8} md={1.8} xl={1.8}>
+              <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
+                <DatePicker
+                  name="dataFim"
+                  label="Data Fim"
+                  value={arg.dataFim}
+                  onChange={e => setFormValues(e, i, 'dataFim')}
+                  slotProps={{ textField: { size: 'small', variant: 'standard' } }}
+                />
+              </LocalizationProvider>
+            </Grid>
           </Grid>
-        </Grid>
+        ))}
+
         <Grid
           item
           xs={12}
@@ -400,30 +479,36 @@ const ConsultaCCS = () => {
         <Grid item xs={12} md={12}>
           <TableContainer component={Paper} id="table">
             <Table sx={{ minWidth: 650 }} aria-label="collapsible table">
-              <TableHead>
-                <TableRow>
-                  <TableCell>CPF/CNPJ</TableCell>
-                  <TableCell>Tipo</TableCell>
-                  <TableCell>Nome</TableCell>
-                  <TableCell>Banco</TableCell>
-                  <TableCell align="right">Data Início</TableCell>
-                  <TableCell align="right">Data Fim</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {loading && <LoadingDialog />}
-                {openDialogDetalhamentoCCS &&
-                  <DialogDetalhamentoCCS
-                    openDialogDetalhamentoCCS={openDialogDetalhamentoCCS}
-                    setOpenDialogDetalhamentoCCS={setOpenDialogDetalhamentoCCS}
-                    listaDetalhamentos={listaDetalhamentos}
-                    statusDetalhamentos={statusDetalhamentos}
-                  />
-                }
-                {relacionamentos.map((relacionamento) => (
-                  <Row key={uuidv4()} relacionamento={relacionamento} />
-                ))}
-              </TableBody>
+              {
+                (relacionamentos.length > 0) && (
+                  <>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell style={{ width: '15%', fontWeight: 'bold' }}>CPF/CNPJ</TableCell>
+                        <TableCell style={{ width: '5%', fontWeight: 'bold' }}>Tipo</TableCell>
+                        <TableCell style={{ width: '25%', fontWeight: 'bold' }}>Nome</TableCell>
+                        <TableCell style={{ width: '35%', fontWeight: 'bold' }}>Banco</TableCell>
+                        <TableCell style={{ width: '10%', fontWeight: 'bold' }} align="right">Data Início</TableCell>
+                        <TableCell style={{ width: '10%', fontWeight: 'bold' }} align="right">Data Fim</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {loading && <LoadingDialog />}
+                      {openDialogDetalhamentoCCS &&
+                        <DialogDetalhamentoCCS
+                          openDialogDetalhamentoCCS={openDialogDetalhamentoCCS}
+                          setOpenDialogDetalhamentoCCS={setOpenDialogDetalhamentoCCS}
+                          listaDetalhamentos={listaDetalhamentos}
+                          statusDetalhamentos={statusDetalhamentos}
+                        />
+                      }
+                      {relacionamentos.map((relacionamento) => (
+                        <Row key={uuidv4()} relacionamento={relacionamento} />
+                      ))}
+                    </TableBody>
+                  </>
+                )
+              }
             </Table>
           </TableContainer>
         </Grid>

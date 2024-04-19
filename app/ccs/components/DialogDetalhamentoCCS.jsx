@@ -18,7 +18,6 @@ import { v4 as uuidv4 } from "uuid";
 // Componente DIALOG (popup) para mostrar o andamento da solicitação de Detalhamento
 
 export default function DialogDetalhamentoCCS(props) {
-
   // Função para Montar as LINHAS da Tabela no FrontEnd (sem o cabeçalho, pois o cabeçalho está no return)
   function Row(props) {
     const lista = props.lista;
