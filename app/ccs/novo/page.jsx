@@ -3,6 +3,8 @@
 
 import { IconButton, TextField, Typography } from "@mui/material";
 import FormLabel from "@mui/material/FormLabel";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from '@mui/material/Checkbox';
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -16,6 +18,7 @@ import Paper from "@mui/material/Paper";
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import * as React from "react";
 import axios from "axios";
+import DialogRelacionamentoCCS from "../components/DialogRelacionamentoCCS";
 import DialogDetalhamentoCCS from "@/app/ccs/components/DialogDetalhamentoCCS";
 import { Context } from "@/app/context";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -46,20 +49,18 @@ const ConsultaCCS = () => {
   //variável para controle de carregamento de página
   const [loading, setLoading] = React.useState(false)
 
+  // variável para controle de soliticação de relacionamentos
+  const [lista, setLista] = React.useState([]);
+  const [relacionamentos, setRelacionamentos] = React.useState([]);
+  const [openDialogRelacionamentoCCS, setOpenDialogRelacionamentoCCS] = React.useState(false);
+  const [statusRelacionamentos, setStatusRelacionamentos] = React.useState(false);
+  const [deAcordo, setDeAcordo] = React.useState(false);
+
   // variável para controle de soliticação de detalhamento
   const [openDialogDetalhamentoCCS, setOpenDialogDetalhamentoCCS] = React.useState(false);
   const [listaDetalhamentos, setListaDetalhamentos] = React.useState([]);
   const [statusDetalhamentos, setStatusDetalhamentos] = React.useState(false);
 
-  const [errorDialog, setErrorDialog] = React.useState(false);
-
-  const handleClose = () => {
-    setErrorDialog(false);
-  };
-
-  // variável para armazenar a lista de Relacionamentos exibidas no FrontEnd
-  const [lista, setLista] = React.useState([]);
-  const [relacionamentos, setRelacionamentos] = React.useState([]);
 
   // Alterar variável value de acordo com alteração do Radio Button
   const handleChange = (event) => {
@@ -153,59 +154,53 @@ const ConsultaCCS = () => {
 
   // Chamada da API para Buscar Vínculos CCS no Banco Central
   const buscaCCS = async () => {
-    if(argsBusca.some(arg => 
-        arg.cpfCnpj == '' ||
-        arg.dataInicio == '' ||
-        arg.dataFim == '' ||
-        arg.numProcesso == '' ||
-        arg.motivo == ''
-    )){
-      console.log(false)
+    if (argsBusca.some(arg =>
+      arg.cpfCnpj == '' ||
+      arg.dataInicio == '' ||
+      arg.dataFim == '' ||
+      arg.numProcesso == '' ||
+      arg.motivo == ''
+    )) {
+      alert("Necessário preencher todos os campos!");
     } else {
-      console.log(argsBusca)
+      if (deAcordo) {
+        setOpenDialogRelacionamentoCCS(true)
+
+        argsBusca.map(async (arg, i, arr) => {
+
+          await axios
+            .get(
+              "/api/bacen/ccs/relacionamento?cpfCnpj=" +
+              arg.cpfCnpj +
+              "&dataInicio=" +
+              formatarDataCCS(arg.dataInicio) +
+              "&dataFim=" +
+              formatarDataCCS(arg.dataFim) +
+              "&numProcesso=" +
+              arg.numProcesso +
+              "&motivo=" +
+              arg.motivo +
+              "&cpfResponsavel=" +
+              cpfResponsavel
+            )
+            .then((response) => response.data[0])
+            .then((relacionamentos) => {
+
+              setLista((lista) => [...lista, relacionamentos])
+              setRelacionamentos((relacionamentos) => [...relacionamentos, relacionamentos.relacionamentosCCS])
+              if (arr.length - 1 === i) {
+                setStatusRelacionamentos(true)
+              }
+
+            })
+            .catch((err) => console.error(err));
+          setArgsBusca([initialValues])
+        })
+      } else {
+        alert("Necessário CONCORDAR com os termos da consulta!");
+      }
+
     }
-    // if (
-    //   cpfCnpj != "" &&
-    //   dataInicio != "" &&
-    //   dataFim != "" &&
-    //   numProcesso != "" &&
-    //   motivo != ""
-    // ) {
-    //   setLoading(true)
-    //   await axios
-    //     .get(
-    //       "/api/bacen/ccs/relacionamento?cpfCnpj=" +
-    //       cpfCnpj +
-    //       "&dataInicio=" +
-    //       formatarDataCCS(dataInicio) +
-    //       "&dataFim=" +
-    //       formatarDataCCS(dataFim) +
-    //       "&numProcesso=" +
-    //       numProcesso +
-    //       "&motivo=" +
-    //       motivo +
-    //       "&cpfResponsavel=" +
-    //       cpfResponsavel
-    //     )
-    //     .then((response) => response.data[0])
-    //     .then((relacionamentos) => {
-    //       if (
-    //         relacionamentos.length == 0 ||
-    //         relacionamentos == "0002 - ERRO_CPF_CNPJ_INVALIDO"
-    //       ) {
-    //         setErrorDialog(true);
-    //         setLoading(false)
-    //       } else {
-    //         setLista(relacionamentos);
-    //         setRelacionamentos(relacionamentos.relacionamentosCCS);
-    //         setLoading(false)
-    //       }
-    //     })
-    //     .catch((err) => console.error(err));
-    //   setArgsBusca([initialValues])
-    // } else {
-    //   alert("Necessário preencher todos os campos!");
-    // }
   };
 
   // Chamada da API para Buscar Detalhamentos dos Relacionamentos CCS no Banco Central
@@ -277,31 +272,6 @@ const ConsultaCCS = () => {
           </TableCell>
         </TableRow>
       </React.Fragment>
-    );
-  }
-
-  // Componente DIALOG (popup) para Mensagem de Erro
-  function ErrorDialog() {
-    return (
-      <>
-        <Dialog onClose={handleClose} open={errorDialog}>
-          <DialogTitle>
-            {value == "chave"
-              ? "CHAVE PIX NÃO ENCONTRADA"
-              : "CPF / CNPJ NÃO ENCONTRADO"}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-slide-description">
-              Não foi possível localizar{" "}
-              {value == "chave" ? "a CHAVE PIX" : "o CPF / CNPJ"} na base de
-              Vínculos PIX do Banco Central. Verifique os dados informados.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>OK</Button>
-          </DialogActions>
-        </Dialog>
-      </>
     );
   }
 
@@ -437,7 +407,18 @@ const ConsultaCCS = () => {
             </Grid>
           </Grid>
         ))}
-
+        <Grid item xs={0.6}></Grid>
+        <Grid item xs={11.4}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={deAcordo}
+                onChange={() => setDeAcordo(!deAcordo)}
+              />
+            }
+            label="Declaro que a presente Consulta está sendo realizada mediante CONHECIMENTO E AUTORIZAÇÃO da Autoridade Responsável."
+          />
+        </Grid>
         <Grid
           item
           xs={12}
@@ -523,6 +504,14 @@ const ConsultaCCS = () => {
                     </TableHead>
                     <TableBody>
                       {loading && <LoadingDialog />}
+                      {openDialogRelacionamentoCCS &&
+                        <DialogRelacionamentoCCS
+                          openDialogRelacionamentoCCS={openDialogRelacionamentoCCS}
+                          setOpenDialogRelacionamentoCCS={setOpenDialogRelacionamentoCCS}
+                          lista={lista}
+                          statusDetalhamentos={statusDetalhamentos}
+                        />
+                      }
                       {openDialogDetalhamentoCCS &&
                         <DialogDetalhamentoCCS
                           openDialogDetalhamentoCCS={openDialogDetalhamentoCCS}
@@ -542,7 +531,6 @@ const ConsultaCCS = () => {
           </TableContainer>
         </Grid>
       </Grid>
-      {errorDialog && <ErrorDialog />}
     </Box>
   );
 };

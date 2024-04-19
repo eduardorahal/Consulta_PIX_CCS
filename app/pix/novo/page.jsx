@@ -55,7 +55,7 @@ const ConsultaPix = () => {
             const detalhe = JSON.parse(localStorage.getItem("detalhe"))
             for (let i = 0; i < detalhe.length; i++) {
                 let vinculos = detalhe[i].vinculos;
-                if(detalhe[i].vinculos){
+                if (detalhe[i].vinculos) {
                     for (let j = 0; j < vinculos.length; j++) {
                         setLista((lista) => [...lista, vinculos[j]])
                     }
@@ -106,7 +106,7 @@ const ConsultaPix = () => {
         return data.match(/\d{2}[-\w\_\.\/]\d{2}[-\w\_\.\/]\d{4}/gi)
     }
 
-    
+
     // variáveis e funções de controle de abertura de popup para Exportação de Dados
     const [openDialogRelatorio, setOpenDialogRelatorio] = React.useState(false);
     const [tipoRelatorio, setTipoRelatorio] = React.useState();
@@ -296,11 +296,13 @@ const ConsultaPix = () => {
                             value={value}
                             onChange={handleChange}
                         >
-                            <FormControlLabel id="cpf_cnpj" value="cpfCnpj"  control={<Radio size='small' style={{ margin: 0, alignItems: 'center', padding: 5 }} />} label={<Typography style={{ fontSize: 14 }}>Por CPF/CNPJ</Typography>} />
+                            <FormControlLabel id="cpf_cnpj" value="cpfCnpj" control={<Radio size='small' style={{ margin: 0, alignItems: 'center', padding: 5 }} />} label={<Typography style={{ fontSize: 14 }}>Por CPF/CNPJ</Typography>} />
                             <FormControlLabel value="chave" control={<Radio size='small' style={{ margin: 0, alignItems: 'center', padding: 5 }} />} label={<Typography style={{ fontSize: 14 }}>Por Chave PIX</Typography>} />
                         </RadioGroup>
                     </FormControl>
                 </Grid>
+
+
                 <Grid item xs={5} md={5} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} >
                     {value === 'cpfCnpj' ?
                         <TextField style={{ marginInlineEnd: 20 }} value={cpfCnpj} onChange={(e) => formatarCampo(e)} size="small" id="standard-basic" label="CPF/CNPJ" variant="standard" placeholder='CPF/CNPJ' />
@@ -330,35 +332,45 @@ const ConsultaPix = () => {
                         </> : <></>
                     }
                     {
-                        openDialogRelatorio && 
-                        <DialogRelatorioPIX 
-                        openDialogRelatorio={openDialogRelatorio}
-                        setOpenDialogRelatorio={setOpenDialogRelatorio}
-                        tipoRelatorio={tipoRelatorio}
-                        lista={lista}
-                    />
+                        openDialogRelatorio &&
+                        <DialogRelatorioPIX
+                            openDialogRelatorio={openDialogRelatorio}
+                            setOpenDialogRelatorio={setOpenDialogRelatorio}
+                            tipoRelatorio={tipoRelatorio}
+                            lista={lista}
+                        />
                     }
                 </Grid>
+
+
+
+                
                 <Grid item xs={12} md={12}>
                     <TableContainer component={Paper} id='table'>
                         <Table sx={{ minWidth: 650 }} aria-label="collapsible table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell />
-                                    <TableCell>Chave</TableCell>
-                                    <TableCell>Tipo</TableCell>
-                                    <TableCell >CPF/CNPJ</TableCell>
-                                    <TableCell >Nome</TableCell>
-                                    <TableCell >Banco</TableCell>
-                                    <TableCell align="right">Status</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {loading && <LoadingDialog />}
-                                {lista.map((item) => (
-                                    <Row key={item.chave} item={item} />
-                                ))}
-                            </TableBody>
+                            {
+                                (lista.length > 0) && (
+                                    <>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell />
+                                                <TableCell>Chave</TableCell>
+                                                <TableCell>Tipo</TableCell>
+                                                <TableCell >CPF/CNPJ</TableCell>
+                                                <TableCell >Nome</TableCell>
+                                                <TableCell >Banco</TableCell>
+                                                <TableCell align="right">Status</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {loading && <LoadingDialog />}
+                                            {lista.map((item) => (
+                                                <Row key={item.chave} item={item} />
+                                            ))}
+                                        </TableBody>
+                                    </>
+                                )
+                            }
                         </Table>
                     </TableContainer>
                 </Grid>
