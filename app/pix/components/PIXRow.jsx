@@ -182,7 +182,6 @@ const PIXRow = (props) => {
         const { requisicao } = props;
         const isItemSelected = isSelected(requisicao.id);
         var dataRequisicao = new Date(requisicao.data);
-
         return (
             <React.Fragment>
                 <TableRow hover
@@ -200,7 +199,7 @@ const PIXRow = (props) => {
                         />
                     </TableCell>
                     <TableCell>{requisicao.tipoBusca == 'cpf/cnpj' ? formatCnpjCpf(requisicao.chaveBusca) : requisicao.chaveBusca}</TableCell>
-                    <TableCell>{requisicao.vinculos ? (requisicao.vinculos[0].nomeProprietario).toUpperCase() : requisicao.resultado.toUpperCase()}</TableCell>
+                    <TableCell>{requisicao.resultado == 'Sucesso' ? (requisicao.tipoBusca == 'cpf/cnpj' ? requisicao.vinculos[0].nomeProprietario : requisicao.vinculos.nomeProprietario).toUpperCase() : requisicao.resultado.toUpperCase()}</TableCell>
                     <TableCell>{(requisicao.tipoBusca).toUpperCase()}</TableCell>
                     <TableCell>{dataRequisicao.toLocaleDateString()}</TableCell>
                     <TableCell>{requisicao.caso}</TableCell>

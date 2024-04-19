@@ -17,7 +17,7 @@ import { v4 as uuidv4 } from "uuid";
 
 // Componente DIALOG (popup) para mostrar o andamento da solicitação de Detalhamento
 
-export default function DialogRelacionamentoCCS(props) {
+export default function DialogRequisicoesPIX(props) {
 
   // Formatar CPF / CNPJ para apresentação no FrontEnd
   const formatCnpjCpf = (value) => {
@@ -34,13 +34,12 @@ export default function DialogRelacionamentoCCS(props) {
 
   // Função para Montar as LINHAS da Tabela no FrontEnd (sem o cabeçalho, pois o cabeçalho está no return)
   function Row(props) {
-    const lista = props.lista;
+    const message = props.message;
     return (
       <React.Fragment>
         <TableRow>
-          <TableCell style={{ width: '30%', fontWeight: 'bold' }} variant="overline">{formatCnpjCpf(lista.cpfCnpj)}</TableCell>
-          <TableCell style={{ width: '30%', color: ((lista.numeroRequisicao) ? 'blue' : 'red') }} variant="overline">{lista.numeroRequisicao ? ('Requisição nº ' + lista.numeroRequisicao) : lista.status}</TableCell>
-          <TableCell style={{ width: '40%', color: ((lista.numeroRequisicao) ? 'blue' : 'red') }} variant="overline">{lista.relacionamentosCCS ? (lista.relacionamentosCCS.length + ' relacionamentos no período solicitado.') : lista.msg} </TableCell>
+          <TableCell style={{ width: '50%', fontWeight: 'bold' }} variant="overline">{(message.cpfCnpj) ? formatCnpjCpf(message.cpfCnpj) : message.chave}</TableCell>
+          <TableCell style={{ width: '50%', color: ((message.status == 'Recebido com Sucesso') ? 'blue' : 'red') }} variant="overline">{message.status}</TableCell>
         </TableRow>
       </React.Fragment>
     );
@@ -49,25 +48,25 @@ export default function DialogRelacionamentoCCS(props) {
 
   return (
     <>
-      <Dialog open={props.openDialogRelacionamentoCCS}>
+      <Dialog open={props.openDialogRequisicoesPIX}>
         <DialogTitle>
-          {(!props.statusRelacionamentos) ? 'Solicitando Relacionamentos...' : 'Solicitação Concluída'}
+          {(!props.statusRequisicoes) ? 'Solicitando Chaves PIX...' : 'Solicitação Concluída'}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">
-            {(!props.statusRelacionamentos) ? 'Por favor, aguarde...' : 'Solicitação de Relacionamentos Concluída.'}
+            {(!props.statusRequisicoes) ? 'Por favor, aguarde...' : 'Solicitação de Chaves Concluída.'}
           </DialogContentText>
           <Table>
             <TableBody>
-              {props.lista && props.lista.map((lista) => (
-                <Row key={uuidv4()} lista={lista} />
+              {props.message && props.message.map((message) => (
+                <Row key={uuidv4()} message={message} />
               ))}
             </TableBody>
           </Table>
         </DialogContent>
-        {(props.statusRelacionamentos) &&
+        {(props.statusRequisicoes) &&
           <DialogActions>
-            <Button onClick={() => props.setOpenDialogRelacionamentoCCS(false)} >OK</Button>
+            <Button onClick={() => props.setOpenDialogRequisicoesPIX(false)} >OK</Button>
           </DialogActions>}
       </Dialog>
     </>

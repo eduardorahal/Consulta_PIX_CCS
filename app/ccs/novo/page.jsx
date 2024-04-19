@@ -46,9 +46,6 @@ const ConsultaCCS = () => {
   const { state, dispatch } = React.useContext(Context)
   const cpfResponsavel = state.cpf
 
-  //variável para controle de carregamento de página
-  const [loading, setLoading] = React.useState(false)
-
   // variável para controle de soliticação de relacionamentos
   const [lista, setLista] = React.useState([]);
   const [relacionamentos, setRelacionamentos] = React.useState([]);
@@ -61,14 +58,7 @@ const ConsultaCCS = () => {
   const [listaDetalhamentos, setListaDetalhamentos] = React.useState([]);
   const [statusDetalhamentos, setStatusDetalhamentos] = React.useState(false);
 
-
-  // Alterar variável value de acordo com alteração do Radio Button
-  const handleChange = (event) => {
-    setValue(event.target.value);
-  };
-
   // Função para Adicionar mais um item à consulta
-
   function addConsulta() {
     let lastIndex = argsBusca.length - 1;
     let newObject = {
@@ -85,14 +75,13 @@ const ConsultaCCS = () => {
   }
 
   // Função para Remover um item da consulta
-
   function remConsulta(i) {
     let newArr = [...argsBusca];
     newArr.splice(i, 1);
     setArgsBusca(newArr);
   }
 
-  // Formatar Campo CPF / CNPJ para excluir caracteres não numéricos do campo de Pesquisa
+  // Função para Preenchimento do Array de Busca ao digitar nos campos, bem como para Formatar Campo CPF / CNPJ para excluir caracteres não numéricos do campo de Pesquisa
   const setFormValues = (e, i, name = '') => {
     let newArr = [...argsBusca];
     if (name == 'dataInicio') {
@@ -165,7 +154,6 @@ const ConsultaCCS = () => {
     } else {
       if (deAcordo) {
         setOpenDialogRelacionamentoCCS(true)
-
         argsBusca.map(async (arg, i, arr) => {
 
           await axios
@@ -184,14 +172,15 @@ const ConsultaCCS = () => {
               cpfResponsavel
             )
             .then((response) => response.data[0])
-            .then((relacionamentos) => {
-
-              setLista((lista) => [...lista, relacionamentos])
-              setRelacionamentos((relacionamentos) => [...relacionamentos, relacionamentos.relacionamentosCCS])
+            .then((rel) => {
+              setLista((lista) => [...lista, rel]);
+              (rel.relacionamentosCCS) && (
+                rel.relacionamentosCCS.map((item) => {
+                  setRelacionamentos((relacionamentos) => [...relacionamentos, item])
+                }))
               if (arr.length - 1 === i) {
                 setStatusRelacionamentos(true)
               }
-
             })
             .catch((err) => console.error(err));
           setArgsBusca([initialValues])
@@ -211,9 +200,9 @@ const ConsultaCCS = () => {
       await axios
         .get(
           "/api/bacen/ccs/detalhamento?numeroRequisicao=" +
-          lista.numeroRequisicao +
+          relacionamento.numeroRequisicao +
           "&cpfCnpj=" +
-          lista.cpfCnpj +
+          relacionamento.idPessoa +
           "&cnpjResponsavel=" +
           relacionamento.cnpjResponsavel +
           "&cnpjParticipante=" +
@@ -251,16 +240,16 @@ const ConsultaCCS = () => {
       <React.Fragment>
         <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
           <TableCell style={{ width: '15%' }} component="th" scope="item">
-            {lista.cpfCnpj ? formatCnpjCpf(lista.cpfCnpj) : null}
+            {relacionamento.idPessoa ? formatCnpjCpf(relacionamento.idPessoa) : null}
           </TableCell>
           <TableCell style={{ width: '5%' }}>
-            {lista.tipoPessoa == "F"
+            {relacionamento.tipoPessoa == "F"
               ? "PF"
-              : lista.tipoPessoa == "J"
+              : relacionamento.tipoPessoa == "J"
                 ? "PJ"
                 : ""}
           </TableCell>
-          <TableCell style={{ width: '25%' }}>{lista.nome}</TableCell>
+          <TableCell style={{ width: '25%' }}>{relacionamento.nomePessoa}</TableCell>
           <TableCell style={{ width: '35%' }}>
             {relacionamento.numeroBancoResponsavel + " - " + relacionamento.nomeBancoResponsavel}
           </TableCell>
@@ -272,25 +261,6 @@ const ConsultaCCS = () => {
           </TableCell>
         </TableRow>
       </React.Fragment>
-    );
-  }
-
-  // Componente DIALOG (popup) para mostrar que a página está sendo carregada
-
-  function LoadingDialog() {
-    return (
-      <>
-        <Dialog open={loading}>
-          <DialogTitle>
-            Carregando...
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-slide-description">
-              Por favor, aguarde.
-            </DialogContentText>
-          </DialogContent>
-        </Dialog>
-      </>
     );
   }
 
@@ -407,18 +377,22 @@ const ConsultaCCS = () => {
             </Grid>
           </Grid>
         ))}
-        <Grid item xs={0.6}></Grid>
-        <Grid item xs={11.4}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={deAcordo}
-                onChange={() => setDeAcordo(!deAcordo)}
+        {(argsBusca[0] != initialValues) && (
+          <>
+            <Grid item xs={0.6}></Grid>
+            <Grid item xs={11.4}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={deAcordo}
+                    onChange={() => setDeAcordo(!deAcordo)}
+                  />
+                }
+                label="Declaro que a presente Consulta está sendo realizada mediante CONHECIMENTO E AUTORIZAÇÃO da Autoridade Responsável."
               />
-            }
-            label="Declaro que a presente Consulta está sendo realizada mediante CONHECIMENTO E AUTORIZAÇÃO da Autoridade Responsável."
-          />
-        </Grid>
+            </Grid>
+          </>
+        )}
         <Grid
           item
           xs={12}
@@ -489,6 +463,14 @@ const ConsultaCCS = () => {
         <Grid item xs={12} md={12}>
           <TableContainer component={Paper} id="table">
             <Table sx={{ minWidth: 650 }} aria-label="collapsible table">
+              {openDialogRelacionamentoCCS &&
+                <DialogRelacionamentoCCS
+                  openDialogRelacionamentoCCS={openDialogRelacionamentoCCS}
+                  setOpenDialogRelacionamentoCCS={setOpenDialogRelacionamentoCCS}
+                  lista={lista}
+                  statusRelacionamentos={statusRelacionamentos}
+                />
+              }
               {
                 (relacionamentos.length > 0) && (
                   <>
@@ -503,15 +485,6 @@ const ConsultaCCS = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {loading && <LoadingDialog />}
-                      {openDialogRelacionamentoCCS &&
-                        <DialogRelacionamentoCCS
-                          openDialogRelacionamentoCCS={openDialogRelacionamentoCCS}
-                          setOpenDialogRelacionamentoCCS={setOpenDialogRelacionamentoCCS}
-                          lista={lista}
-                          statusDetalhamentos={statusDetalhamentos}
-                        />
-                      }
                       {openDialogDetalhamentoCCS &&
                         <DialogDetalhamentoCCS
                           openDialogDetalhamentoCCS={openDialogDetalhamentoCCS}

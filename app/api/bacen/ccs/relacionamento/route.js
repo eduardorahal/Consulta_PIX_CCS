@@ -63,6 +63,8 @@ export async function GET(request) {
                             })
                         relacionamento.numeroRequisicao = res.requisicaoRelacionamento.numeroRequisicao[0];
                         relacionamento.idPessoa = res.requisicaoRelacionamento.clientes[0].clientes[0].id[0];
+                        relacionamento.nomePessoa = res.requisicaoRelacionamento.clientes[0].clientes[0].nome[0];
+                        relacionamento.tipoPessoa = res.requisicaoRelacionamento.clientes[0].clientes[0].tipoPessoa[0];
                         delete relacionamento.responsavelAtivo;
                         delete relacionamento.periodos;
                         delete relacionamento.cnpj;
@@ -87,7 +89,8 @@ export async function GET(request) {
                         relacionamentosCCS: {
                             create: relacionamentos[0]
                             },
-                        autorizado: true
+                        autorizado: true,
+                        status: "Sucesso"
                     }
                     try {
                         let requisicaoSalva = await prisma.requisicaoRelacionamentoCCS.create({
@@ -109,8 +112,35 @@ export async function GET(request) {
                 })
                 .catch((err) => console.error(err))
         })
-        .catch((error) => {
-            console.log(error)
+        .catch(async (error) => {
+            
+                // armazena as informações da requisição contendo os dados da solicitação e a resposta obtida
+
+                let requisicao = {
+                    dataRequisicao:  new Date().toDateString(),
+                    dataInicioConsulta: '',
+                    dataFimConsulta: '',
+                    cpfCnpjConsulta: cpfCnpj,
+                    numeroProcesso: '',
+                    motivoBusca: motivo,
+                    cpfResponsavel: cpfResponsavel,
+                    caso: caso,
+                    numeroRequisicao: '',
+                    cpfCnpj: '',
+                    tipoPessoa: '',
+                    nome: '',
+                    autorizado: true,
+                    status: "Falha"
+                }
+                try {
+                    let requisicaoSalva = await prisma.requisicaoRelacionamentoCCS.create({
+                        data: requisicao
+                    })
+                    lista.push({cpfCnpj: cpfCnpj, status: 'Falha', msg: 'CPF ou CNPJ incorreto'})
+                } catch (e) {
+                    throw e
+                }
+            
         })
     return NextResponse.json(lista)
 }

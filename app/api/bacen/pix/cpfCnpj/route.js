@@ -131,7 +131,7 @@ export async function GET(request) {
                     await prisma.requisicaoPix.create({
                         data: requisicao
                     }).then(
-                        lista.push((error.response.data.message) ? (error.response.data.message) : "Erro no processamento da Solicitação")
+                        lista.push((error.response.data.message) ? "CPF/CNPJ não encontrado" : "Erro no processamento da Solicitação")
                     )
                 } catch (e) {
                     throw e

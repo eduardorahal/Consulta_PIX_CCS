@@ -5,9 +5,11 @@ import { TextField, Typography } from '@mui/material';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Table from '@mui/material/Table';
@@ -22,6 +24,8 @@ import axios from 'axios';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import IconButton from '@mui/material/IconButton';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -29,12 +33,36 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useSearchParams } from 'next/navigation'
 import DialogRelatorioPIX from '@/app/pix/components/Relatorios/ExportaRelatorioPIX';
+import DialogRequisicoesPIX from '../components/DialogRequisicoesPIX';
 import { Context } from '@/app/context';
+import { v4 as uuidv4 } from "uuid";
 
 const ConsultaPix = () => {
 
+    // variável para armazenar se a consulta será feita por CPF ou Chave PIX
+    const [value, setValue] = React.useState('cpfCnpj');
+
+    // Alterar variável value de acordo com alteração do Radio Button
+    const handleChange = (event) => {
+        setValue(event.target.value)
+    };
+
+    // variáveis para armazenar CPF, CNPJ, Chave PIX e Motivo da consulta
+    let initialValues = {
+        cpfCnpj: '',
+        motivo: '',
+        chave: ''
+    }
+    let [argsBusca, setArgsBusca] = React.useState([initialValues])
+
     //variável para controle de carregamento de página
     const [loading, setLoading] = React.useState(false)
+
+    // variáveis para controle de soliticação de chaves
+    const [openDialogRequisicoesPIX, setOpenDialogRequisicoesPIX] = React.useState(false);
+    const [statusRequisicoes, setStatusRequisicoes] = React.useState(false);
+    const [message, setMessage] = React.useState([]);
+    const [deAcordo, setDeAcordo] = React.useState(false);
 
     // variável para armazenar a lista de Chaves PIX exibidas no FrontEnd
     const [lista, setLista] = React.useState([]);
@@ -43,9 +71,7 @@ const ConsultaPix = () => {
     const { state, dispatch } = React.useContext(Context)
     const cpfResponsavel = state.cpf
 
-
     // Caso haja solicitação de detalhamento, as informações ficam nessa variável antes de serem atribuídas para a lista
-
     const searchParams = useSearchParams()
     const query = searchParams.get('selected')
 
@@ -65,32 +91,43 @@ const ConsultaPix = () => {
         }
     }, [])
 
+    // Função para Adicionar mais um item à consulta
+    function addConsulta() {
+        let lastIndex = argsBusca.length - 1;
+        let newObject = {
+            cpfCnpj: '',
+            chave: '',
+            motivo: argsBusca[lastIndex].motivo,
+        };
+        setArgsBusca([
+            ...argsBusca,
+            newObject
+        ])
+    }
 
-    // variável para armazenar se a consulta será feita por CPF ou Chave PIX
-    const [value, setValue] = React.useState('cpfCnpj');
+    // Função para Remover um item da consulta
+    function remConsulta(i) {
+        let newArr = [...argsBusca];
+        newArr.splice(i, 1);
+        setArgsBusca(newArr);
+    }
 
-    // variáveis para armazenar CPF, CNPJ, Chave PIX e Motivo da consulta
-    const [cpfCnpj, setCpfCnpj] = React.useState('');
-    const [chave, setChave] = React.useState('');
-    const [motivo, setMotivo] = React.useState('');
-
-    const [errorDialog, setErrorDialog] = React.useState(false);
-    const [error, setError] = React.useState('');
-
-    const handleClose = () => {
-        setErrorDialog(false);
-    };
-
-    // Alterar variável value de acordo com alteração do Radio Button
-    const handleChange = (event) => {
-        setValue(event.target.value)
-    };
-
-    // Formatar Campo CPF / CNPJ para excluir caracteres não numéricos do campo de Pesquisa
-    const formatarCampo = event => {
-        let new_string = event.target.value.replace(/[^0-9]/g, "");
-        setCpfCnpj(new_string)
-    };
+    // Função para Preenchimento do Array de Busca ao digitar nos campos, bem como para Formatar Campo CPF / CNPJ para excluir caracteres não numéricos do campo de Pesquisa
+    const setFormValues = (e, i, name = '') => {
+        let newArr = [...argsBusca];
+        switch (e.target.name) {
+            case 'cpfCnpj':
+                newArr[i].cpfCnpj = e.target.value.replace(/[^0-9]/g, "")
+                break;
+            case 'motivo':
+                newArr[i].motivo = e.target.value
+                break;
+            case 'chave':
+                newArr[i].chave = e.target.value
+                break;
+        }
+        setArgsBusca(newArr)
+    }
 
     // Formatar CPF / CNPJ para apresentação no FrontEnd
     const formatCnpjCpf = (value) => {
@@ -118,49 +155,68 @@ const ConsultaPix = () => {
 
     // Chamada da API para Buscar Chaves PIX no Banco Central
     const buscaPIX = async () => {
-
-        if (value === 'cpfCnpj' && cpfCnpj != '' && motivo != '') {
-            setLoading(true)
-            await axios.get('/api/bacen/pix/cpfCnpj?cpfCnpj=' + cpfCnpj + '&motivo=' + motivo + '&cpfResponsavel=' + cpfResponsavel)
-                .then(response => response.data[0])
-                .then((vinculos) => {
-                    if (vinculos.length == 0 || vinculos == '0002 - ERRO_CPF_CNPJ_INVALIDO' || vinculos == "Nenhuma Chave PIX encontrada") {
-                        setError(vinculos)
-                        setErrorDialog(true)
-                        setLoading(false)
-                    } else {
-                        vinculos.map((vinculo) => {
-                            setLista((lista) => [...lista, vinculo])
-                            setLoading(false)
-                        })
-                    }
-                })
-                .catch(err => console.error(err))
-            setCpfCnpj('')
-            setMotivo('')
-        } else {
-            if (value === 'chave' && chave != '' && motivo != '') {
-                setLoading(true)
-                await axios.get('/api/bacen/pix/chave?chave=' + chave + '&motivo=' + motivo + '&cpfResponsavel=' + cpfResponsavel)
-                    .then((response) => {
-                        return response.data
+        if (deAcordo) {
+            if (value === 'cpfCnpj') {
+                if (argsBusca.some(arg =>
+                    arg.cpfCnpj == '' ||
+                    arg.motivo == ''
+                )) {
+                    alert("Necessário preencher todos os campos!");
+                } else {
+                    setOpenDialogRequisicoesPIX(true)
+                    argsBusca.map(async (arg, i, arr) => {
+                        await axios.get('/api/bacen/pix/cpfCnpj?cpfCnpj=' + arg.cpfCnpj + '&motivo=' + arg.motivo + '&cpfResponsavel=' + cpfResponsavel)
+                            .then(response => response.data[0])
+                            .then((vinculos) => {
+                                if (vinculos.length == 0 || vinculos == 'CPF/CNPJ não encontrado' || vinculos == "Nenhuma Chave PIX encontrada") {
+                                    setMessage((message) => [...message, { cpfCnpj: arg.cpfCnpj, status: vinculos }])
+                                } else {
+                                    setMessage((message) => [...message, { cpfCnpj: arg.cpfCnpj, status: 'Recebido com Sucesso' }])
+                                    vinculos.map((vinculo) => {
+                                        setLista((lista) => [...lista, vinculo])
+                                    })
+                                }
+                                if (arr.length - 1 === i) {
+                                    setStatusRequisicoes(true)
+                                }
+                            })
+                            .catch(err => console.error(err))
+                        setArgsBusca([initialValues])
                     })
-                    .then((vinculo) => {
-                        vinculo.map((vinculo) => {
-                            setLista((lista) => [...lista, vinculo])
-                            setLoading(false)
-                        })
-                        if (vinculo.length == 0) {
-                            setErrorDialog(true)
-                            setLoading(false)
-                        }
-                    })
-                    .catch(err => console.error(err))
-                setChave('')
-                setMotivo('')
-            } else {
-                alert('Necessário preencher todos os campos!')
+                }
             }
+            if (value === 'chave') {
+                if (argsBusca.some(arg =>
+                    arg.chave == '' ||
+                    arg.motivo == ''
+                )) {
+                    alert("Necessário preencher todos os campos!");
+                } else {
+                    setOpenDialogRequisicoesPIX(true)
+                    argsBusca.map(async (arg, i, arr) => {
+                        await axios.get('/api/bacen/pix/chave?chave=' + arg.chave + '&motivo=' + arg.motivo + '&cpfResponsavel=' + cpfResponsavel)
+                            .then((response) => {
+                                return response.data
+                            })
+                            .then((vinculo) => {
+                                setMessage((message) => [...message, { chave: arg.chave, status: 'Recebido com Sucesso' }])
+                                vinculo.map((vinculo) => {
+                                    setLista((lista) => [...lista, vinculo])
+                                })
+                                if (vinculo.length == 0) {
+                                    setMessage((message) => [...message, { chave: arg.chave, status: 'Chave não Encontrada' }])
+                                }
+                                if (arr.length - 1 === i) {
+                                    setStatusRequisicoes(true)
+                                }
+                            })
+                            .catch(err => console.error(err))
+                        setArgsBusca([initialValues])
+                    })
+                }
+            }
+        } else {
+            alert("Necessário CONCORDAR com os termos da consulta!");
         }
     }
 
@@ -245,25 +301,6 @@ const ConsultaPix = () => {
         )
     }
 
-    // Componente DIALOG (popup) para Mensagem de Erro
-    function ErrorDialog() {
-        return (
-            <>
-                <Dialog onClose={handleClose} open={errorDialog}>
-                    <DialogTitle>{value == 'chave' ? 'CHAVE PIX NÃO ENCONTRADA' : (error == "Nenhuma Chave PIX encontrada" ? 'NENHUMA CHAVE PIX ENCONTRADA' : 'CPF / CNPJ NÃO ENCONTRADO')}</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="alert-dialog-slide-description">
-                            Não foi possível localizar {value == 'chave' ? 'a CHAVE PIX' : (error == "Nenhuma Chave PIX encontrada" ? 'NENHUMA CHAVE PIX PARA O CPF/CNPJ INFORMADO' : 'o CPF / CNPJ')} na base de Vínculos PIX do Banco Central. Verifique os dados informados.
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleClose}>OK</Button>
-                    </DialogActions>
-                </Dialog>
-            </>
-        )
-    }
-
     // Componente DIALOG (popup) para mostrar que a página está sendo carregada
 
     function LoadingDialog() {
@@ -286,7 +323,7 @@ const ConsultaPix = () => {
     // Retorno do Componente Principal, com o Formulário de Consulta e a chamada da Tabela, já com cabeçalho
     return (
         <Box style={{ margin: 10 }}>
-            <Grid container spacing={2}>
+            <Grid container spacing={2} justifyContent="space-between">
                 <Grid item xs={2} md={2}>
                     <FormControl style={{ verticalAlign: 'middle', marginInline: 20 }}>
                         <FormLabel id="demo-controlled-radio-buttons-group" style={{ fontSize: 16 }}>Consulta PIX BACEN</FormLabel>
@@ -302,35 +339,115 @@ const ConsultaPix = () => {
                     </FormControl>
                 </Grid>
 
+                <Grid container direction='row' item xs={5} md={5} xl={5}>
+                    {argsBusca.map((arg, i) => (
+                        <React.Fragment key={i}>
 
-                <Grid item xs={5} md={5} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} >
-                    {value === 'cpfCnpj' ?
-                        <TextField style={{ marginInlineEnd: 20 }} value={cpfCnpj} onChange={(e) => formatarCampo(e)} size="small" id="standard-basic" label="CPF/CNPJ" variant="standard" placeholder='CPF/CNPJ' />
-                        : null
-                    }
-                    {value === 'chave' ?
-                        <TextField fullWidth style={{ marginInlineEnd: 20 }} value={chave} onChange={(e) => setChave(e.target.value)} size="small" id="standard-basic" label="Chave PIX" variant="standard" placeholder='Chave PIX' />
-                        : null
-                    }
-                    <TextField fullWidth size="small" id="standard-basic" label="Motivo" variant="standard" placeholder='Motivo' value={motivo} onChange={(e) => setMotivo(e.target.value)} />
+
+
+                            <Grid container direction='row' item xs={12} md={12} xl={12}>
+                                <Grid container item direction="row" justifyContent="space-between" alignItems="flex-end" xs={2} md={2} xl={2}>
+                                    {
+                                        (argsBusca.length == 1) ? (
+                                            <>
+                                                <Grid item xs={6}></Grid>
+                                                <Grid item xs={6}>
+                                                    <IconButton onClick={() => addConsulta()}>
+                                                        <AddCircleOutlineIcon sx={{ fontSize: 25 }} color="primary" />
+                                                    </IconButton>
+                                                </Grid>
+                                            </>
+                                        ) : (
+                                            ((i) == (argsBusca.length - 1)) ? (
+                                                <>
+                                                    <Grid item xs={6}>
+                                                        <IconButton onClick={() => remConsulta(i)}>
+                                                            <RemoveCircleOutlineIcon sx={{ fontSize: 25 }} color='error' />
+                                                        </IconButton>
+                                                    </Grid>
+                                                    <Grid item xs={6}>
+                                                        <IconButton onClick={() => addConsulta()}>
+                                                            <AddCircleOutlineIcon sx={{ fontSize: 25 }} color="primary" />
+                                                        </IconButton>
+                                                    </Grid>
+                                                </>
+                                            ) :
+                                                (
+                                                    <>
+                                                        <IconButton onClick={() => remConsulta(i)}>
+                                                            <RemoveCircleOutlineIcon sx={{ fontSize: 25 }} color='error' />
+                                                        </IconButton>
+                                                    </>
+                                                )
+                                        )
+                                    }
+                                </Grid>
+
+                                <Grid item xs={10} md={10} xl={10} style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+
+                                    {value === 'cpfCnpj' ?
+                                        <TextField
+                                            style={{ marginInlineEnd: 20 }}
+                                            name='cpfCnpj'
+                                            value={arg.cpfCnpj}
+                                            onChange={e => setFormValues(e, i)}
+                                            size="small"
+                                            id="standard-basic"
+                                            label="CPF/CNPJ"
+                                            variant="standard"
+                                            placeholder='CPF/CNPJ'
+                                        /> : null
+                                    }
+
+                                    {value === 'chave' ?
+                                        <TextField
+                                            fullWidth
+                                            style={{ marginInlineEnd: 20 }}
+                                            name='chave'
+                                            value={arg.chave}
+                                            onChange={e => setFormValues(e, i)}
+                                            size="small"
+                                            id="standard-basic"
+                                            label="Chave PIX"
+                                            variant="standard"
+                                            placeholder='Chave PIX'
+                                        /> : null
+                                    }
+
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        id="standard-basic"
+                                        label="Motivo"
+                                        variant="standard"
+                                        placeholder='Motivo'
+                                        name='motivo'
+                                        value={arg.motivo}
+                                        onChange={e => setFormValues(e, i)}
+                                    />
+
+                                </Grid>
+                            </Grid>
+
+
+
+                        </React.Fragment>
+                    ))}
                 </Grid>
-                <Grid item xs={5} md={5} style={{ display: 'flex', alignItems: 'center', justifyContent: 'right' }} >
+
+                <Grid item xs={5} md={5} style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'right' }} >
                     <Button style={{ marginInlineEnd: 20 }} variant="contained" size="small" onClick={buscaPIX} >
                         Pesquisar
                     </Button>
                     <Button style={{ marginInlineEnd: 20 }} variant="outlined" size="small" onClick={() => setLista([])} >
                         Limpar
                     </Button>
-                    {lista.length > 0 ?
-                        <>
-                            <Button style={{ marginInlineEnd: 20 }} variant="outlined" color='error' size="small" onClick={() => callExportDialog('pdf')} >
-                                Exportar PDF
-                            </Button>
-                            <Button style={{ marginInlineEnd: 20 }} variant="outlined" color='success' size="small" onClick={() => callExportDialog('etc')} >
-                                Exportar ...
-                            </Button>
-                        </> : <></>
-                    }
+                    <Button style={{ marginInlineEnd: 20 }} disabled={(lista.length == 0) && true} variant="outlined" color='error' size="small" onClick={() => callExportDialog('pdf')} >
+                        Exportar PDF
+                    </Button>
+                    <Button style={{ marginInlineEnd: 20 }} disabled={(lista.length == 0) && true} variant="outlined" color='success' size="small" onClick={() => callExportDialog('etc')} >
+                        Exportar ...
+                    </Button>
                     {
                         openDialogRelatorio &&
                         <DialogRelatorioPIX
@@ -341,13 +458,34 @@ const ConsultaPix = () => {
                         />
                     }
                 </Grid>
+                {(argsBusca[0] != initialValues) && (
+                    <>
+                        <Grid item xs={1}></Grid>
+                        <Grid item xs={11}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={deAcordo}
+                                        onChange={() => setDeAcordo(!deAcordo)}
+                                    />
+                                }
+                                label="Declaro que a presente Consulta está sendo realizada mediante CONHECIMENTO E AUTORIZAÇÃO da Autoridade Responsável."
+                            />
+                        </Grid>
+                    </>
+                )}
 
-
-
-                
                 <Grid item xs={12} md={12}>
                     <TableContainer component={Paper} id='table'>
                         <Table sx={{ minWidth: 650 }} aria-label="collapsible table">
+                            {openDialogRequisicoesPIX &&
+                                <DialogRequisicoesPIX
+                                    openDialogRequisicoesPIX={openDialogRequisicoesPIX}
+                                    setOpenDialogRequisicoesPIX={setOpenDialogRequisicoesPIX}
+                                    message={message}
+                                    statusRequisicoes={statusRequisicoes}
+                                />
+                            }
                             {
                                 (lista.length > 0) && (
                                     <>
@@ -375,7 +513,6 @@ const ConsultaPix = () => {
                     </TableContainer>
                 </Grid>
             </Grid>
-            {errorDialog && <ErrorDialog />}
         </Box>
     )
 }

@@ -47,6 +47,7 @@ model RequisicaoRelacionamentoCCS {
   nomeAutorizacao String?
   dataHoraAutorizacao String?
   tokenAutorizacao String?
+  status String
   detalhamento Boolean @default(false)
 }
 
@@ -54,6 +55,8 @@ model RelacionamentoCCS {
   id  Int @id @default(autoincrement())
   numeroRequisicao String
   idPessoa String
+  nomePessoa String
+  tipoPessoa String
   cnpjResponsavel String
   numeroBancoResponsavel String
   nomeBancoResponsavel String
