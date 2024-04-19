@@ -153,48 +153,59 @@ const ConsultaCCS = () => {
 
   // Chamada da API para Buscar Vínculos CCS no Banco Central
   const buscaCCS = async () => {
-    if (
-      cpfCnpj != "" &&
-      dataInicio != "" &&
-      dataFim != "" &&
-      numProcesso != "" &&
-      motivo != ""
-    ) {
-      setLoading(true)
-      await axios
-        .get(
-          "/api/bacen/ccs/relacionamento?cpfCnpj=" +
-          cpfCnpj +
-          "&dataInicio=" +
-          formatarDataCCS(dataInicio) +
-          "&dataFim=" +
-          formatarDataCCS(dataFim) +
-          "&numProcesso=" +
-          numProcesso +
-          "&motivo=" +
-          motivo +
-          "&cpfResponsavel=" +
-          cpfResponsavel
-        )
-        .then((response) => response.data[0])
-        .then((relacionamentos) => {
-          if (
-            relacionamentos.length == 0 ||
-            relacionamentos == "0002 - ERRO_CPF_CNPJ_INVALIDO"
-          ) {
-            setErrorDialog(true);
-            setLoading(false)
-          } else {
-            setLista(relacionamentos);
-            setRelacionamentos(relacionamentos.relacionamentosCCS);
-            setLoading(false)
-          }
-        })
-        .catch((err) => console.error(err));
-      setArgsBusca([initialValues])
+    if(argsBusca.some(arg => 
+        arg.cpfCnpj == '' ||
+        arg.dataInicio == '' ||
+        arg.dataFim == '' ||
+        arg.numProcesso == '' ||
+        arg.motivo == ''
+    )){
+      console.log(false)
     } else {
-      alert("Necessário preencher todos os campos!");
+      console.log(argsBusca)
     }
+    // if (
+    //   cpfCnpj != "" &&
+    //   dataInicio != "" &&
+    //   dataFim != "" &&
+    //   numProcesso != "" &&
+    //   motivo != ""
+    // ) {
+    //   setLoading(true)
+    //   await axios
+    //     .get(
+    //       "/api/bacen/ccs/relacionamento?cpfCnpj=" +
+    //       cpfCnpj +
+    //       "&dataInicio=" +
+    //       formatarDataCCS(dataInicio) +
+    //       "&dataFim=" +
+    //       formatarDataCCS(dataFim) +
+    //       "&numProcesso=" +
+    //       numProcesso +
+    //       "&motivo=" +
+    //       motivo +
+    //       "&cpfResponsavel=" +
+    //       cpfResponsavel
+    //     )
+    //     .then((response) => response.data[0])
+    //     .then((relacionamentos) => {
+    //       if (
+    //         relacionamentos.length == 0 ||
+    //         relacionamentos == "0002 - ERRO_CPF_CNPJ_INVALIDO"
+    //       ) {
+    //         setErrorDialog(true);
+    //         setLoading(false)
+    //       } else {
+    //         setLista(relacionamentos);
+    //         setRelacionamentos(relacionamentos.relacionamentosCCS);
+    //         setLoading(false)
+    //       }
+    //     })
+    //     .catch((err) => console.error(err));
+    //   setArgsBusca([initialValues])
+    // } else {
+    //   alert("Necessário preencher todos os campos!");
+    // }
   };
 
   // Chamada da API para Buscar Detalhamentos dos Relacionamentos CCS no Banco Central
@@ -321,25 +332,43 @@ const ConsultaCCS = () => {
 
         {argsBusca.map((arg, i) => (
           <Grid key={i} container spacing={2}>
-            <Grid container item direction="row" justifyContent="center" alignItems="flex-end" xs={0.4} md={0.4} xl={0.4}>
+            <Grid container item direction="row" justifyContent="space-between" alignItems="flex-end" xs={0.7} md={0.7} xl={0.7}>
               {
-                ((i) == (argsBusca.length - 1)) ? (
+                (argsBusca.length == 1) ? (
                   <>
-                    <IconButton onClick={() => addConsulta()}>
-                      <AddCircleOutlineIcon sx={{ fontSize: 25 }} color="primary" />
-                    </IconButton>
-                  </>
-                ) :
-                  (
-                    <>
-                      <IconButton onClick={() => remConsulta(i)}>
-                        <RemoveCircleOutlineIcon sx={{ fontSize: 25 }} color='error' />
+                    <Grid item xs={6}></Grid>
+                    <Grid item xs={6}>
+                      <IconButton onClick={() => addConsulta()}>
+                        <AddCircleOutlineIcon sx={{ fontSize: 25 }} color="primary" />
                       </IconButton>
+                    </Grid>
+                  </>
+                ) : (
+                  ((i) == (argsBusca.length - 1)) ? (
+                    <>
+                      <Grid item xs={6}>
+                        <IconButton onClick={() => remConsulta(i)}>
+                          <RemoveCircleOutlineIcon sx={{ fontSize: 25 }} color='error' />
+                        </IconButton>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <IconButton onClick={() => addConsulta()}>
+                          <AddCircleOutlineIcon sx={{ fontSize: 25 }} color="primary" />
+                        </IconButton>
+                      </Grid>
                     </>
-                  )
+                  ) :
+                    (
+                      <>
+                        <IconButton onClick={() => remConsulta(i)}>
+                          <RemoveCircleOutlineIcon sx={{ fontSize: 25 }} color='error' />
+                        </IconButton>
+                      </>
+                    )
+                )
               }
             </Grid>
-            <Grid item xs={2} md={2} xl={2}>
+            <Grid item xs={2.1} md={2.1} xl={2.1}>
               <TextField
                 required
                 fullWidth
@@ -384,7 +413,7 @@ const ConsultaCCS = () => {
                 onChange={e => setFormValues(e, i)}
               />
             </Grid>
-            <Grid item xs={1.8} md={1.8} xl={1.8}>
+            <Grid item xs={1.6} md={1.6} xl={1.6}>
               <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                 <DatePicker
                   name="dataInicio"
@@ -395,7 +424,7 @@ const ConsultaCCS = () => {
                 />
               </LocalizationProvider>
             </Grid>
-            <Grid item xs={1.8} md={1.8} xl={1.8}>
+            <Grid item xs={1.6} md={1.6} xl={1.6}>
               <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                 <DatePicker
                   name="dataFim"
