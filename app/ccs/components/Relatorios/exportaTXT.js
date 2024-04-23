@@ -1,4 +1,3 @@
-'use client'
 
 export default async function ExportaTXT(requisicoes, numeroSimba) {
 

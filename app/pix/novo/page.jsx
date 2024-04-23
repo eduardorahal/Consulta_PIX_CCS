@@ -89,7 +89,7 @@ const ConsultaPix = () => {
                 setLoading(false)
             }
         }
-    }, [])
+    }, [query])
 
     // Função para Adicionar mais um item à consulta
     function addConsulta() {

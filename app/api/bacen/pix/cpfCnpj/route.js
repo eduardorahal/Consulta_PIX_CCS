@@ -55,7 +55,7 @@ export async function GET(request) {
                                 .then(response => response.data)
                                 .then((participante) => {
                                     evento.numerobanco = (participante.codigoCompensacao ? participante.codigoCompensacao.toLocaleString('en-US', { minimumIntegerDigits: 3, useGrouping: false }) : '000');
-                                    evento.nomebanco = participante.nome
+                                    evento.nomebanco = participante.nome;
                                 })
                                 .catch((err) => {
                                     evento.numerobanco = "000";

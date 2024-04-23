@@ -35,7 +35,7 @@ const DetalhaCCS = () => {
                 }
             }
         }
-    }, [])
+    }, [query])
 
 
     // Componente DIALOG (popup) para mostrar que a página está sendo carregada
@@ -76,6 +76,4 @@ const DetalhaCCS = () => {
     )
 }
 
-export default () => (
-    <DetalhaCCS />
-)
+export default DetalhaCCS

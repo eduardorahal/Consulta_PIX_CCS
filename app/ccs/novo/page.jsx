@@ -121,9 +121,9 @@ const ConsultaCCS = () => {
   const formatarData = (data) => {
     let novadata = new Date(data);
     return (
-      ((novadata.getDate() + 1)).toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false }) +
+      ((novadata.getDate())).toLocaleString('en-GB', { minimumIntegerDigits: 2, useGrouping: false }) +
       "/" +
-      (novadata.getMonth() + 1).toLocaleString("en-US", {
+      (novadata.getMonth() + 1).toLocaleString("en-GB", {
         minimumIntegerDigits: 2,
         useGrouping: false,
       }) +

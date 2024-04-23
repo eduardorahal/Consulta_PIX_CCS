@@ -2,7 +2,7 @@ import Menu from './Menu'
 import { Box } from '@mui/material'
 import { MenuProvider } from './menuContext'
 
-const MenuLayout = ({ children }) => {
+function Layout ({ children }) {
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -11,10 +11,12 @@ const MenuLayout = ({ children }) => {
     )
 }
 
-export default ({ children }) => (
+const MenuLayout = ({ children }) => (
     <MenuProvider>
-        <MenuLayout>
+        <Layout>
             {children}
-        </MenuLayout>
+        </Layout>
     </MenuProvider>
 )
+
+export default MenuLayout

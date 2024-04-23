@@ -12,7 +12,7 @@ const metadata = {
   description: 'Laboratório de Tecnologia contra Lavagem de Dinheiro'
 }
 
-const RootLayout = ({ children }) => {
+const Layout = ({ children }) => {
 
   return (
     <html lang="en">
@@ -28,11 +28,12 @@ const RootLayout = ({ children }) => {
   )
 }
 
-export default ({ children }) => (
+const RootLayout = ({ children }) => (
   <Provider>
-    <RootLayout>
+    <Layout>
       {children}
-    </RootLayout>
+    </Layout>
   </Provider>
-
 )
+
+export default RootLayout

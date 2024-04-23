@@ -1,4 +1,4 @@
-'use client'
+
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 
@@ -26,18 +26,8 @@ export default async function RelatorioDetalhadoPix(vinculosPix) {
     }
 
     const formatarData = (data) => {
-        let novadata = new Date(data);
-        return (
-            ((novadata.getDate() + 1)).toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false }) +
-            "/" +
-            (novadata.getMonth() + 1).toLocaleString("en-US", {
-                minimumIntegerDigits: 2,
-                useGrouping: false,
-            }) +
-            "/" +
-            novadata.getFullYear()
-        );
-    };
+        return data.match(/\d{2}[-\w\_\.\/]\d{2}[-\w\_\.\/]\d{4}/gi)
+    }
 
     const tables = [];
 

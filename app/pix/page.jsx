@@ -14,9 +14,10 @@ import Link from 'next/link';
 
 import PIXRow from './components/PIXRow';
 
-const DashPIX = ({ initialState }) => {
+const DashPIX = () => {
 
     const { state, dispatch } = useContext(Context);
+
 
     //variável para controle de carregamento de página
     const [loading, setLoading] = useState(true)
@@ -43,7 +44,7 @@ const DashPIX = ({ initialState }) => {
                 .catch((err) => console.error(err));
         };
         buscaRequisicoes();
-    }, [initialState])
+    }, [cpfResponsavel])
 
 
     // Componente DIALOG (popup) para mostrar que a página está sendo carregada
