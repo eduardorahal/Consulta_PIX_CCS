@@ -5,7 +5,7 @@ import Link from 'next/link';
 const Dashboard = () => {
     return (
         <Box style={{display: 'flex'}}>
-            <Box width='300px' padding='20px'>
+            {/* <Box width='300px' padding='20px'>
                 <Card sx={{ minWidth: 275, minHeight: 200 }}>
                     <CardActionArea component={Link} href="/solicitacoes/formLab">
                         <CardContent sx={{ minWidth: 275, minHeight: 200 }}>
@@ -18,7 +18,7 @@ const Dashboard = () => {
                         </CardContent>
                     </CardActionArea>
                 </Card>
-            </Box>
+            </Box> */}
             <Box width='300px' padding='20px'>
                 <Card sx={{ minWidth: 275, minHeight: 200 }}>
                     <CardActionArea  component={Link} href="/pix">
