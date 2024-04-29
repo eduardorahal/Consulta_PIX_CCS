@@ -18,6 +18,7 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
 import Link from 'next/link';
+import DialogRelatorioCCS from './Relatorios/ExportaRelatorioCCS';
 import { v4 as uuidv4 } from "uuid";
 
 const CCSRow = ({ requisicoes }) => {
@@ -27,6 +28,15 @@ const CCSRow = ({ requisicoes }) => {
     const [rowsPerPage, setRowsPerPage] = useState(20);
 
     const [selected, setSelected] = React.useState([]);
+
+    // variáveis e funções de controle de abertura de popup para Exportação de Dados
+    const [openDialogRelatorio, setOpenDialogRelatorio] = React.useState(false);
+    const [tipoRelatorio, setTipoRelatorio] = React.useState();
+
+    const callExportDialog = (tipo) => {
+        setTipoRelatorio(tipo)
+        setOpenDialogRelatorio(true)
+    }
 
     // Variável para armazenar quais itens serão detalhados
     const [detalhe, setDetalhe] = React.useState([]);
@@ -90,13 +100,6 @@ const CCSRow = ({ requisicoes }) => {
 
     const isSelected = (id) => selected.indexOf(id) !== -1;
 
-    // Function para Exportar CCS
-
-    const exportarCCS = () => {
-        console.log('Selected: ', selected);
-        console.log('Detalhe: ', detalhe);
-    }
-
     // Formatar CPF / CNPJ para apresentação no FrontEnd
 
     const formatCnpjCpf = (value) => {
@@ -136,10 +139,19 @@ const CCSRow = ({ requisicoes }) => {
                             </Link>
                         </Tooltip>
                         <Tooltip title="exportar">
-                            <Button onClick={() => exportarCCS()} style={{ marginInlineEnd: 20, float: 'right' }} variant="contained" size="small" >
+                            <Button onClick={() => callExportDialog('pdf')} style={{ marginInlineEnd: 20, float: 'right' }} variant="contained" size="small" >
                                 Exportar
                             </Button>
                         </Tooltip>
+                        {
+                            openDialogRelatorio &&
+                            <DialogRelatorioCCS
+                                openDialogRelatorio={openDialogRelatorio}
+                                setOpenDialogRelatorio={setOpenDialogRelatorio}
+                                tipoRelatorio={tipoRelatorio}
+                                requisicoes={requisicoes}
+                            />
+                        }
                     </>
                 ) : (
                     <>

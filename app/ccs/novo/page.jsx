@@ -419,30 +419,6 @@ const ConsultaCCS = () => {
           >
             Limpar
           </Button>
-          {relacionamentos.length > 0 ? (
-            <>
-              <Button
-                style={{ marginInlineEnd: 20 }}
-                variant="outlined"
-                color="error"
-                size="small"
-                onClick={() => null}
-              >
-                Exportar PDF
-              </Button>
-              <Button
-                style={{ marginInlineEnd: 20 }}
-                variant="outlined"
-                color="success"
-                size="small"
-                onClick={() => null}
-              >
-                Exportar ...
-              </Button>
-            </>
-          ) : (
-            <></>
-          )}
         </Grid>
         <Grid>
           {relacionamentos.length > 0 ? (
