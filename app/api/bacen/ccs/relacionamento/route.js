@@ -19,7 +19,7 @@ export async function GET(request) {
         maxBodyLength: Infinity,
         url: 'https://www3.bcb.gov.br/bc_ccs/rest/requisitar-relacionamentos?id-cliente=' + cpfCnpj + '&data-inicio=' + dataInicio + '&data-fim=' + dataFim + '&numero-processo=' + numProcesso + '&motivo=' + motivo,
         headers: {
-            'Authorization': 'Basic ZWp1ZnMucy1hcGljY3M6Ym9rYTIxMjQ=',
+            'Authorization': process.env.authBACEN,
             'accept': '*/*'
         }
     };

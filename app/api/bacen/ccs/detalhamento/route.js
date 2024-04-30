@@ -29,7 +29,7 @@ export async function GET(request) {
       "&datas-inicio=" +
       dataInicioRelacionamento,
     headers: {
-      Authorization: "Basic ZWp1ZnMucy1hcGljY3M6Ym9rYTIxMjQ=",
+      Authorization: process.env.authBACEN,
       accept: "*/*",
     },
   };

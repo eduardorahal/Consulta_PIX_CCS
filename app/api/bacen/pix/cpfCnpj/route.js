@@ -16,7 +16,7 @@ export async function GET(request) {
         url: 'https://www3.bcb.gov.br/bc_ccs/rest/consultar-vinculos-pix?cpfCnpj=' + cpfCnpj + '&motivo=' + motivo,
         headers: {
             'Accept': 'application/json',
-            'Authorization': 'Basic ZWp1ZnMucy1hcGljY3M6Ym9rYTIxMjQ=',
+            'Authorization': process.env.authBACEN,
         }
     };
 
