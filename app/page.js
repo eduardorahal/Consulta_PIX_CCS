@@ -6,6 +6,7 @@ import React, { useEffect, useState, useContext } from 'react'
 
 const Home = ({ children }) => {
 
+  const [status, setStatus] = useState(false) 
   const { state, dispatch } = useContext(Context);
 
   useEffect(() => {
@@ -17,6 +18,7 @@ const Home = ({ children }) => {
         if (event.data?.userData) {
           const authInfo = await JSON.parse(event.data.userData)
           dispatch({type: 'setCredentials', payload: authInfo})
+          setStatus(true)
         }
       }
     };
@@ -24,7 +26,7 @@ const Home = ({ children }) => {
   });
 
   return (
-    <Dashboard />
+      status && <Dashboard />
   )
 
 }
