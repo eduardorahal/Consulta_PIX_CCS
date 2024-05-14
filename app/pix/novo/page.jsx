@@ -70,6 +70,7 @@ const ConsultaPix = () => {
     // variável para recuperar o CPF do usuário do Context
     const { state, dispatch } = React.useContext(Context)
     const cpfResponsavel = state.cpf
+    const token = state.token
 
     // Caso haja solicitação de detalhamento, as informações ficam nessa variável antes de serem atribuídas para a lista
     const searchParams = useSearchParams()
@@ -194,7 +195,7 @@ const ConsultaPix = () => {
                 } else {
                     setOpenDialogRequisicoesPIX(true)
                     argsBusca.map(async (arg, i, arr) => {
-                        await axios.get('/api/bacen/pix/chave?chave=' + arg.chave + '&motivo=' + arg.motivo + '&cpfResponsavel=' + cpfResponsavel)
+                        await axios.get('/api/bacen/pix/chave?chave=' + arg.chave + '&motivo=' + arg.motivo + '&cpfResponsavel=' + cpfResponsavel + '&token=' + token)
                             .then((response) => {
                                 return response.data
                             })

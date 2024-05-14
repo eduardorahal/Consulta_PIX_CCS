@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
 import { prisma } from "@/lib/prisma";
+import { validateToken } from "@/app/auth/tokenValidation";
 
 export async function GET(request) {
     const { searchParams } = new URL(request.url);
     let lista = [];
     let cpfResponsavel = searchParams.get('cpfResponsavel');
+    let token = searchParams.get('token');
     let chaveBusca = searchParams.get('chave');
     let motivo = searchParams.get('motivo');
     let data = new Date();
@@ -20,7 +22,9 @@ export async function GET(request) {
         }
     };
 
-    const vinculos = await axios.request(config)
+    const validToken = await validateToken(token, cpfResponsavel)
+    if(validToken){
+        const vinculos = await axios.request(config)
         .then(res1 => res1.data)
         .then(async (chave) => {
             if (chave.chave != null) {
@@ -99,6 +103,7 @@ export async function GET(request) {
         .catch((error) => {
             console.log(error);
         })
-
+    }
+    
     return NextResponse.json(lista)
 }
