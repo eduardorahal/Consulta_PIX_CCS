@@ -8,7 +8,6 @@ export async function GET(request) {
     let lista = [];
     let cpfResponsavel = searchParams.get('cpfResponsavel');
     let token = (searchParams.get('token')).replaceAll(" ", "+");
-    console.log(token)
     let chaveBusca = searchParams.get('chave');
     let motivo = searchParams.get('motivo');
     let data = new Date();
@@ -24,7 +23,6 @@ export async function GET(request) {
     };
 
     const validToken = await validateToken(token, cpfResponsavel)
-    console.log(validToken)
     if(validToken){
         const vinculos = await axios.request(config)
         .then(res1 => res1.data)

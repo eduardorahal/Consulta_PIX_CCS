@@ -26,6 +26,7 @@ const DashPIX = () => {
     const [requisicoesPIX, setRequisicoesPIX] = useState([]);
 
     const cpfResponsavel = state.cpf;
+    const token = state.token;
 
     // Chamada da API para Buscar Requisições armazenadas no Banco de Dados
 
@@ -34,7 +35,7 @@ const DashPIX = () => {
             setLoading(true)
             await axios
                 .get(
-                    "/api/bacen/pix/requisicoespix?cpfCnpj=" + cpfResponsavel
+                    "/api/bacen/pix/requisicoespix?cpfCnpj=" + cpfResponsavel + '&token=' + token
                 )
                 .then((response) => response.data)
                 .then((res) => {

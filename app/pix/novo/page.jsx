@@ -166,7 +166,7 @@ const ConsultaPix = () => {
                 } else {
                     setOpenDialogRequisicoesPIX(true)
                     argsBusca.map(async (arg, i, arr) => {
-                        await axios.get('/api/bacen/pix/cpfCnpj?cpfCnpj=' + arg.cpfCnpj + '&motivo=' + arg.motivo + '&cpfResponsavel=' + cpfResponsavel)
+                        await axios.get('/api/bacen/pix/cpfCnpj?cpfCnpj=' + arg.cpfCnpj + '&motivo=' + arg.motivo + '&cpfResponsavel=' + cpfResponsavel + '&token=' + token)
                             .then(response => response.data[0])
                             .then((vinculos) => {
                                 if (vinculos.length == 0 || vinculos == 'CPF/CNPJ não encontrado' || vinculos == "Nenhuma Chave PIX encontrada") {

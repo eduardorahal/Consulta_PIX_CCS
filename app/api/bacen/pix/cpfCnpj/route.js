@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
 import { prisma } from "@/lib/prisma";
+import { validateToken } from "@/app/auth/tokenValidation";
 
 export async function GET(request) {
     const { searchParams } = new URL(request.url);
     let lista = [];
     let cpfResponsavel = searchParams.get('cpfResponsavel');
+    let token = (searchParams.get('token')).replaceAll(" ", "+");
     let cpfCnpj = searchParams.get('cpfCnpj');
     let motivo = searchParams.get('motivo');
     let data = new Date();
@@ -20,7 +22,8 @@ export async function GET(request) {
         }
     };
 
-
+    const validToken = await validateToken(token, cpfResponsavel)
+    if (validToken) {
         const vinculos = await axios.request(config)
             .then(res1 => res1.data.vinculosPix)
             .then(async (chaves) => {
@@ -110,7 +113,7 @@ export async function GET(request) {
                     } catch (e) {
                         throw e
                     }
-                    
+
                 }
 
             })
@@ -125,7 +128,7 @@ export async function GET(request) {
                     chaveBusca: cpfCnpj,
                     motivoBusca: motivo,
                     autorizado: true,
-                    resultado: (error.response.data.message == '0002 - ERRO_CPF_CNPJ_INVALIDO' ) ? 'CPF/CNPJ não encontrado' : "Erro no processamento da Solicitação",
+                    resultado: (error.response.data.message == '0002 - ERRO_CPF_CNPJ_INVALIDO') ? 'CPF/CNPJ não encontrado' : "Erro no processamento da Solicitação",
                 }
                 try {
                     await prisma.requisicaoPix.create({
@@ -138,6 +141,8 @@ export async function GET(request) {
                 }
             })
 
-
-    return NextResponse.json(lista)
+        return NextResponse.json(lista)
+    } else {
+        return NextResponse.json(lista)
+    }
 }

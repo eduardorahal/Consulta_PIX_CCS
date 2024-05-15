@@ -45,6 +45,7 @@ const ConsultaCCS = () => {
   // variável para recuperar o CPF do usuário do Context
   const { state, dispatch } = React.useContext(Context)
   const cpfResponsavel = state.cpf
+  const token = state.token
 
   // variável para controle de soliticação de relacionamentos
   const [lista, setLista] = React.useState([]);
@@ -169,7 +170,9 @@ const ConsultaCCS = () => {
               "&motivo=" +
               arg.motivo +
               "&cpfResponsavel=" +
-              cpfResponsavel
+              cpfResponsavel + 
+              '&token=' + 
+              token
             )
             .then((response) => response.data[0])
             .then((rel) => {
@@ -214,7 +217,9 @@ const ConsultaCCS = () => {
           "&idRelacionamento=" +
           relacionamento.id +
           "&nomeBancoResponsavel=" +
-          relacionamento.nomeBancoResponsavel
+          relacionamento.nomeBancoResponsavel + 
+          '&token=' + 
+          token
         )
         .then((response) => {
           setListaDetalhamentos((listaDetalhamentos) => [...listaDetalhamentos, response.data[0]])

@@ -26,6 +26,7 @@ const DashCCS = () => {
 
     // variável para recuperar o CPF do usuário do Context
     const cpfResponsavel = state.cpf
+    const token = state.token
 
     // Chamada da API para Buscar Requisições armazenadas no Banco de Dados
 
@@ -34,7 +35,7 @@ const DashCCS = () => {
             setLoading(true)
             await axios
                 .get(
-                    "/api/bacen/ccs/requisicoesccs?cpfResponsavel=" + cpfResponsavel
+                    "/api/bacen/ccs/requisicoesccs?cpfResponsavel=" + cpfResponsavel + '&token=' + token
                 )
                 .then((response) => response.data)
                 .then((res) => {
