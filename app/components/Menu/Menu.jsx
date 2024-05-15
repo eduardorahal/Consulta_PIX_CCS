@@ -5,13 +5,10 @@ import { mainListItems, secondaryListItems } from './ItensMenu';
 import { styled, useTheme } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
-import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { MenuContext, MenuProvider } from './menuContext';
@@ -101,36 +98,34 @@ export default function MiniDrawer() {
 
   return (
     <>
-        <CssBaseline />
-        <AppBar position="fixed" open={open}>
-          <Toolbar>
+      <Drawer variant="permanent" open={open} >
+        <DrawerHeader>
+          {!open ? <>
             <IconButton
               color="inherit"
               aria-label="open drawer"
               onClick={() => handleDrawerOpen()}
               edge="start"
               sx={{
-                marginRight: 5,
                 ...(open && { display: 'none' }),
               }}
             >
-              <MenuIcon />
+              <ChevronRightIcon />
             </IconButton>
-            <Typography variant="h6" noWrap component="div">
-              Laboratório de Tecnologia contra Lavagem de Dinheiro
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <Drawer variant="permanent" open={open}>
-          <DrawerHeader>
+          </> : <>
             <IconButton onClick={() => handleDrawerClose()}>
               {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
             </IconButton>
-          </DrawerHeader>
-          <Divider />
-          <List>{mainListItems}</List>
-          <List style={{ marginTop: 'auto' }}>{secondaryListItems}</List>
-        </Drawer>
+          </>}
+        </DrawerHeader>
+        {open ?
+          <img src='Logo_Lab.jpg' style={{ alignSelf:'center', margin:'10px' }} width='100%' /> :
+          <img src='logo_Lab_sm.png' style={{ alignSelf:'center', margin:'10px' }} width={40} />
+        }
+        <Divider />
+        <List>{mainListItems}</List>
+        <List style={{ marginTop: 'auto' }}>{secondaryListItems}</List>
+      </Drawer>
     </>
   );
 }

@@ -258,7 +258,7 @@ const DetalheCCS = ({ requisicoes }) => {
                     <TableCell style={{ width: '30%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>{relacionamento.nomeBancoResponsavel}</TableCell>
                     <TableCell style={{ width: '10%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>{formatarData(relacionamento.dataInicioRelacionamento)}</TableCell>
                     <TableCell style={{ width: '10%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>{relacionamento.dataFimRelacionamento ? formatarData(relacionamento.dataFimRelacionamento) : 'Vigente'}</TableCell>
-                    <TableCell style={{ width: '25%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>{relacionamento.respondeDetalhamento ? (relacionamento.resposta ? 'Detalhamento Concluído' : 'Detalhamento NÃO Recebido') : 'IF NÃO Responde Detalhamento'}</TableCell>
+                    <TableCell style={{ width: '25%', padding: 0, backgroundColor: (openDetail ? 'lightblue' : '') }}>{relacionamento.respondeDetalhamento != false ? (relacionamento.resposta ? 'Detalhamento Concluído' : 'Detalhamento NÃO Recebido') : 'IF NÃO Responde Detalhamento'}</TableCell>
                 </TableRow>
                 <TableRow key={uuidv4()}>
                     <TableCell style={{ padding: 0, border: 'none' }} colSpan={7}>

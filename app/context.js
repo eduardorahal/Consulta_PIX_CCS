@@ -3,6 +3,7 @@
 import React, { useReducer } from "react";
 
 let initialState = {
+    status: false,
     nome: '',
     cpf: '',
     cargo: '',
@@ -17,13 +18,14 @@ const reducer = (state, action) => {
         case 'setCredentials':
             return { 
                 ...state, 
-                nome: action.payload.nome, 
-                cpf: action.payload.cpf, 
-                cargo: action.payload.cargo, 
-                email: action.payload.email,
-                matricula: action.payload.matricula,
-                lotacao: action.payload.lotacao_nome,
-                token: action.payload.token,
+                status: action.payload.status,
+                nome: action.payload.authInfo.nome, 
+                cpf: action.payload.authInfo.cpf, 
+                cargo: action.payload.authInfo.cargo, 
+                email: action.payload.authInfo.email,
+                matricula: action.payload.authInfo.matricula,
+                lotacao: action.payload.authInfo.lotacao_nome,
+                token: action.payload.authInfo.token,
             }
         default:
             return state

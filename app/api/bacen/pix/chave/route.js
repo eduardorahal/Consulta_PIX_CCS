@@ -7,7 +7,8 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     let lista = [];
     let cpfResponsavel = searchParams.get('cpfResponsavel');
-    let token = searchParams.get('token');
+    let token = (searchParams.get('token')).replaceAll(" ", "+");
+    console.log(token)
     let chaveBusca = searchParams.get('chave');
     let motivo = searchParams.get('motivo');
     let data = new Date();
@@ -23,6 +24,7 @@ export async function GET(request) {
     };
 
     const validToken = await validateToken(token, cpfResponsavel)
+    console.log(validToken)
     if(validToken){
         const vinculos = await axios.request(config)
         .then(res1 => res1.data)
@@ -103,7 +105,10 @@ export async function GET(request) {
         .catch((error) => {
             console.log(error);
         })
+        return NextResponse.json(lista)
+    } else {
+        return NextResponse.json(lista)
     }
     
-    return NextResponse.json(lista)
+    
 }
