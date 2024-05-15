@@ -217,7 +217,9 @@ const ConsultaCCS = () => {
           "&idRelacionamento=" +
           relacionamento.id +
           "&nomeBancoResponsavel=" +
-          relacionamento.nomeBancoResponsavel + 
+          relacionamento.nomeBancoResponsavel +
+          "&cpfResponsavel=" +
+          cpfResponsavel +
           '&token=' + 
           token
         )

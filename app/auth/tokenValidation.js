@@ -11,9 +11,8 @@ export async function validateToken(token, cpf) {
         data: {
           query: `
         {
-          getTokenValidation(token: "${token}") {
+          getTokenWizard_Usuarios(tokenwizard: "${token}") {
             status
-            msn
             cpf
           }
         }
@@ -26,8 +25,8 @@ export async function validateToken(token, cpf) {
         return false;
       }
       if (
-        result.data?.data?.getTokenValidation?.status === "Sucesso" &&
-        result.data?.data?.getTokenValidation?.cpf === cpf
+        result.data?.data?.getTokenWizard_Usuarios?.status === "Sucesso" &&
+        result.data?.data?.getTokenWizard_Usuarios?.cpf === cpf
       ) {
         return true;
       } else {

@@ -7,10 +7,11 @@ import { validateToken } from "@/app/auth/tokenValidation";
 export async function GET(request) {
   let lista = [];
   const { searchParams } = new URL(request.url);
+  let token = (searchParams.get('token')).replaceAll(" ", "+");
+  let cpfResponsavel = searchParams.get("cpfResponsavel");
   let numeroRequisicao = searchParams.get("numeroRequisicao");
   let cpfCnpj = searchParams.get("cpfCnpj");
   let cnpjResponsavel = searchParams.get("cnpjResponsavel");
-  let token = (searchParams.get('token')).replaceAll(" ", "+");
   let cnpjParticipante = searchParams.get("cnpjParticipante");
   let dataInicioRelacionamento = searchParams.get("dataInicioRelacionamento");
   let idRelacionamento = searchParams.get("idRelacionamento");

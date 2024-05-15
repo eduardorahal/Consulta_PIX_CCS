@@ -25,7 +25,7 @@ const reducer = (state, action) => {
                 email: action.payload.authInfo.email,
                 matricula: action.payload.authInfo.matricula,
                 lotacao: action.payload.authInfo.lotacao_nome,
-                token: action.payload.authInfo.token,
+                token: action.payload.authInfo.tokenwizard,
             }
         default:
             return state

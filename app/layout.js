@@ -27,6 +27,7 @@ const Layout = ({ children }) => {
         // Handle the received data
         if (event.data?.userData) {
           const authInfo = await JSON.parse(event.data.userData)
+          console.log(authInfo)
           dispatch({type: 'setCredentials', payload: {authInfo: authInfo, status: true}})
         }
       }
