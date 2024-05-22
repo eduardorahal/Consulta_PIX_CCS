@@ -9,7 +9,7 @@ const Home = ({ children }) => {
   const { state, dispatch } = useContext(Context);
 
   return (
-      state.status && <Dashboard />
+      <Dashboard />
   )
 
 }

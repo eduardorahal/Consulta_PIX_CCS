@@ -2,31 +2,33 @@ import { NextResponse } from "next/server";
 import axios from "axios";
 import xml2js from 'xml2js';
 import { prisma } from "@/lib/prisma";
-import { validateToken } from "@/app/auth/tokenValidation";
+import { verifyJwtToken } from "@/app/auth/validateToken";
 
 export async function GET(request) {
     const { searchParams } = new URL(request.url);
     let lista = [];
     let relacionamentos = [];
     let cpfResponsavel = searchParams.get('cpfResponsavel');
-    let token = (searchParams.get('token')).replaceAll(" ", "+");
+    let token = (searchParams.get('token'));
     let cpfCnpj = searchParams.get('cpfCnpj');
     let dataInicio = searchParams.get('dataInicio');
     let dataFim = searchParams.get('dataFim');
     let numProcesso = searchParams.get('numProcesso');
     let motivo = searchParams.get('motivo');
     let caso = searchParams.get('caso');
+    var credentials = btoa(process.env.usernameBC + ':' + process.env.passwordBC);
+    var basicAuth = 'Basic ' + credentials;
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
         url: 'https://www3.bcb.gov.br/bc_ccs/rest/requisitar-relacionamentos?id-cliente=' + cpfCnpj + '&data-inicio=' + dataInicio + '&data-fim=' + dataFim + '&numero-processo=' + numProcesso + '&motivo=' + motivo,
         headers: {
-            'Authorization': process.env.authBACEN,
+            'Authorization': basicAuth,
             'accept': '*/*'
         }
     };
 
-    const validToken = await validateToken(token, cpfResponsavel)
+    const validToken = await verifyJwtToken(token)
     if (validToken) {
         const vinculos = await axios.request(config)
             .then(async response => {

@@ -36,6 +36,7 @@ import DialogRelatorioPIX from '@/app/pix/components/Relatorios/ExportaRelatorio
 import DialogRequisicoesPIX from '../components/DialogRequisicoesPIX';
 import { Context } from '@/app/context';
 import { v4 as uuidv4 } from "uuid";
+import withAuth from '@/app/auth/withAuth';
 
 const ConsultaPix = () => {
 
@@ -518,4 +519,4 @@ const ConsultaPix = () => {
     )
 }
 
-export default ConsultaPix
+export default withAuth(ConsultaPix)

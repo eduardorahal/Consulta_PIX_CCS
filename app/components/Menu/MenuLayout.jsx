@@ -1,6 +1,7 @@
 import Menu from './Menu'
 import { Box } from '@mui/material'
 import { MenuProvider } from './menuContext'
+import withAuth from '@/app/auth/withAuth';
 
 function Layout ({ children }) {
 
@@ -19,4 +20,4 @@ const MenuLayout = ({ children }) => (
     </MenuProvider>
 )
 
-export default MenuLayout
+export default withAuth(MenuLayout)

@@ -11,6 +11,9 @@ export async function GET(request) {
 
     const now = new Date();
 
+    // Verifica se é um dia útil (segunda a sexta-feira)
+    const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
+
     var late = new Date(
         now.getFullYear(),
         now.getMonth(),
@@ -25,9 +28,9 @@ export async function GET(request) {
         10, 0, 0 // ...at 00:00:00 hours
     );
 
-    if (now > late || now < early) {
+    if (now < early || now > late || !isWeekday) {
 
-        lista.push({msg: 'Detalhamento somente pode ser solicitado entre 10h e 19h', status: 'falha' })
+        lista.push({ msg: 'Detalhamento somente pode ser solicitado entre 10h e 19h', status: 'falha' })
 
     } else {
 
@@ -105,8 +108,8 @@ export async function GET(request) {
                                             resposta: false
                                         },
                                     }).then(
-                                        lista.push({banco: nomeBancoResponsavel, msg: 'Detalhamento Solicitado', status: 'sucesso' })
-                                      )
+                                        lista.push({ banco: nomeBancoResponsavel, msg: 'Detalhamento Solicitado', status: 'sucesso' })
+                                    )
                                 } catch (e) {
                                     console.log('Erro ao salvar atualização CCS no Banco de Dados. Tente novamente', e);
                                 }
@@ -129,8 +132,8 @@ export async function GET(request) {
                                         resposta: true
                                     },
                                 }).then(
-                                    lista.push({banco: nomeBancoResponsavel, msg: 'Sem detalhamento', status: 'falha' })
-                                  )
+                                    lista.push({ banco: nomeBancoResponsavel, msg: 'Sem detalhamento', status: 'falha' })
+                                )
                             } catch (e) {
                                 console.log('Erro ao salvar atualização CCS no Banco de Dados. Tente novamente', e);
                             }

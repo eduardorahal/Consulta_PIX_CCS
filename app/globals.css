@@ -28,3 +28,7 @@ body {
   height: 40px;
   animation: spin 1s linear infinite;
 }
+
+.css-bshv44-MuiButtonBase-root-MuiListItem-root.Mui-selected {
+  background-color: #92b4f2
+}

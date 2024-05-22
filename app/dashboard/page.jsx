@@ -1,6 +1,7 @@
 import { Card, CardContent, Typography, CardActionArea, Box, CardMedia, Grid } from '@mui/material';
 import React from 'react';
 import Link from 'next/link';
+import withAuth from '../auth/withAuth';
 
 const Dashboard = () => {
     return (
@@ -51,4 +52,4 @@ const Dashboard = () => {
     )
 }
 
-export default Dashboard
+export default withAuth(Dashboard)

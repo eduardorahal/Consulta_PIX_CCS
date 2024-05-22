@@ -2,15 +2,15 @@ import { NextResponse } from "next/server";
 import axios from "axios";
 import xml2js from "xml2js";
 import { prisma } from "@/lib/prisma";
-import { validateToken } from "@/app/auth/tokenValidation";
+import { verifyJwtToken } from "@/app/auth/validateToken";
 
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   let cpfResponsavel = searchParams.get("cpfResponsavel");
-  let token = (searchParams.get('token')).replaceAll(" ", "+");
+  let token = (searchParams.get('token'));
 
-  const validToken = await validateToken(token, cpfResponsavel)
+  const validToken = await verifyJwtToken(token)
   if (validToken) {
 
     // Busca as Requisições do Usuário cadastradas no Banco de Dados

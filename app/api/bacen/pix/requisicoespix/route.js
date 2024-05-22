@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { validateToken } from "@/app/auth/tokenValidation";
+import { verifyJwtToken } from "@/app/auth/validateToken";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   let cpfResponsavel = searchParams.get("cpfCnpj");
-  let token = (searchParams.get('token')).replaceAll(" ", "+");
+  let token = (searchParams.get('token'));
   
-  const validToken = await validateToken(token, cpfResponsavel)
+  const validToken = await verifyJwtToken(token)
   if (validToken) {
     const requisicoesPIX = await prisma.requisicaoPix.findMany({
       where: {

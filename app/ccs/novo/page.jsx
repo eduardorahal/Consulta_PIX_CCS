@@ -29,6 +29,7 @@ import 'dayjs/locale/en-gb';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { v4 as uuidv4 } from "uuid";
+import withAuth from '@/app/auth/withAuth';
 
 const ConsultaCCS = () => {
 
@@ -491,4 +492,4 @@ const ConsultaCCS = () => {
   );
 };
 
-export default ConsultaCCS;
+export default withAuth(ConsultaCCS);

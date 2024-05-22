@@ -1,28 +1,30 @@
 import { NextResponse } from "next/server";
 import axios from "axios";
 import { prisma } from "@/lib/prisma";
-import { validateToken } from "@/app/auth/tokenValidation";
+import { verifyJwtToken } from "@/app/auth/validateToken";
 
 export async function GET(request) {
     const { searchParams } = new URL(request.url);
     let lista = [];
     let cpfResponsavel = searchParams.get('cpfResponsavel');
-    let token = (searchParams.get('token')).replaceAll(" ", "+");
+    let token = (searchParams.get('token'));
     let cpfCnpj = searchParams.get('cpfCnpj');
     let motivo = searchParams.get('motivo');
     let data = new Date();
     let caso = searchParams.get('caso');
+    var credentials = btoa(process.env.usernameBC + ':' + process.env.passwordBC);
+    var basicAuth = 'Basic ' + credentials;
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
         url: 'https://www3.bcb.gov.br/bc_ccs/rest/consultar-vinculos-pix?cpfCnpj=' + cpfCnpj + '&motivo=' + motivo,
         headers: {
             'Accept': 'application/json',
-            'Authorization': process.env.authBACEN,
+            'Authorization': basicAuth,
         }
     };
 
-    const validToken = await validateToken(token, cpfResponsavel)
+    const validToken = await verifyJwtToken(token)
     if (validToken) {
         const vinculos = await axios.request(config)
             .then(res1 => res1.data.vinculosPix)

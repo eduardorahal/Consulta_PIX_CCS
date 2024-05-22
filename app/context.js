@@ -6,26 +6,38 @@ let initialState = {
     status: false,
     nome: '',
     cpf: '',
-    cargo: '',
     email: '',
-    lotacao: '',
+    unidade: '',
     matricula: '',
     token: '',
+    admin: false
 }
 
 const reducer = (state, action) => {
     switch(action.type){
-        case 'setCredentials':
+        case 'logIn':
             return { 
                 ...state, 
-                status: action.payload.status,
-                nome: action.payload.authInfo.nome, 
-                cpf: action.payload.authInfo.cpf, 
-                cargo: action.payload.authInfo.cargo, 
-                email: action.payload.authInfo.email,
-                matricula: action.payload.authInfo.matricula,
-                lotacao: action.payload.authInfo.lotacao_nome,
-                token: action.payload.authInfo.tokenwizard,
+                status: true,
+                nome: action.payload.payload.nome, 
+                cpf: action.payload.payload.cpf, 
+                email: action.payload.payload.email,
+                matricula: action.payload.payload.matricula,
+                unidade: action.payload.payload.unidade,
+                token: action.payload.token,
+                admin: action.payload.payload.admin
+            }
+        case 'logOut':
+            return {
+                ...state,
+                status: false,
+                nome: '',
+                cpf: '',
+                email: '',
+                matricula: '',
+                unidade: '',
+                token: '',
+                admin: false
             }
         default:
             return state

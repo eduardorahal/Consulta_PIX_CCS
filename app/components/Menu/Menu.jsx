@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react';
-import { mainListItems, secondaryListItems } from './ItensMenu';
+import { MainListItems, SecondaryListItems } from './ItensMenu';
 import { styled, useTheme } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
@@ -119,12 +119,12 @@ export default function MiniDrawer() {
           </>}
         </DrawerHeader>
         {open ?
-          <img src='Logo_Lab.jpg' style={{ alignSelf:'center', margin:'10px' }} width='100%' /> :
-          <img src='logo_Lab_sm.png' style={{ alignSelf:'center', margin:'10px' }} width={40} />
+          <img src='/Logo_Lab.jpg' style={{ alignSelf:'center', margin:'10px' }} width='100%' /> :
+          <img src='/logo_Lab_sm.png' style={{ alignSelf:'center', margin:'10px' }} width={40} />
         }
         <Divider />
-        <List>{mainListItems}</List>
-        <List style={{ marginTop: 'auto' }}>{secondaryListItems}</List>
+        <List><MainListItems /></List>
+        <List style={{ marginTop: 'auto' }}><SecondaryListItems /></List>
       </Drawer>
     </>
   );

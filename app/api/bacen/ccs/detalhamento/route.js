@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import axios from "axios";
 import xml2js from "xml2js";
 import { prisma } from "@/lib/prisma";
-import { validateToken } from "@/app/auth/tokenValidation";
+import { verifyJwtToken } from "@/app/auth/validateToken";
 
 export async function GET(request) {
   let lista = [];
   const { searchParams } = new URL(request.url);
-  let token = (searchParams.get('token')).replaceAll(" ", "+");
+  let token = (searchParams.get('token'));
   let cpfResponsavel = searchParams.get("cpfResponsavel");
   let numeroRequisicao = searchParams.get("numeroRequisicao");
   let cpfCnpj = searchParams.get("cpfCnpj");
@@ -16,6 +16,8 @@ export async function GET(request) {
   let dataInicioRelacionamento = searchParams.get("dataInicioRelacionamento");
   let idRelacionamento = searchParams.get("idRelacionamento");
   let nomeBancoResponsavel = searchParams.get("nomeBancoResponsavel");
+  var credentials = btoa(process.env.usernameBC + ':' + process.env.passwordBC);
+  var basicAuth = 'Basic ' + credentials;
 
   let config = {
     method: "get",
@@ -32,12 +34,15 @@ export async function GET(request) {
       "&datas-inicio=" +
       dataInicioRelacionamento,
     headers: {
-      Authorization: process.env.authBACEN,
+      Authorization: basicAuth,
       accept: "*/*",
     },
   };
 
   const now = new Date();
+
+  // Verifica se é um dia útil (segunda a sexta-feira)
+  const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
 
   var late = new Date(
     now.getFullYear(),
@@ -53,9 +58,9 @@ export async function GET(request) {
     10, 0, 0 // ...at 00:00:00 hours
   );
 
-  const validToken = await validateToken(token, cpfResponsavel)
+  const validToken = await verifyJwtToken(token)
   if (validToken) {
-    if (now > late || now < early) {
+    if (now < early || now > late || !isWeekday) {
 
       // armazena as informações da requisição de detalhamento
       try {

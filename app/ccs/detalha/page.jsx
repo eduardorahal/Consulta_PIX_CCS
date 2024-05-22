@@ -9,7 +9,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import DetalheCCS from '../components/DetalheCCS';
 import { useSearchParams } from 'next/navigation'
-
+import withAuth from '@/app/auth/withAuth';
 
 const DetalhaCCS = () => {
 
@@ -76,4 +76,4 @@ const DetalhaCCS = () => {
     )
 }
 
-export default DetalhaCCS
+export default withAuth(DetalhaCCS)
