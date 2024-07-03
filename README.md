@@ -23,11 +23,9 @@ Aplicação desenvolvida utilizando NEXT JS 13 E REACT.
     * PostgreSQL, com usuário e senha criados na instalação do PostgreSQL
     * BACEN: Usuário e Senha fornecidos pelo BACEN
         
-        <code>
-        DATABASE_URL="postgresql://usuario:senha@localhost:5432/consultapixccs?schema=public"
+        <code>DATABASE_URL="postgresql://usuario:senha@localhost:5432/consultapixccs?schema=public"
         usernameBC="USUÁRIO FORNECIDO PELO BACEN. EX. eju**.s-apiccs"
-        passwordBC="SENHA DE ACESSO"
-        </code>
+        passwordBC="SENHA DE ACESSO"</code>
         
 5. Rodar o arquivo 'setup.js' que está na raiz do projeto, para instalação das Dependências do Aplicativo, criação do Banco de Dados e Primeiro Usuário ADMIN. O arquivo pode ser editado conforme necessidade do órgão. Para tanto, basta ler os comentários do código. Apenas este usuário precisa ser criado por ali. Os demais poderão ser criados já dentro da interface gráfica da Aplicação. 
 
@@ -41,10 +39,12 @@ Aplicação desenvolvida utilizando NEXT JS 13 E REACT.
         Em /public/base64 alterar a logo da PC para a logo do seu órgão. Atentar para as dimensões, para que permaneçam as mesmas, para não deformar a logo.
    
     CABEÇALHOS DOS RELATÓRIOS
+        
         ARQUIVOS:
-            * /app/pix/components/Relatorios/resumidoPIX.js - LINHA 95
-            * /app/pix/components/Relatorios/detalhadoPIX.js - LINHA 134
-            * /app/ccs/components/Relatorios/resumidoCCS.js - LINHA 145
-            * /app/ccs/components/Relatorios/detalhadoCCS.js - LINHA 323
+
+      * /app/pix/components/Relatorios/resumidoPIX.js - LINHA 95
+      * /app/pix/components/Relatorios/detalhadoPIX.js - LINHA 134
+      * /app/ccs/components/Relatorios/resumidoCCS.js - LINHA 145
+      * /app/ccs/components/Relatorios/detalhadoCCS.js - LINHA 323
   
   Em todos, verificar as importações das Logos nas linhas 7 e 8. Se o nome do arquivo da Logo tiver sido alterado em /public/base64 , deve ser alterado aí também. Imagens são utilizadas em outras linhas destes arquivos, então em caso de alteração dos nomes, localizar e alterar.
