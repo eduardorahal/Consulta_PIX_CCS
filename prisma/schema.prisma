@@ -16,7 +16,7 @@ model Usuario {
   cpf String @unique
   email String @unique
   password String
-  unidade String?
+  lotacao String?
   matricula String? @unique
   admin Boolean @default(false)
 }
@@ -25,6 +25,7 @@ model RequisicaoPix {
   id  Int @id @default(autoincrement())
   data  DateTime
   cpfResponsavel String
+  lotacao String?
   caso String?
   tipoBusca String
   chaveBusca  String
@@ -47,6 +48,7 @@ model RequisicaoRelacionamentoCCS {
   numeroProcesso String
   motivoBusca String
   cpfResponsavel String
+  lotacao String?
   caso String?
   numeroRequisicao String
   cpfCnpj String

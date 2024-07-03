@@ -55,6 +55,9 @@ export async function GET(request) {
             }
         })
 
+        var credentials = btoa(process.env.usernameBC + ':' + process.env.passwordBC);
+        var basicAuth = 'Basic ' + credentials;
+
         // De possse das Requisições 'Na fila', envia solicitação de detalhamento ao BACEN
         for await (let requisicao of filaCCS) {
 
@@ -82,7 +85,7 @@ export async function GET(request) {
                         "&datas-inicio=" +
                         dataInicioRelacionamento,
                     headers: {
-                        Authorization: "Basic ZWp1ZnMucy1hcGljY3M6Ym9rYTIxMjQ=",
+                        Authorization: basicAuth,
                         accept: "*/*",
                     },
                 };

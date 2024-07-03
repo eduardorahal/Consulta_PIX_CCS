@@ -18,6 +18,7 @@ import { v4 as uuidv4 } from "uuid";
 // Componente DIALOG (popup) para mostrar o andamento da solicitação de Detalhamento
 
 export default function DialogDetalhamentoCCS(props) {
+
   // Função para Montar as LINHAS da Tabela no FrontEnd (sem o cabeçalho, pois o cabeçalho está no return)
   function Row(props) {
     const lista = props.lista;
@@ -31,6 +32,11 @@ export default function DialogDetalhamentoCCS(props) {
     );
   }
 
+  function handleCloseDialog() {
+    props.setOpenDialogDetalhamentoCCS(false)
+    props.setDetalhaVisivel(false)
+  }
+
 
   return (
     <>
@@ -42,6 +48,9 @@ export default function DialogDetalhamentoCCS(props) {
           <DialogContentText id="alert-dialog-slide-description">
             {(!props.statusDetalhamentos) ? 'Por favor, aguarde...' : 'Solicitação de Detalhamento Concluída. O prazo para respostas leva cerca de 24 horas.'}
           </DialogContentText>
+          <DialogContentText id="alert-dialog-slide-description" style={{color: 'red', textAlign: 'justify'}}>
+            ATENÇÃO: O BANCO CENTRAL RECEBE SOLICITAÇÕES DE DETALHAMENTO DAS 10h ÀS 19h EM DIAS ÚTEIS. CASO ESTEJA FORA DESTE PERÍODO, SUA SOLICITAÇÃO FICARÁ NA FILA DE PROCESSAMENTO PARA O PRÓXIMO DIA ÚTIL.
+          </DialogContentText>
           <Table>
             <TableBody>
               {props.listaDetalhamentos && props.listaDetalhamentos.map((lista) => (
@@ -52,7 +61,7 @@ export default function DialogDetalhamentoCCS(props) {
         </DialogContent>
         {(props.statusDetalhamentos) &&
           <DialogActions>
-            <Button onClick={() => props.setOpenDialogDetalhamentoCCS(false)} >OK</Button>
+            <Button onClick={handleCloseDialog}>OK</Button>
           </DialogActions>}
       </Dialog>
     </>

@@ -1,7 +1,8 @@
 // setup.js
 
-import { PrismaClient } from '@prisma/client';
-import { execSync } from 'child_process';
+const { PrismaClient } = require('@prisma/client');
+const { execSync } = require('child_process');
+const { hash } = require('bcrypt')
 
 const prisma = new PrismaClient();
 
@@ -13,7 +14,7 @@ async function main() {
 
     // Criação do banco de dados
     console.log('Criando o banco de dados...');
-    execSync('npx prisma db create');
+    execSync('npx prisma generate');
 
     // Execução das migrações
     console.log('Executando as migrações...');
@@ -24,12 +25,13 @@ async function main() {
     const existingAdmin = await prisma.usuario.findFirst({ where: { admin: true } });
     if (!existingAdmin) {
       console.log('Criando o usuário admin padrão...');
+      let hashedPassword = await hash('admin', 10) // Substitua pela senha desejada (de preferência, armazene de forma segura)
       await prisma.usuario.create({
         data: {
           nome: 'Admin',
           cpf: '12345678900', // Substitua pelo CPF desejado
-          email: 'admin@example.com', // Substitua pelo e-mail desejado
-          senha: 'senha_segura', // Substitua pela senha desejada (de preferência, armazene de forma segura)
+          email: 'admin@admin.com', // Substitua pelo e-mail desejado
+          password: hashedPassword,
           admin: true
         }
       });

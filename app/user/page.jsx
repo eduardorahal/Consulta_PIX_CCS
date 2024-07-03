@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useContext, useEffect, useState } from 'react';
+import { Suspense, useContext, useEffect, useState, useCallback } from 'react';
 import { Context, Provider } from '../context';
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -30,7 +30,7 @@ const DashUser = () => {
 
     // Chamada da API para Buscar Usuarios no Banco de Dados
 
-    const fetchUsers = async () => {
+    const fetchUsers = useCallback(async () => {
         setLoading(true)
         await axios
             .get(
@@ -42,11 +42,11 @@ const DashUser = () => {
                 setLoading(false);
             })
             .catch((err) => console.error(err));
-    };
+    }, [token]);
 
     useEffect(() => {
         fetchUsers();
-    }, [])
+    }, [fetchUsers])
 
 
     // Componente DIALOG (popup) para mostrar que a página está sendo carregada

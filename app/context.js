@@ -1,29 +1,29 @@
 'use client'
 
-import React, { useReducer } from "react";
+import React, { useReducer, useEffect } from "react";
 
 let initialState = {
     status: false,
     nome: '',
     cpf: '',
     email: '',
-    unidade: '',
+    lotacao: '',
     matricula: '',
     token: '',
     admin: false
 }
 
 const reducer = (state, action) => {
-    switch(action.type){
+    switch (action.type) {
         case 'logIn':
-            return { 
-                ...state, 
+            return {
+                ...state,
                 status: true,
-                nome: action.payload.payload.nome, 
-                cpf: action.payload.payload.cpf, 
+                nome: action.payload.payload.nome,
+                cpf: action.payload.payload.cpf,
                 email: action.payload.payload.email,
                 matricula: action.payload.payload.matricula,
-                unidade: action.payload.payload.unidade,
+                lotacao: action.payload.payload.lotacao,
                 token: action.payload.token,
                 admin: action.payload.payload.admin
             }
@@ -35,7 +35,7 @@ const reducer = (state, action) => {
                 cpf: '',
                 email: '',
                 matricula: '',
-                unidade: '',
+                lotacao: '',
                 token: '',
                 admin: false
             }
@@ -46,12 +46,21 @@ const reducer = (state, action) => {
 
 export const Context = React.createContext({ state: initialState, dispatch: () => reducer });
 
-export const Provider = ({children}) => {
+export const Provider = ({ children }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
+
+    useEffect(() => {
+        // Retrieve user info from local storage
+        const storedUser = localStorage.getItem('userInfo');
+        if (storedUser) {
+            dispatch({ type: 'logIn', payload: JSON.parse(storedUser) })
+        }
+    }, []);
+
     return (
-        <Context.Provider value={{state, dispatch}}>
+        <Context.Provider value={{ state, dispatch }}>
             {children}
         </Context.Provider>
     )
-    
+
 }

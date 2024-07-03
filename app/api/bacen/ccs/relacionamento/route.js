@@ -9,6 +9,7 @@ export async function GET(request) {
     let lista = [];
     let relacionamentos = [];
     let cpfResponsavel = searchParams.get('cpfResponsavel');
+    let lotacao = searchParams.get('lotacao');
     let token = (searchParams.get('token'));
     let cpfCnpj = searchParams.get('cpfCnpj');
     let dataInicio = searchParams.get('dataInicio');
@@ -87,6 +88,7 @@ export async function GET(request) {
                             numeroProcesso: res.requisicaoRelacionamento.numeroProcesso[0],
                             motivoBusca: res.requisicaoRelacionamento.motivo[0],
                             cpfResponsavel: cpfResponsavel,
+                            lotacao: lotacao,
                             caso: caso,
                             numeroRequisicao: res.requisicaoRelacionamento.numeroRequisicao[0],
                             cpfCnpj: res.requisicaoRelacionamento.clientes[0].clientes[0].id[0],
@@ -130,6 +132,7 @@ export async function GET(request) {
                     numeroProcesso: '',
                     motivoBusca: motivo,
                     cpfResponsavel: cpfResponsavel,
+                    lotacao: lotacao,
                     caso: caso,
                     numeroRequisicao: '',
                     cpfCnpj: '',

@@ -12,6 +12,7 @@ import IconButton from '@mui/material/IconButton';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { MenuContext, MenuProvider } from './menuContext';
+import Image from 'next/image';
 
 const drawerWidth = 240;
 
@@ -119,8 +120,8 @@ export default function MiniDrawer() {
           </>}
         </DrawerHeader>
         {open ?
-          <img src='/Logo_Lab.jpg' style={{ alignSelf:'center', margin:'10px' }} width='100%' /> :
-          <img src='/logo_Lab_sm.png' style={{ alignSelf:'center', margin:'10px' }} width={40} />
+          <Image src={'/Logo_Lab.jpg'} alt='Logo_Lab' style={{ alignSelf:'center', margin:'10px' }} height={78} width={220} /> :
+          <Image src={'/logo_Lab_sm.png'} alt='Logo_Lab_sm' style={{ alignSelf:'center', margin:'10px' }} height={40} width={40} />
         }
         <Divider />
         <List><MainListItems /></List>

@@ -27,7 +27,7 @@ const LoginPage = () => {
 
     var options = {
       method: 'POST',
-      url: 'https://localhost:3000/api/user/login',
+      url: '/api/user/login',
       headers: { 'Content-Type': 'application/json' },
       data: authData
     };
@@ -36,6 +36,7 @@ const LoginPage = () => {
       const data = await axios.request(options)
       if (data.data.status === 201) {
         document.cookie = `token=${data.data.token}; path=/`;
+        localStorage.setItem('userInfo', JSON.stringify(data.data))
         dispatch({ type: 'logIn', payload: data.data })
         router.push('/');
       } else {

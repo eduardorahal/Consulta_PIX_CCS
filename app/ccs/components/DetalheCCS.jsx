@@ -18,9 +18,6 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
 import { v4 as uuidv4 } from "uuid";
 import DialogRelatorioCCS from './Relatorios/ExportaRelatorioCCS';
 
@@ -39,13 +36,6 @@ const DetalheCCS = ({ requisicoes }) => {
         setPage(0);
     };
 
-    // Function para Exportar CCS
-
-    const exportarCCS = () => {
-        console.log('Selected: ', selected);
-        console.log('Detalhe: ', detalhe);
-    }
-
     // Formatar CPF / CNPJ para apresentação no FrontEnd
 
     const formatCnpjCpf = (value) => {
@@ -58,10 +48,8 @@ const DetalheCCS = ({ requisicoes }) => {
 
     // variáveis e funções de controle de abertura de popup para Exportação de Dados
     const [openDialogRelatorio, setOpenDialogRelatorio] = React.useState(false);
-    const [tipoRelatorio, setTipoRelatorio] = React.useState();
 
-    const callExportDialog = (tipo) => {
-        setTipoRelatorio(tipo)
+    const callExportDialog = () => {
         setOpenDialogRelatorio(true)
     }
 
@@ -98,7 +86,7 @@ const DetalheCCS = ({ requisicoes }) => {
                 <Grid item container justifyContent='flex-end' xs={6}>
 
                     <Tooltip title="exportar">
-                        <Button onClick={() => callExportDialog('pdf')} style={{ marginInlineEnd: 20, float: 'right' }} variant="contained" size="small" >
+                        <Button onClick={() => callExportDialog()} style={{ marginInlineEnd: 20, float: 'right' }} variant="contained" size="small" >
                             Exportar
                         </Button>
                     </Tooltip>
@@ -108,7 +96,6 @@ const DetalheCCS = ({ requisicoes }) => {
                     <DialogRelatorioCCS
                         openDialogRelatorio={openDialogRelatorio}
                         setOpenDialogRelatorio={setOpenDialogRelatorio}
-                        tipoRelatorio={tipoRelatorio}
                         requisicoes={requisicoes}
                     />
                 }

@@ -17,7 +17,6 @@ import ExportaTXT from './exportaTXT';
 // Componente DIALOG (popup) para Exportação de Arquivos
 export default function DialogRelatorioCCS(props) {
 
-  const [tipoRelatorio, setTipoRelatorio] = React.useState(props.tipoRelatorio);
   const [mostraTexto, setMostraTexto] = React.useState(false)
   const [numeroSimba, setNumeroSimba] = React.useState('024-PCSC-0000000-00')
 
@@ -41,21 +40,21 @@ export default function DialogRelatorioCCS(props) {
       <Dialog open={props.openDialogRelatorio} onClose={() => props.setOpenDialogRelatorio(false)} >
         <DialogTitle>Selecione o Tipo de Relatório</DialogTitle>
         <List sx={{ pt: 0 }}>
-              <ListItem><ListItemButton onClick={() => setMostraTexto(!mostraTexto)} >Arquivo TXT - Simba/Esprits</ListItemButton></ListItem>
-              {mostraTexto && (
-                <>
-                  <ListItem>
-                    <TextField autoFocus fullWidth variant='standard' onChange={(e) => setNumeroSimba(e.target.value)} placeholder='024-PCSC-000000-00' label='Preencha caso tenha o número SIMBA:'></TextField>
-                    <ListItemButton onClick={() => exportaRelatorio('txt_simba', requisicoes)} >OK</ListItemButton>  
-                  </ListItem>
-                </>
-              )
-              }
-              {!mostraTexto && (
-                <>
-                  <ListItem><ListItemButton onClick={() => exportaRelatorio('pdf_detalhado', requisicoes)}>Relatório Detalhado PDF</ListItemButton></ListItem>
-                </>
-              )}
+          <ListItem><ListItemButton onClick={() => setMostraTexto(!mostraTexto)} >Arquivo TXT - Simba/Esprits</ListItemButton></ListItem>
+          {mostraTexto && (
+            <>
+              <ListItem>
+                <TextField autoFocus fullWidth variant='standard' onChange={(e) => setNumeroSimba(e.target.value)} placeholder='024-PCSC-000000-00' label='Preencha com o número SIMBA ou deixe em branco:'></TextField>
+                <ListItemButton onClick={() => exportaRelatorio('txt_simba', requisicoes)} >OK</ListItemButton>
+              </ListItem>
+            </>
+          )
+          }
+          {!mostraTexto && (
+            <>
+              <ListItem><ListItemButton onClick={() => exportaRelatorio('pdf_detalhado', requisicoes)}>Relatório Detalhado PDF</ListItemButton></ListItem>
+            </>
+          )}
         </List>
       </Dialog>
     </>

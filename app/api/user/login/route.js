@@ -31,7 +31,7 @@ export async function POST(request) {
             cpf: registeredUser.cpf,
             name: registeredUser.name,
             email: registeredUser.email,
-            unidade: registeredUser.unidade,
+            lotacao: registeredUser.lotacao,
             matricula: registeredUser.matricula,
             admin: registeredUser.admin,
         }

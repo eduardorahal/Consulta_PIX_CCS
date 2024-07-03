@@ -46,7 +46,7 @@ const DashCCS = () => {
                 .catch((err) => console.error(err));
         };
         buscaRequisicoes();
-    }, [cpfResponsavel])
+    }, [cpfResponsavel, token])
 
 
     // Componente DIALOG (popup) para mostrar que a página está sendo carregada

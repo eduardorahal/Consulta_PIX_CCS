@@ -7,6 +7,7 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     let lista = [];
     let cpfResponsavel = searchParams.get('cpfResponsavel');
+    let lotacao = searchParams.get('lotacao');
     let token = (searchParams.get('token'));
     let cpfCnpj = searchParams.get('cpfCnpj');
     let motivo = searchParams.get('motivo');
@@ -77,6 +78,7 @@ export async function GET(request) {
                     let requisicao = {
                         data: data,
                         cpfResponsavel: cpfResponsavel,
+                        lotacao: lotacao,
                         caso: caso,
                         tipoBusca: 'cpf/cnpj',
                         chaveBusca: cpfCnpj,
@@ -99,6 +101,7 @@ export async function GET(request) {
                     let requisicao = {
                         data: data,
                         cpfResponsavel: cpfResponsavel,
+                        lotacao: lotacao,
                         caso: caso,
                         tipoBusca: 'cpf/cnpj',
                         chaveBusca: cpfCnpj,
@@ -120,11 +123,12 @@ export async function GET(request) {
 
             })
             .catch(async (error) => {
-
+                console.log(error.response)
                 // armazena as informações da requisição, mesmo que haja algum erro na consulta, por exemplo CPF/CNPJ incorreto.
                 let requisicao = {
                     data: data,
                     cpfResponsavel: cpfResponsavel,
+                    lotacao: lotacao,
                     caso: caso,
                     tipoBusca: 'cpf/cnpj',
                     chaveBusca: cpfCnpj,

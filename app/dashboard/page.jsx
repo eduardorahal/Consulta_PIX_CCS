@@ -1,9 +1,48 @@
+'use client'
+
 import { Card, CardContent, Typography, CardActionArea, Box, CardMedia, Grid } from '@mui/material';
 import React from 'react';
 import Link from 'next/link';
 import withAuth from '../auth/withAuth';
+import { Context } from '../context';
+import axios from 'axios';
 
 const Dashboard = () => {
+
+    const { state, dispatch } = React.useContext(Context);
+
+    //variável para controle de carregamento de página
+    const [loading, setLoading] = React.useState(true)
+
+    // variável para recuperar o CPF do usuário do Context
+    const cpfResponsavel = state.cpf
+    const token = state.token
+
+    // Chamada da API para Buscar Requisições armazenadas no Banco de Dados
+
+    React.useEffect(() => {
+        const atualizaCCS = async () => {
+            setLoading(true)
+            await axios
+                .get(
+                    "api/utils/processaFilaCCS?cpfResponsavel=" + cpfResponsavel + '&token=' + token
+                )
+                .then((response) => response.data)
+                .catch((err) => console.error(err));
+            await axios
+                .get(
+                    "/api/utils/recebeBDVCCS?cpfResponsavel=" + cpfResponsavel + '&token=' + token
+                )
+                .then((response) => response.data)
+                .then((res) => {
+                    setLoading(false);
+                })
+                .catch((err) => console.error(err));
+        };
+        atualizaCCS();
+    }, [cpfResponsavel, token])
+
+
     return (
         <Box style={{display: 'flex'}}>
             {/* <Box width='300px' padding='20px'>
@@ -42,7 +81,7 @@ const Dashboard = () => {
                                 Consulta CCS
                             </Typography>
                             <Typography sx={{ mb: 1.5 }} color="text.secondary" align='justify'>
-                                Consulta ao BACEN pelo CPF ou Ag/Conta do investigado
+                                Consulta ao BACEN pelo CPF ou CNPJ, visando saber com quais Instituições Financeiras o investigado possui relacionamentos.
                             </Typography>
                         </CardContent>
                     </CardActionArea>

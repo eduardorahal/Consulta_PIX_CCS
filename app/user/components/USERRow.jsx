@@ -50,7 +50,7 @@ const USERRow = (props) => {
             nome: '',
             email: '',
             password: '',
-            unidade: '',
+            lotacao: '',
             matricula: '',
             admin: false
         });
@@ -64,10 +64,10 @@ const USERRow = (props) => {
         try {
             // Se editingUser tem um ID, então estamos editando um usuário existente
             if (editingUser.id) {
-                await axios.post(`https://localhost:3000/api/user/edit`, editingUser);
+                await axios.post(`/api/user/edit`, editingUser);
             } else {
                 // Se não tem um ID, estamos adicionando um novo usuário
-                await axios.post(`https://localhost:3000/api/user/register`, editingUser);
+                await axios.post(`/api/user/register`, editingUser);
             }
             // Após a requisição bem-sucedida, atualize a lista de usuários e feche o diálogo
             fetchUsers();
@@ -80,7 +80,7 @@ const USERRow = (props) => {
 
     const handleDelete = async () => {
         try {
-            await axios.post(`https://localhost:3000/api/user/delete`, { id: userToDelete });
+            await axios.post(`/api/user/delete`, { id: userToDelete });
             fetchUsers(); // Atualiza a lista de usuários após a exclusão
             handleCloseConfirmDialog();
         } catch (error) {
@@ -134,7 +134,7 @@ const USERRow = (props) => {
                 <TableRow>
                     <TableCell>CPF</TableCell>
                     <TableCell>Nome</TableCell>
-                    <TableCell>Unidade</TableCell>
+                    <TableCell>Lotação</TableCell>
                     <TableCell>Acesso</TableCell>
                     <TableCell></TableCell>
                     <TableCell></TableCell>
@@ -156,7 +156,7 @@ const USERRow = (props) => {
                     sx={{ cursor: 'pointer', "& > *": { borderBottom: "unset" } }}>
                     <TableCell>{formatCnpjCpf(usuario.cpf)}</TableCell>
                     <TableCell>{(usuario.nome).toUpperCase()}</TableCell>
-                    <TableCell>{(usuario.unidade)}</TableCell>
+                    <TableCell>{(usuario.lotacao)}</TableCell>
                     <TableCell>{(usuario.admin === true) ? "Admin" : "Consulta"}</TableCell>
                     <TableCell onClick={() => handleEdit(usuario)}><EditIcon color="primary" /></TableCell>
                     <TableCell onClick={() => handleOpenConfirmDialog(usuario.id)}><ClearIcon sx={{ color: pink[500] }} /></TableCell>
@@ -234,10 +234,10 @@ const USERRow = (props) => {
                     <TextField
                         margin="normal"
                         fullWidth
-                        id="unidade"
+                        id="lotacao"
                         label="Unidade"
-                        value={editingUser ? editingUser.unidade : ''}
-                        onChange={(e) => setEditingUser({ ...editingUser, unidade: e.target.value })}
+                        value={editingUser ? editingUser.lotacao : ''}
+                        onChange={(e) => setEditingUser({ ...editingUser, lotacao: e.target.value })}
                     />
                     <TextField
                         margin="normal"

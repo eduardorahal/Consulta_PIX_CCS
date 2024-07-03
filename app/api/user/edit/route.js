@@ -6,7 +6,7 @@ export async function POST(request) {
     try {
         const body = await request.json()
 
-        const { id, nome, cpf, email, password, unidade, matricula, admin } = body;
+        const { id, nome, cpf, email, password, lotacao, matricula, admin } = body;
 
         let hashedPassword = await hash(password, 10)
 
@@ -19,7 +19,7 @@ export async function POST(request) {
                 cpf,
                 email,
                 password: hashedPassword,
-                unidade,
+                lotacao,
                 matricula,
                 admin
             },
