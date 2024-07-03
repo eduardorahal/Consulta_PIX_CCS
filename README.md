@@ -1,38 +1,48 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Consulta PIX e CCS - LAB-LD da Polícia Civil de Santa Catarina
 
-## Getting Started
+Consulta PIX e CCS desenvolvida no Laboratório de Tecnologia Contra Lavagem de Dinheiro da Polícia Civil de Santa Catarina.
 
-First, run the development server:
+- Desenvolvedor: Agente de Polícia Eduardo Rahal (eduardo-rahal@pc.sc.gov.br)
+- Coordenador: Delegado de Polícia Rodrigo Schneider (rodrigo-schneider@pc.sc.gov.br)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+O uso é restrito às Polícias Judiciárias e demais órgãos cadastradas junto ao Banco Central para efetuar tais consultas.
+Este código não deve ser compartilhado para além deste público alvo.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+INSTRUÇÕES PARA INSTALAÇÃO E EXECUÇÃO:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Aplicação desenvolvida utilizando NEXT JS 13 E REACT.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+1. Fazer download e Instalar NodeJS e Git. (https://www.youtube.com/watch?v=FVuNVtaKvMk - a partir do minuto 3:00)
+   
+2. Preparar um servidor com PostgreSQL para armazenamento dos dados da aplicação. Pode ser local, no mesmo computador em que a aplicação irá rodar. (https://www.youtube.com/watch?v=UbX-2Xud1JA)
+   
+3. Fazer o 'clone' do repositório (https://www.youtube.com/watch?v=HZp1KUvJbnw)
 
-## Learn More
+4. Criar um arquivo '.env' na raiz do projeto, contendo as seguintes variáveis de ambiente:
+    * Atenção: Estas variáveis precisam ser preenchidas com as informações de usuário e senha de cada local.
+    * PostgreSQL, com usuário e senha criados na instalação do PostgreSQL
+    * BACEN: Usuário e Senha fornecidos pelo BACEN
+        
+        DATABASE_URL="postgresql://usuario:senha@localhost:5432/consultapixccs?schema=public"
+        usernameBC="USUÁRIO FORNECIDO PELO BACEN. EX. eju**.s-apiccs"
+        passwordBC="SENHA DE ACESSO"
+   
+5. Rodar o arquivo 'setup.js' que está na raiz do projeto, para instalação das Dependências do Aplicativo, criação do Banco de Dados e Primeiro Usuário ADMIN. O arquivo pode ser editado conforme necessidade do órgão. Para tanto, basta ler os comentários do código. Apenas este usuário precisa ser criado por ali. Os demais poderão ser criados já dentro da interface gráfica da Aplicação. 
 
-To learn more about Next.js, take a look at the following resources:
+    COMANDO: 'node setup.js'
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+6. Para rodar a aplicação, 'npm run dev' ou equivalente
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-
-React-magic-motion
+7. Necessário configurar Imagens e Cabeçalho dos relatórios, que utiliza ferramenta PDFMAKE
+   
+    IMAGENS:
+        Em /public/base64 alterar a logo da PC para a logo do seu órgão. Atentar para as dimensões, para que permaneçam as mesmas, para não deformar a logo.
+   
+    CABEÇALHOS DOS RELATÓRIOS
+        ARQUIVOS:
+            - /app/pix/components/Relatorios/resumidoPIX.js - LINHA 95
+            - /app/pix/components/Relatorios/detalhadoPIX.js - LINHA 134
+            - /app/ccs/components/Relatorios/resumidoCCS.js - LINHA 145
+            - /app/ccs/components/Relatorios/detalhadoCCS.js - LINHA 323
+  
+  Em todos, verificar as importações das Logos nas linhas 7 e 8. Se o nome do arquivo da Logo tiver sido alterado em /public/base64 , deve ser alterado aí também. Imagens são utilizadas em outras linhas destes arquivos, então em caso de alteração dos nomes, localizar e alterar.

@@ -25,10 +25,10 @@ async function main() {
     const existingAdmin = await prisma.usuario.findFirst({ where: { admin: true } });
     if (!existingAdmin) {
       console.log('Criando o usuário admin padrão...');
-      let hashedPassword = await hash('admin', 10) // Substitua pela senha desejada (de preferência, armazene de forma segura)
+      let hashedPassword = await hash('admin', 10) // Substitua 'admin' pela senha desejada (de preferência, armazene de forma segura)
       await prisma.usuario.create({
         data: {
-          nome: 'Admin',
+          nome: 'Admin', // Substitua pelo Nome de Usuário desejado
           cpf: '12345678900', // Substitua pelo CPF desejado
           email: 'admin@admin.com', // Substitua pelo e-mail desejado
           password: hashedPassword,
