@@ -39,8 +39,8 @@ export default function DialogRelacionamentoCCS(props) {
       <React.Fragment>
         <TableRow>
           <TableCell style={{ width: '30%', fontWeight: 'bold' }} variant="overline">{formatCnpjCpf(lista.cpfCnpj)}</TableCell>
-          <TableCell style={{ width: '30%', color: ((lista.numeroRequisicao) ? 'blue' : 'red') }} variant="overline">{lista.numeroRequisicao ? ('Requisição nº ' + lista.numeroRequisicao) : lista.status}</TableCell>
-          <TableCell style={{ width: '40%', color: ((lista.numeroRequisicao) ? 'blue' : 'red') }} variant="overline">{lista.relacionamentosCCS ? (lista.relacionamentosCCS.length + ' relacionamentos no período solicitado.') : lista.msg} </TableCell>
+          <TableCell style={{ width: '30%', color: ((lista.status == 'Sucesso') ? 'blue' : 'red') }} variant="overline">{lista.numeroRequisicao ? ('Requisição nº ' + lista.numeroRequisicao) : lista.status}</TableCell>
+          <TableCell style={{ width: '40%', color: ((lista.status == 'Sucesso') ? 'blue' : 'red') }} variant="overline">{lista.relacionamentosCCS ? (lista.relacionamentosCCS.length + ' relacionamentos no período solicitado.') : lista.msg} </TableCell>
         </TableRow>
       </React.Fragment>
     );
