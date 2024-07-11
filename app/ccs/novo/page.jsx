@@ -189,6 +189,7 @@ const ConsultaCCS = () => {
             )
             .then((response) => response.data[0])
             .then((rel) => {
+              console.log(rel)
               setLista((lista) => [...lista, rel]);
               (rel.relacionamentosCCS) && (
                 rel.relacionamentosCCS.map((item) => {
