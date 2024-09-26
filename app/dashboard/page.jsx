@@ -45,9 +45,9 @@ const Dashboard = () => {
 
     return (
         <Box style={{display: 'flex'}}>
-            {/* <Box width='300px' padding='20px'>
+            <Box width='300px' padding='20px'>
                 <Card sx={{ minWidth: 275, minHeight: 200 }}>
-                    <CardActionArea component={Link} href="/solicitacoes/formLab">
+                    <CardActionArea component={Link} href="/caso/novo">
                         <CardContent sx={{ minWidth: 275, minHeight: 200 }}>
                             <Typography variant="h5" component="div" align='center' padding='10px'>
                                 LAB-LD
@@ -58,7 +58,7 @@ const Dashboard = () => {
                         </CardContent>
                     </CardActionArea>
                 </Card>
-            </Box> */}
+            </Box>
             <Box width='300px' padding='20px'>
                 <Card sx={{ minWidth: 275, minHeight: 200 }}>
                     <CardActionArea  component={Link} href="/pix">

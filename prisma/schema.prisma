@@ -32,11 +32,53 @@ model RequisicaoPix {
   motivoBusca String
   resultado String
   vinculos  Json?
+  chaves ChavePix[]
   autorizado Boolean
   cpfAutorizacao String?
   nomeAutorizacao String?
   dataHoraAutorizacao String?
   tokenAutorizacao String?
+}
+
+model ChavePix {
+  id  Int @id @default(autoincrement())
+  chave	String?
+  tipoChave	String?
+  status String?
+  dataAberturaReivindicacao String?
+  cpfCnpj	String?
+  nomeProprietario String?
+  nomeFantasia String?
+  participante String?
+  agencia	String?
+  numeroConta String?
+  tipoConta String?
+  dataAberturaConta String?
+  proprietarioDaChaveDesde String?
+  dataCriacao String?
+  ultimaModificacao  String?
+  requisicaoPix RequisicaoPix?@relation(fields: [idRequisicao], references: [id])
+  idRequisicao Int
+  eventosVinculo EventoChavePix[]
+}
+
+model EventoChavePix {
+  id  Int @id @default(autoincrement())
+  tipoEvento String?
+  motivoEvento String?
+  dataEvento String?
+  chave String?
+  tipoChave String?
+  cpfCnpj String?
+  nomeProprietario String?
+  nomeFantasia String?
+  participante String?
+  agencia String?
+  numeroConta String?
+  tipoConta String?
+  dataAberturaConta String?
+  chavePix ChavePix?@relation(fields: [idChave], references: [id])
+  idChave Int
 }
 
 model RequisicaoRelacionamentoCCS {

@@ -79,7 +79,43 @@ export async function GET(request) {
                         motivoBusca: motivo,
                         resultado: 'Sucesso',
                         vinculos: chave,
-                        autorizado: true
+                        autorizado: true,
+                        chaves: {
+                            create: {
+                                chave: chave.chave,
+                                tipoChave: chave.tipoChave,
+                                status: chave.status,
+                                dataAberturaReivindicacao: chave.dataAberturaReivindicacao,
+                                cpfCnpj: chave.cpfCnpj,
+                                nomeProprietario: chave.nomeProprietario,
+                                nomeFantasia: chave.nomeFantasia,
+                                participante: chave.participante,
+                                agencia: chave.agencia,
+                                numeroConta: chave.numeroConta,
+                                tipoConta: chave.tipoConta,
+                                dataAberturaConta: chave.dataAberturaConta,
+                                proprietarioDaChaveDesde: chave.proprietarioDaChaveDesde,
+                                dataCriacao: chave.dataCriacao,
+                                ultimaModificacao: chave.ultimaModificacao,
+                                eventosVinculo: {
+                                    create: chave.eventosVinculo.map(evento => ({
+                                        tipoEvento: evento.tipoEvento,
+                                        motivoEvento: evento.motivoEvento,
+                                        dataEvento: evento.dataEvento,
+                                        chave: evento.chave,
+                                        tipoChave: evento.tipoChave,
+                                        cpfCnpj: evento.cpfCnpj,
+                                        nomeProprietario: evento.nomeProprietario,
+                                        nomeFantasia: evento.nomeFantasia,
+                                        participante: evento.participante,
+                                        agencia: evento.agencia,
+                                        numeroConta: evento.numeroConta,
+                                        tipoConta: evento.tipoConta,
+                                        dataAberturaConta: evento.dataAberturaConta
+                                    }))
+                                }
+                            }
+                        },
                     }
                     try {
                         await prisma.requisicaoPix.create({
