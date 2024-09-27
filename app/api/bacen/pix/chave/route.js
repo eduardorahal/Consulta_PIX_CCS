@@ -97,6 +97,10 @@ export async function GET(request) {
                                 proprietarioDaChaveDesde: chave.proprietarioDaChaveDesde,
                                 dataCriacao: chave.dataCriacao,
                                 ultimaModificacao: chave.ultimaModificacao,
+                                numeroBanco: chave.numerobanco,
+                                nomeBanco: chave.nomebanco,
+                                cpfCnpjBusca: chave.cpfCnpjBusca,
+                                nomeProprietarioBusca: chave.nomeProprietarioBusca,
                                 eventosVinculo: {
                                     create: chave.eventosVinculo.map(evento => ({
                                         tipoEvento: evento.tipoEvento,
@@ -111,7 +115,9 @@ export async function GET(request) {
                                         agencia: evento.agencia,
                                         numeroConta: evento.numeroConta,
                                         tipoConta: evento.tipoConta,
-                                        dataAberturaConta: evento.dataAberturaConta
+                                        dataAberturaConta: evento.dataAberturaConta,
+                                        numeroBanco: evento.numerobanco,
+                                        nomeBanco: evento.nomebanco
                                     }))
                                 }
                             }

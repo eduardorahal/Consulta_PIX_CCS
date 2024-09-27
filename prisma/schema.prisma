@@ -57,8 +57,13 @@ model ChavePix {
   proprietarioDaChaveDesde String?
   dataCriacao String?
   ultimaModificacao  String?
+  numeroBanco String?
+  nomeBanco String?
+  cpfCnpjBusca String?
+  nomeProprietarioBusca String?
   requisicaoPix RequisicaoPix?@relation(fields: [idRequisicao], references: [id])
   idRequisicao Int
+  @@unique([chave, idRequisicao])
   eventosVinculo EventoChavePix[]
 }
 
@@ -77,6 +82,8 @@ model EventoChavePix {
   numeroConta String?
   tipoConta String?
   dataAberturaConta String?
+  numeroBanco String?
+  nomeBanco String?
   chavePix ChavePix?@relation(fields: [idChave], references: [id])
   idChave Int
 }
