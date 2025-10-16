@@ -60,7 +60,7 @@ export async function GET(request) {
                         relacionamento.numeroBancoParticipante = (participanteBanco.data.codigoCompensacao ? participanteBanco.data.codigoCompensacao.toLocaleString('en-US', { minimumIntegerDigits: 3, useGrouping: false }) : '000');
                         relacionamento.nomeBancoParticipante = participanteBanco.data.nome;
                     } catch (err) {
-                        relacionamento.cnpjBancoParticipante = relacionamento.cnpjParticipante[0];
+                        relacionamento.cnpjParticipante = relacionamento.cnpjParticipante[0];
                         relacionamento.numeroBancoParticipante = "000";
                         relacionamento.nomeBancoParticipante = "BANCO NÃO INFORMADO";
                     }
